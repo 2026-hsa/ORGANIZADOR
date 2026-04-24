@@ -405,6 +405,79 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
 .backup-btn.import{background:var(--surface2);color:var(--blue);border-color:rgba(96,165,250,0.3)}
 .backup-btn:active{opacity:.75}
 
+
+/* FINANCEIRO */
+.fin-item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)}
+.fin-item:last-child{border-bottom:none}
+.fin-info{flex:1;min-width:0}
+.fin-nome{font-size:13px;font-weight:500;color:var(--text)}
+.fin-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.fin-valor{font-size:14px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.fin-valor.receita{color:var(--green)}
+.fin-valor.despesa{color:var(--red)}
+.resumo-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px;margin-bottom:10px}
+.resumo-card-titulo{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.resumo-linha{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+.resumo-linha:last-child{border-bottom:none}
+.resumo-linha-label{font-size:13px;color:var(--text2)}
+.resumo-linha-val{font-size:13px;font-weight:600}
+.trab-banco-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:8px;padding:11px 14px;display:flex;align-items:center;gap:10px}
+.trab-banco-avatar{width:30px;height:30px;border-radius:50%;background:var(--accentbg);border:1px solid rgba(124,110,250,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent);flex-shrink:0}
+.trab-banco-info{flex:1;min-width:0}
+.trab-banco-nome{font-size:13px;font-weight:500;color:var(--text)}
+.trab-banco-sub{font-size:11px;color:var(--text3);margin-top:2px}
+/* lock senha */
+.lock-screen{text-align:center;padding:50px 20px}
+
+
+/* SENHA OVERLAY */
+.senha-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;display:none;align-items:center;justify-content:center}
+.senha-overlay.open{display:flex}
+.senha-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:28px 24px;width:280px;text-align:center}
+.senha-titulo{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);margin-bottom:6px}
+.senha-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
+.senha-dots{display:flex;justify-content:center;gap:10px;margin-bottom:20px}
+.senha-dot{width:14px;height:14px;border-radius:50%;background:var(--surface3);border:1.5px solid var(--border2);transition:all .15s}
+.senha-dot.filled{background:var(--accent);border-color:var(--accent)}
+.senha-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.senha-key{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-sm);padding:14px 8px;font-family:'Inter',sans-serif;font-size:18px;font-weight:500;color:var(--text);cursor:pointer;transition:all .15s;text-align:center}
+.senha-key:active{background:var(--accentbg);color:var(--accent)}
+.senha-key.del{font-size:14px;color:var(--text3)}
+.senha-erro{font-size:12px;color:var(--red);margin-top:8px;min-height:16px}
+/* ENV com grid de botões (trabalho / família) */
+.env-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.env-btn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 14px;cursor:pointer;transition:all .17s;text-align:left;width:100%}
+.env-btn:active{background:var(--surface2);transform:scale(.97)}
+.env-btn.highlight{border-color:rgba(124,110,250,0.35);background:rgba(124,110,250,0.06)}
+.env-btn-icon{font-size:20px;line-height:1}
+.env-btn-label{font-size:13px;font-weight:600;color:var(--text)}
+.env-btn-sub{font-size:11px;color:var(--text3)}
+/* painel genérico para trabalho/família */
+.env-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-top:10px;overflow:hidden;max-height:0;transition:max-height .32s ease}
+.env-panel.open{max-height:none;overflow:visible}
+.env-panel-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border)}
+.env-panel-title{font-size:14px;font-weight:600;color:var(--text)}
+/* trab banco */
+.trab-form{padding:13px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.trab-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.trab-item:last-child{border-bottom:none}
+.trab-avatar{width:32px;height:32px;border-radius:50%;background:var(--accentbg);border:1px solid rgba(124,110,250,0.25);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--accent);flex-shrink:0}
+.trab-info{flex:1;min-width:0}
+.trab-nome{font-size:14px;font-weight:500;color:var(--text)}
+.trab-sub{font-size:11px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* familia financeiro */
+.fin-item{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.fin-item:last-child{border-bottom:none}
+.fin-tipo{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.fin-tipo.receita{background:var(--greenbg);color:var(--green)}
+.fin-tipo.despesa{background:var(--redbg);color:var(--red)}
+.fin-info{flex:1;min-width:0}
+.fin-desc{font-size:13px;color:var(--text);font-weight:500}
+.fin-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.fin-valor{font-size:14px;font-weight:600;flex-shrink:0}
+.fin-valor.receita{color:var(--green)}
+.fin-valor.despesa{color:var(--red)}
+
 </style>
 </head>
 <body>
@@ -423,8 +496,137 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
   </div>
 
   <div class="content">
-    <div id="trabalho" class="env active"></div>
-    <div id="familia" class="env"></div>
+    <!-- TRABALHO -->
+    <div id="trabalho" class="env active">
+      <div class="sk-grid">
+        <button class="sk-btn highlight" onclick="toggleEnvPanel('trab','banco')">
+          <span class="sk-btn-icon">👥</span>
+          <span class="sk-btn-label">Banco de Dados</span>
+          <span class="sk-btn-sub" id="trab-banco-sub">0 pessoas</span>
+        </button>
+        <button class="sk-btn" onclick="toggleEnvPanel('trab','atividades')">
+          <span class="sk-btn-icon">✅</span>
+          <span class="sk-btn-label">Atividades</span>
+          <span class="sk-btn-sub" id="trab-ativ-sub">0 itens</span>
+        </button>
+        <button class="sk-btn" onclick="toggleEnvPanel('trab','pautas')">
+          <span class="sk-btn-icon">📄</span>
+          <span class="sk-btn-label">Pautas</span>
+          <span class="sk-btn-sub" id="trab-pautas-sub">0 itens</span>
+        </button>
+      </div>
+
+      <!-- PAINEL BANCO TRABALHO -->
+      <div class="sk-panel" id="trab-panel-banco">
+        <div class="sk-panel-header"><span class="sk-panel-title">👥 Banco de Dados</span><button class="sk-close" onclick="closeEnvPanel('trab','banco')">×</button></div>
+        <div class="db-body">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <input class="db-input" id="trab-banco-nome" placeholder="Nome..." style="flex:2">
+            <button class="db-add-btn2" onclick="addTrabBanco()">+ Add</button>
+          </div>
+          <div id="trab-banco-form" style="display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-sm);padding:12px;margin-bottom:12px"></div>
+          <div id="trab-banco-list"></div>
+        </div>
+      </div>
+
+      <!-- PAINEL ATIVIDADES -->
+      <div class="sk-panel" id="trab-panel-atividades">
+        <div class="sk-panel-header"><span class="sk-panel-title">✅ Atividades</span><button class="sk-close" onclick="closeEnvPanel('trab','atividades')">×</button></div>
+        <div class="simple-panel-body">
+          <div class="sp-add-row">
+            <input class="sp-input" id="trab-ativ-input" placeholder="Nova atividade..." onkeydown="if(event.key==='Enter')addTrabSimple('ativ')">
+            <button class="sp-btn" onclick="addTrabSimple('ativ')">+ Add</button>
+          </div>
+          <div id="trab-ativ-list"></div>
+        </div>
+      </div>
+
+      <!-- PAINEL PAUTAS TRABALHO -->
+      <div class="sk-panel" id="trab-panel-pautas">
+        <div class="sk-panel-header"><span class="sk-panel-title">📄 Pautas</span><button class="sk-close" onclick="closeEnvPanel('trab','pautas')">×</button></div>
+        <div class="simple-panel-body">
+          <div class="sp-add-row">
+            <input class="sp-input" id="trab-pautas-input" placeholder="Nova pauta..." onkeydown="if(event.key==='Enter')addTrabSimple('pautas')">
+            <button class="sp-btn" onclick="addTrabSimple('pautas')">+ Add</button>
+          </div>
+          <div id="trab-pautas-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAMÍLIA -->
+    <div id="familia" class="env">
+      <!-- SENHA FAMÍLIA -->
+      <div id="fam-lock" style="display:none;text-align:center;padding:40px 20px">
+        <div style="font-size:40px;margin-bottom:12px">🔒</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Ambiente Família</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:20px">Digite a senha para acessar</div>
+        <input class="sk-input" id="fam-senha-input" type="password" placeholder="Senha..." style="max-width:200px;margin:0 auto 12px;display:block;text-align:center" onkeydown="if(event.key==='Enter')checkSenhaFam()">
+        <button class="btn-save" onclick="checkSenhaFam()">Entrar</button>
+      </div>
+      <div id="fam-content" style="display:none">
+        <div class="sk-grid">
+          <button class="sk-btn highlight" onclick="toggleEnvPanel('fam','banco')">
+            <span class="sk-btn-icon">👥</span>
+            <span class="sk-btn-label">Banco de Dados</span>
+            <span class="sk-btn-sub" id="fam-banco-sub">0 nomes</span>
+          </button>
+          <button class="sk-btn" onclick="toggleEnvPanel('fam','receitas')">
+            <span class="sk-btn-icon">💰</span>
+            <span class="sk-btn-label">Receitas</span>
+            <span class="sk-btn-sub" id="fam-receitas-sub">0 itens</span>
+          </button>
+          <button class="sk-btn" onclick="toggleEnvPanel('fam','despesas')">
+            <span class="sk-btn-icon">💸</span>
+            <span class="sk-btn-label">Despesas</span>
+            <span class="sk-btn-sub" id="fam-despesas-sub">0 itens</span>
+          </button>
+          <button class="sk-btn" onclick="toggleEnvPanel('fam','resumo')">
+            <span class="sk-btn-icon">📊</span>
+            <span class="sk-btn-label">Resumo</span>
+            <span class="sk-btn-sub">Financeiro</span>
+          </button>
+        </div>
+
+        <!-- PAINEL BANCO FAMÍLIA -->
+        <div class="sk-panel" id="fam-panel-banco">
+          <div class="sk-panel-header"><span class="sk-panel-title">👥 Banco de Dados</span><button class="sk-close" onclick="closeEnvPanel('fam','banco')">×</button></div>
+          <div class="db-body">
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <input class="db-input" id="fam-banco-nome" placeholder="Nome da pessoa...">
+              <button class="db-add-btn2" onclick="addFamBanco()">+ Add</button>
+            </div>
+            <div id="fam-banco-list"></div>
+          </div>
+        </div>
+
+        <!-- PAINEL RECEITAS -->
+        <div class="sk-panel" id="fam-panel-receitas">
+          <div class="sk-panel-header"><span class="sk-panel-title">💰 Receitas</span><button class="sk-close" onclick="closeEnvPanel('fam','receitas')">×</button></div>
+          <div class="db-body">
+            <div id="fam-receitas-form-area"></div>
+            <button class="g1-add-btn" id="fam-receitas-add-btn" onclick="abrirFormReceita()">+ Adicionar receita</button>
+            <div id="fam-receitas-list"></div>
+          </div>
+        </div>
+
+        <!-- PAINEL DESPESAS -->
+        <div class="sk-panel" id="fam-panel-despesas">
+          <div class="sk-panel-header"><span class="sk-panel-title">💸 Despesas</span><button class="sk-close" onclick="closeEnvPanel('fam','despesas')">×</button></div>
+          <div class="db-body">
+            <div id="fam-despesas-form-area"></div>
+            <button class="g1-add-btn" id="fam-despesas-add-btn" onclick="abrirFormDespesa()">+ Adicionar despesa</button>
+            <div id="fam-despesas-list"></div>
+          </div>
+        </div>
+
+        <!-- PAINEL RESUMO -->
+        <div class="sk-panel" id="fam-panel-resumo">
+          <div class="sk-panel-header"><span class="sk-panel-title">📊 Resumo Financeiro</span><button class="sk-close" onclick="closeEnvPanel('fam','resumo')">×</button></div>
+          <div class="db-body" id="fam-panel-resumo-body"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- SALÃO DO REINO -->
     <div id="salao" class="env">
@@ -782,11 +984,24 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
 const DAYS=['D','S','T','Q','Q','S','S'];
 
 let state=JSON.parse(localStorage.getItem('org_v4')||'null')||{
-  trabalho:{tasks:[],notes:[],habits:[]},
-  familia:{tasks:[],notes:[],habits:[]},
+  trabalho:{banco:[],ativ:[],pautas:[]},
+  familia:{banco:[],receitas:[],despesas:[]},
   salao:{designacoes:[],historico:[],pautas:[],lembretes:[],anotacoes:[]}
 };
+// Migrar estado antigo se necessário
+if(!state.trabalho.banco) state.trabalho={banco:[],ativ:[],pautas:[]};
+if(!state.familia.banco) state.familia={banco:[],receitas:[],despesas:[]};
 if(!state.salao.historico) state.salao.historico=[];
+// Trabalho
+if(!state.trabalho || typeof state.trabalho.banco === 'undefined') state.trabalho={banco:[],atividades:[],pautas:[]};
+if(!state.trabalho.banco) state.trabalho.banco=[];
+if(!state.trabalho.atividades) state.trabalho.atividades=[];
+if(!state.trabalho.pautas) state.trabalho.pautas=[];
+// Família
+if(!state.familia || typeof state.familia.banco === 'undefined') state.familia={banco:[],receitas:[],despesas:[]};
+if(!state.familia.banco) state.familia.banco=[];
+if(!state.familia.receitas) state.familia.receitas=[];
+if(!state.familia.despesas) state.familia.despesas=[];
 if(!state.salao.banco) state.salao.banco=[];
 if(!state.salao.dmHistorico) state.salao.dmHistorico={};
 if(!state.salao.grupo1) state.salao.grupo1=[];
@@ -805,51 +1020,18 @@ const WDAYS=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
 function setDate(){const d=new Date();document.getElementById('date-pill').textContent=WDAYS[d.getDay()]+', '+d.getDate()+' de '+MONTHS[d.getMonth()];}
 
 function switchTab(env){
+  if(env==='salao' || env==='familia'){
+    pedirSenha(env);
+    return;
+  }
   const names=['trabalho','familia','salao'];
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===env));
   document.querySelectorAll('.env').forEach(e=>e.classList.remove('active'));
   document.getElementById(env).classList.add('active');
-  if(env==='salao') renderSalao();
+  if(env==='trabalho') renderTrab();
 }
 
-/* ── TRABALHO / FAMÍLIA ── */
-function renderEnv(env){
-  const s=state[env];const done=s.tasks.filter(t=>t.done).length;const total=s.tasks.length;
-  let h=`<div class="stats-row">
-    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-lbl">Tarefas</div></div>
-    <div class="stat-card"><div class="stat-num">${done}</div><div class="stat-lbl">Feitas</div></div>
-    <div class="stat-card"><div class="stat-num">${s.notes.length}</div><div class="stat-lbl">Notas</div></div>
-  </div>`;
-  h+=`<div class="section"><div class="section-header"><span class="section-title">Tarefas</span><span class="section-badge">${total}</span></div>
-    <div class="card"><div class="add-row">
-      <input id="${env}-task" placeholder="Adicionar tarefa..." onkeydown="if(event.key==='Enter')addTask('${env}')">
-      <button class="add-btn" onclick="addTask('${env}')">+ Add</button></div>`;
-  if(!total){h+=`<div class="empty"><span class="empty-icon">✓</span>Nenhuma tarefa ainda</div>`;}
-  else{s.tasks.forEach((t,i)=>{h+=`<div class="task-item"><div class="task-cb ${t.done?'checked':''}" onclick="toggleTask('${env}',${i})"></div><span class="task-text ${t.done?'done':''}">${esc(t.text)}</span><button class="del-btn" onclick="delTask('${env}',${i})">×</button></div>`;});
-    const pct=Math.round(done/total*100);
-    h+=`<div class="progress-wrap"><div class="progress-label"><span>${pct}% concluído</span><span>${done}/${total}</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>`;}
-  h+=`</div></div>`;
-  h+=`<div class="section"><div class="section-header"><span class="section-title">Notas</span><span class="section-badge">${s.notes.length}</span></div>
-    <div class="card"><div class="add-row"><textarea id="${env}-note" placeholder="Escrever nota..."></textarea><button class="add-btn" onclick="addNote('${env}')">+ Add</button></div>`;
-  if(!s.notes.length){h+=`<div class="empty"><span class="empty-icon">📝</span>Nenhuma nota ainda</div>`;}
-  else{s.notes.forEach((n,i)=>{h+=`<div class="note-item"><div class="note-dot"></div><span class="note-text">${esc(n)}</span><button class="del-btn" onclick="delNote('${env}',${i})">×</button></div>`;});}
-  h+=`</div></div>`;
-  h+=`<div class="section"><div class="section-header"><span class="section-title">Hábitos</span><span class="section-badge">${s.habits.length}</span></div>
-    <div class="card"><div class="add-row"><input id="${env}-habit" placeholder="Novo hábito..." onkeydown="if(event.key==='Enter')addHabit('${env}')"><button class="add-btn" onclick="addHabit('${env}')">+ Add</button></div>`;
-  if(!s.habits.length){h+=`<div class="empty"><span class="empty-icon">🔥</span>Nenhum hábito ainda</div>`;}
-  else{s.habits.forEach((hb,i)=>{const days=hb.days||Array(7).fill(false);const dots=DAYS.map((d,di)=>`<div class="day-dot ${days[di]?'done':''}" onclick="toggleDay('${env}',${i},${di})">${d}</div>`).join('');
-    h+=`<div class="habit-item"><div class="habit-top"><span class="habit-name">${esc(hb.name)}</span><button class="del-btn" onclick="delHabit('${env}',${i})">×</button></div><div class="habit-days">${dots}</div></div>`;});}
-  h+=`</div></div>`;
-  document.getElementById(env).innerHTML=h;
-}
-function addTask(env){const el=document.getElementById(`${env}-task`);const v=el.value.trim();if(!v)return;state[env].tasks.push({text:v,done:false});el.value='';save();renderEnv(env);}
-function toggleTask(env,i){state[env].tasks[i].done=!state[env].tasks[i].done;save();renderEnv(env);}
-function delTask(env,i){state[env].tasks.splice(i,1);save();renderEnv(env);}
-function addNote(env){const el=document.getElementById(`${env}-note`);const v=el.value.trim();if(!v)return;state[env].notes.unshift(v);el.value='';save();renderEnv(env);}
-function delNote(env,i){state[env].notes.splice(i,1);save();renderEnv(env);}
-function addHabit(env){const el=document.getElementById(`${env}-habit`);const v=el.value.trim();if(!v)return;state[env].habits.push({name:v,days:Array(7).fill(false)});el.value='';save();renderEnv(env);}
-function delHabit(env,i){state[env].habits.splice(i,1);save();renderEnv(env);}
-function toggleDay(env,hi,di){state[env].habits[hi].days[di]=!state[env].habits[hi].days[di];save();renderEnv(env);}
+function renderEnv(env){} // legacy stub
 
 /* ── SALÃO — PAINÉIS ── */
 const PANELS=['resumo','designacao','pautas','lembretes','anotacoes','banco','desigmec','grupo1','anuncios'];
@@ -2261,13 +2443,23 @@ function importarDados(input) {
       // Recarrega estado
       state = JSON.parse(localStorage.getItem('org_v4'));
       if(!state.salao.historico) state.salao.historico=[];
+// Trabalho
+if(!state.trabalho || typeof state.trabalho.banco === 'undefined') state.trabalho={banco:[],atividades:[],pautas:[]};
+if(!state.trabalho.banco) state.trabalho.banco=[];
+if(!state.trabalho.atividades) state.trabalho.atividades=[];
+if(!state.trabalho.pautas) state.trabalho.pautas=[];
+// Família
+if(!state.familia || typeof state.familia.banco === 'undefined') state.familia={banco:[],receitas:[],despesas:[]};
+if(!state.familia.banco) state.familia.banco=[];
+if(!state.familia.receitas) state.familia.receitas=[];
+if(!state.familia.despesas) state.familia.despesas=[];
       if(!state.salao.banco) state.salao.banco=[];
       if(!state.salao.dmHistorico) state.salao.dmHistorico={};
       if(!state.salao.dmGeradas) state.salao.dmGeradas={};
       if(!state.salao.grupo1) state.salao.grupo1=[];
       if(!state.salao.anuncios) state.salao.anuncios=[];
       // Re-renderiza tudo
-      ['trabalho','familia'].forEach(renderEnv);
+      renderTrabalho();
       renderSalao();
       alert('✅ Backup importado com sucesso! Todos os dados foram restaurados.');
     } catch(err) {
@@ -2278,9 +2470,707 @@ function importarDados(input) {
   reader.readAsText(file);
 }
 
+
+/* TRABALHO - use toggleTPanel/closeTPanel above */
+
+/* Banco/simples trabalho - use renderTrabBanco/renderEnvSimple above */
+
+/* FAM panels - use toggleFPanel/closeFPanel above */
+
+/* Banco família */
+function addFamBanco() {
+  const el = document.getElementById('fam-banco-nome');
+  const nome = el.value.trim(); if (!nome) return;
+  if (state.familia.banco.find(x=>x.toLowerCase()===nome.toLowerCase())) { alert('Já cadastrado.'); return; }
+  state.familia.banco.push(nome);
+  state.familia.banco.sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  el.value=''; save(); renderFamBanco(); renderFamSubs();
+}
+function delFamBanco(idx) {
+  if (!confirm('Excluir?')) return;
+  state.familia.banco.splice(idx,1);
+  save(); renderFamBanco(); renderFamSubs();
+}
+function renderFamBanco() {
+  const el = document.getElementById('fam-banco-list');
+  if (!el) return;
+  const lista = state.familia.banco;
+  if (!lista.length) { el.innerHTML='<div class="empty"><span class="empty-icon">👥</span>Nenhum nome cadastrado</div>'; return; }
+  el.innerHTML = lista.map((n,i)=>`
+    <div class="g1-item">
+      <span style="flex:1;font-size:14px;color:var(--text)">${esc(n)}</span>
+      <button class="act-btn del" onclick="delFamBanco(${i})">🗑</button>
+    </div>`).join('');
+}
+
+/* Receitas */
+let receitaEditId = null;
+function abrirFormReceita(id) {
+  receitaEditId = id || null;
+  const r = id ? state.familia.receitas.find(x=>x.id===id) : null;
+  document.getElementById('fam-receitas-add-btn').style.display='none';
+  const opts = state.familia.banco.map(n=>`<option value="${esc(n)}" ${r?.nome===n?'selected':''}>${esc(n)}</option>`).join('');
+  document.getElementById('fam-receitas-form-area').innerHTML = `
+    <div class="g1-form">
+      <div class="g1-form-title">${r?'Editar receita':'Nova receita'}</div>
+      <div class="field-label">Nome</div>
+      <select class="sk-select" id="rec-nome"><option value="">Selecione...</option>${opts}</select>
+      <div class="field-label">Data</div>
+      <input class="sk-input" id="rec-data" type="date" value="${r?.data||''}">
+      <div class="field-label">Valor (R$)</div>
+      <input class="sk-input" id="rec-valor" type="number" step="0.01" min="0" placeholder="0,00" value="${r?.valor||''}">
+      <div class="sk-form-footer">
+        <button class="btn-cancel" onclick="cancelFormReceita()">Cancelar</button>
+        <button class="btn-save" onclick="salvarReceita()">Salvar</button>
+      </div>
+    </div>`;
+}
+function cancelFormReceita() {
+  document.getElementById('fam-receitas-form-area').innerHTML='';
+  document.getElementById('fam-receitas-add-btn').style.display='';
+  receitaEditId = null;
+}
+function salvarReceita() {
+  const nome = document.getElementById('rec-nome').value;
+  const data = document.getElementById('rec-data').value;
+  const valor = parseFloat(document.getElementById('rec-valor').value);
+  if (!nome||!data||isNaN(valor)) { alert('Preencha todos os campos.'); return; }
+  const item = { id: receitaEditId||Date.now(), nome, data, valor };
+  if (receitaEditId) {
+    const idx = state.familia.receitas.findIndex(x=>x.id===receitaEditId);
+    if (idx!==-1) state.familia.receitas[idx]=item;
+  } else {
+    state.familia.receitas.push(item);
+  }
+  state.familia.receitas.sort((a,b)=>b.data.localeCompare(a.data));
+  cancelFormReceita(); save(); renderFamReceitas(); renderFamSubs();
+}
+function delReceita(id) {
+  if (!confirm('Excluir?')) return;
+  state.familia.receitas = state.familia.receitas.filter(x=>x.id!==id);
+  save(); renderFamReceitas(); renderFamSubs();
+}
+function renderFamReceitas() {
+  const el = document.getElementById('fam-receitas-list');
+  if (!el) return;
+  const lista = state.familia.receitas;
+  if (!lista.length) { el.innerHTML='<div class="empty"><span class="empty-icon">💰</span>Nenhuma receita ainda</div>'; return; }
+  const total = lista.reduce((s,r)=>s+r.valor,0);
+  el.innerHTML = `<div style="padding:8px 0 12px;font-size:12px;color:var(--green);font-weight:600">Total: R$ ${total.toFixed(2).replace('.',',')}</div>` +
+    lista.map(r=>`
+    <div class="fin-item">
+      <div class="fin-info">
+        <div class="fin-nome">${esc(r.nome)}</div>
+        <div class="fin-sub">${fmtDataBR(r.data)}</div>
+      </div>
+      <span class="fin-valor receita">R$ ${r.valor.toFixed(2).replace('.',',')}</span>
+      <button class="act-btn edit" onclick="abrirFormReceita(${r.id})">✏️</button>
+      <button class="act-btn del" onclick="delReceita(${r.id})">🗑</button>
+    </div>`).join('');
+}
+
+/* Despesas */
+let despesaEditId = null;
+function abrirFormDespesa(id) {
+  despesaEditId = id || null;
+  const d = id ? state.familia.despesas.find(x=>x.id===id) : null;
+  document.getElementById('fam-despesas-add-btn').style.display='none';
+  const opts = state.familia.banco.map(n=>`<option value="${esc(n)}" ${d?.nome===n?'selected':''}>${esc(n)}</option>`).join('');
+  document.getElementById('fam-despesas-form-area').innerHTML = `
+    <div class="g1-form">
+      <div class="g1-form-title">${d?'Editar despesa':'Nova despesa'}</div>
+      <div class="field-label">Descrição</div>
+      <select class="sk-select" id="desp-nome"><option value="">Selecione...</option>${opts}</select>
+      <div class="field-label">Valor (R$)</div>
+      <input class="sk-input" id="desp-valor" type="number" step="0.01" min="0" placeholder="0,00" value="${d?.valor||''}">
+      <div class="field-label">Data</div>
+      <input class="sk-input" id="desp-data" type="date" value="${d?.data||''}">
+      <div class="field-label">Quem gastou</div>
+      <select class="sk-select" id="desp-quem">
+        <option value="">Selecione...</option>
+        <option value="Vanessa" ${d?.quem==='Vanessa'?'selected':''}>Vanessa</option>
+        <option value="Rodrigo" ${d?.quem==='Rodrigo'?'selected':''}>Rodrigo</option>
+        <option value="Família" ${d?.quem==='Família'?'selected':''}>Família</option>
+      </select>
+      <div class="sk-form-footer">
+        <button class="btn-cancel" onclick="cancelFormDespesa()">Cancelar</button>
+        <button class="btn-save" onclick="salvarDespesa()">Salvar</button>
+      </div>
+    </div>`;
+}
+function cancelFormDespesa() {
+  document.getElementById('fam-despesas-form-area').innerHTML='';
+  document.getElementById('fam-despesas-add-btn').style.display='';
+  despesaEditId = null;
+}
+function salvarDespesa() {
+  const nome = document.getElementById('desp-nome').value;
+  const valor = parseFloat(document.getElementById('desp-valor').value);
+  const data = document.getElementById('desp-data').value;
+  const quem = document.getElementById('desp-quem').value;
+  if (!nome||isNaN(valor)||!data||!quem) { alert('Preencha todos os campos.'); return; }
+  const item = { id: despesaEditId||Date.now(), nome, valor, data, quem };
+  if (despesaEditId) {
+    const idx = state.familia.despesas.findIndex(x=>x.id===despesaEditId);
+    if (idx!==-1) state.familia.despesas[idx]=item;
+  } else {
+    state.familia.despesas.push(item);
+  }
+  state.familia.despesas.sort((a,b)=>b.data.localeCompare(a.data));
+  cancelFormDespesa(); save(); renderFamDespesas(); renderFamSubs();
+}
+function delDespesa(id) {
+  if (!confirm('Excluir?')) return;
+  state.familia.despesas = state.familia.despesas.filter(x=>x.id!==id);
+  save(); renderFamDespesas(); renderFamSubs();
+}
+function renderFamDespesas() {
+  const el = document.getElementById('fam-despesas-list');
+  if (!el) return;
+  const lista = state.familia.despesas;
+  if (!lista.length) { el.innerHTML='<div class="empty"><span class="empty-icon">💸</span>Nenhuma despesa ainda</div>'; return; }
+  const total = lista.reduce((s,d)=>s+d.valor,0);
+  el.innerHTML = `<div style="padding:8px 0 12px;font-size:12px;color:var(--red);font-weight:600">Total: R$ ${total.toFixed(2).replace('.',',')}</div>` +
+    lista.map(d=>`
+    <div class="fin-item">
+      <div class="fin-info">
+        <div class="fin-nome">${esc(d.nome)}</div>
+        <div class="fin-sub">${fmtDataBR(d.data)} · ${esc(d.quem)}</div>
+      </div>
+      <span class="fin-valor despesa">R$ ${d.valor.toFixed(2).replace('.',',')}</span>
+      <button class="act-btn edit" onclick="abrirFormDespesa(${d.id})">✏️</button>
+      <button class="act-btn del" onclick="delDespesa(${d.id})">🗑</button>
+    </div>`).join('');
+}
+
+/* Resumo família */
+function renderFamResumo() {
+  const el = document.getElementById('fam-panel-resumo-body') || document.getElementById('fam-resumo-body');
+  if (!el) return;
+  const receitas = state.familia.receitas;
+  const despesas = state.familia.despesas;
+  const totalRec = receitas.reduce((s,r)=>s+r.valor,0);
+  const totalDesp = despesas.reduce((s,d)=>s+d.valor,0);
+  const saldo = totalRec - totalDesp;
+  const saldoCor = saldo>=0?'var(--green)':'var(--red)';
+
+  // Por pessoa
+  const porPessoa = {};
+  despesas.forEach(d=>{
+    if (!porPessoa[d.quem]) porPessoa[d.quem]={desp:0};
+    porPessoa[d.quem].desp += d.valor;
+  });
+
+  const pessoaRows = Object.entries(porPessoa).map(([nome,v])=>
+    `<div class="resumo-linha">
+      <span class="resumo-linha-label">${esc(nome)}</span>
+      <span class="resumo-linha-val" style="color:var(--red)">R$ ${v.desp.toFixed(2).replace('.',',')}</span>
+    </div>`).join('');
+
+  el.innerHTML = `
+    <div class="resumo-card">
+      <div class="resumo-card-titulo">Visão geral</div>
+      <div class="resumo-linha"><span class="resumo-linha-label">Total Receitas</span><span class="resumo-linha-val" style="color:var(--green)">R$ ${totalRec.toFixed(2).replace('.',',')}</span></div>
+      <div class="resumo-linha"><span class="resumo-linha-label">Total Despesas</span><span class="resumo-linha-val" style="color:var(--red)">R$ ${totalDesp.toFixed(2).replace('.',',')}</span></div>
+      <div class="resumo-linha"><span class="resumo-linha-label" style="font-weight:600">Saldo</span><span class="resumo-linha-val" style="color:${saldoCor};font-size:15px">R$ ${saldo.toFixed(2).replace('.',',')}</span></div>
+    </div>
+    ${pessoaRows.length?`<div class="resumo-card"><div class="resumo-card-titulo">Despesas por pessoa</div>${pessoaRows}</div>`:''}`;
+}
+
+
+
+/* ══════════════════════════════
+   SENHA
+══════════════════════════════ */
+const SENHA_SALAO = '1234';
+let senhaBuffer = '';
+let senhaTarget = '';
+
+function pedirSenha(target) {
+  senhaTarget = target;
+  senhaBuffer = '';
+  atualizarDots();
+  document.getElementById('senha-erro').textContent = '';
+  document.getElementById('senha-overlay').classList.add('open');
+}
+
+function senhaDigit(d) {
+  if (senhaBuffer.length >= 4) return;
+  senhaBuffer += d;
+  atualizarDots();
+  if (senhaBuffer.length === 4) {
+    setTimeout(() => verificarSenha(), 150);
+  }
+}
+
+function senhaDel() {
+  senhaBuffer = senhaBuffer.slice(0, -1);
+  atualizarDots();
+  document.getElementById('senha-erro').textContent = '';
+}
+
+function atualizarDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('sd' + i).classList.toggle('filled', i < senhaBuffer.length);
+  }
+}
+
+function verificarSenha() {
+  if (senhaBuffer === SENHA_SALAO) {
+    document.getElementById('senha-overlay').classList.remove('open');
+    const names = ['trabalho', 'familia', 'salao'];
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', names[i] === senhaTarget));
+    document.querySelectorAll('.env').forEach(e => e.classList.remove('active'));
+    document.getElementById(senhaTarget).classList.add('active');
+    if (senhaTarget === 'salao') renderSalao();
+    if (senhaTarget === 'familia') renderFam();
+    senhaBuffer = '';
+  } else {
+    document.getElementById('senha-erro').textContent = 'Senha incorreta. Tente novamente.';
+    senhaBuffer = '';
+    atualizarDots();
+  }
+}
+
+/* ══════════════════════════════
+   TRABALHO — PAINEL GENÉRICO
+══════════════════════════════ */
+const TRAB_PANELS = ['banco','atividades','pautas'];
+const FAM_PANELS  = ['banco','receitas','despesas','resumo'];
+
+function toggleEnvPanel(env, name) {
+  const panels = env === 'trab' ? TRAB_PANELS : FAM_PANELS;
+  const panelId = env + '-panel-' + name;
+  const panel = document.getElementById(panelId);
+  const isOpen = panel.classList.contains('open');
+  panels.forEach(p => document.getElementById(env + '-panel-' + p)?.classList.remove('open'));
+  if (!isOpen) {
+    panel.classList.add('open');
+    if (env === 'trab') {
+      if (name === 'banco') renderTrabBanco();
+      if (name === 'atividades') renderEnvSimple('trab', 'atividades');
+      if (name === 'pautas') renderEnvSimple('trab', 'pautas');
+    } else {
+      if (name === 'banco') renderFamBanco();
+      if (name === 'receitas') renderReceitas();
+      if (name === 'despesas') renderDespesas();
+      if (name === 'resumo') renderFamResumo();
+    }
+  }
+}
+
+function closeEnvPanel(env, name) {
+  document.getElementById(env + '-panel-' + name)?.classList.remove('open');
+}
+
+/* ── TRABALHO: render badges ── */
+function renderTrab() {
+  const t = state.trabalho;
+  const bb = document.getElementById('trab-banco-sub');
+  if (bb) bb.textContent = (t.banco?.length||0) + ' contatos';
+  const ab = document.getElementById('trab-ativ-sub');
+  if (ab) ab.textContent = (t.atividades?.length||0) + ' itens';
+  const pb = document.getElementById('trab-pauta-sub');
+  if (pb) pb.textContent = (t.pautas?.length||0) + ' itens';
+}
+
+/* ── TRABALHO: BANCO ── */
+let trabBancoEditId = null;
+
+function abrirFormTrabBanco(id) {
+  trabBancoEditId = id || null;
+  const p = id ? state.trabalho.banco.find(x => x.id === id) : null;
+  document.getElementById('trab-banco-add-btn').style.display = 'none';
+  document.getElementById('trab-banco-form').innerHTML = `
+    <div class="trab-form">
+      <div class="g1-form-title">${p ? 'Editar' : 'Novo contato'}</div>
+      <div class="field-label">Nome</div>
+      <input class="sk-input" id="tb-nome" placeholder="Nome completo..." value="${esc(p?.nome||'')}">
+      <div class="field-label">Email</div>
+      <input class="sk-input" id="tb-email" placeholder="email@exemplo.com" value="${esc(p?.email||'')}">
+      <div class="field-label">Telefone</div>
+      <input class="sk-input" id="tb-tel" placeholder="(xx) xxxxx-xxxx" value="${esc(p?.tel||'')}" oninput="mascaraTel(this)">
+      <div class="sk-form-footer" style="margin-top:8px">
+        <button class="btn-cancel" onclick="cancelTrabBanco()">Cancelar</button>
+        <button class="btn-save" onclick="salvarTrabBanco()">Salvar</button>
+      </div>
+    </div>`;
+}
+
+function cancelTrabBanco() {
+  trabBancoEditId = null;
+  document.getElementById('trab-banco-form').innerHTML = '';
+  document.getElementById('trab-banco-add-btn').style.display = '';
+}
+
+function salvarTrabBanco() {
+  const nome = document.getElementById('tb-nome').value.trim();
+  if (!nome) { alert('Informe o nome.'); return; }
+  const item = {
+    id: trabBancoEditId || Date.now(),
+    nome,
+    email: document.getElementById('tb-email').value.trim(),
+    tel:   document.getElementById('tb-tel').value.trim()
+  };
+  if (trabBancoEditId) {
+    const idx = state.trabalho.banco.findIndex(x => x.id === trabBancoEditId);
+    if (idx !== -1) state.trabalho.banco[idx] = item;
+  } else {
+    state.trabalho.banco.push(item);
+  }
+  state.trabalho.banco.sort((a,b) => a.nome.localeCompare(b.nome,'pt-BR'));
+  save(); cancelTrabBanco(); renderTrabBanco(); renderTrab();
+}
+
+function delTrabBanco(id) {
+  if (!confirm('Excluir este contato?')) return;
+  state.trabalho.banco = state.trabalho.banco.filter(x => x.id !== id);
+  save(); renderTrabBanco(); renderTrab();
+}
+
+function renderTrabBanco() {
+  const el = document.getElementById('trab-banco-list');
+  if (!el) return;
+  const lista = state.trabalho.banco;
+  if (!lista.length) { el.innerHTML = '<div class="empty"><span class="empty-icon">👥</span>Nenhum contato ainda</div>'; return; }
+  el.innerHTML = lista.map(p => {
+    const ini = p.nome.trim().split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    return `<div class="trab-item">
+      <div class="trab-avatar">${ini}</div>
+      <div class="trab-info">
+        <div class="trab-nome">${esc(p.nome)}</div>
+        <div class="trab-sub">${[p.email, p.tel].filter(Boolean).join(' · ')}</div>
+      </div>
+      <div class="resumo-actions">
+        <button class="act-btn edit" onclick="abrirFormTrabBanco(${p.id})">✏️</button>
+        <button class="act-btn del" onclick="delTrabBanco(${p.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── TRABALHO/FAM: SIMPLES ── */
+function addEnvSimple(env, tipo) {
+  const inputId = env + '-' + tipo.replace('atividades','ativ').replace('pautas','pauta') + '-input';
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  const v = el.value.trim(); if (!v) return;
+  if (env === 'trab') state.trabalho[tipo].unshift(v);
+  el.value = '';
+  save(); renderEnvSimple(env, tipo);
+  if (env === 'trab') renderTrab();
+}
+
+function delEnvSimple(env, tipo, i) {
+  if (env === 'trab') state.trabalho[tipo].splice(i,1);
+  save(); renderEnvSimple(env, tipo);
+  if (env === 'trab') renderTrab();
+}
+
+function renderEnvSimple(env, tipo) {
+  const listId = env + '-' + tipo + '-list';
+  const el = document.getElementById(listId);
+  if (!el) return;
+  const items = env === 'trab' ? state.trabalho[tipo] : [];
+  if (!items.length) { el.innerHTML = '<div class="empty" style="padding:12px 0">Nenhum item ainda</div>'; return; }
+  el.innerHTML = items.map((t,i) => `
+    <div class="sp-item" style="padding:8px 14px">
+      <div class="sp-dot" style="background:var(--accent)"></div>
+      <span class="sp-text">${esc(t)}</span>
+      <button class="sp-del" onclick="delEnvSimple('${env}','${tipo}',${i})">×</button>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════
+   FAMÍLIA — BANCO
+══════════════════════════════ */
+let famBancoEditId = null;
+
+function abrirFormFamBanco(id) {
+  famBancoEditId = id || null;
+  const p = id ? state.familia.banco.find(x => x.id === id) : null;
+  document.getElementById('fam-banco-add-btn').style.display = 'none';
+  document.getElementById('fam-banco-form').innerHTML = `
+    <div class="trab-form">
+      <div class="g1-form-title">${p ? 'Editar' : 'Novo nome'}</div>
+      <div class="field-label">Nome</div>
+      <input class="sk-input" id="fb-nome" placeholder="Nome..." value="${esc(p?.nome||'')}">
+      <div class="sk-form-footer" style="margin-top:8px">
+        <button class="btn-cancel" onclick="cancelFamBanco()">Cancelar</button>
+        <button class="btn-save" onclick="salvarFamBanco()">Salvar</button>
+      </div>
+    </div>`;
+}
+
+function cancelFamBanco() {
+  famBancoEditId = null;
+  document.getElementById('fam-banco-form').innerHTML = '';
+  document.getElementById('fam-banco-add-btn').style.display = '';
+}
+
+function salvarFamBanco() {
+  const nome = document.getElementById('fb-nome').value.trim();
+  if (!nome) { alert('Informe o nome.'); return; }
+  const item = { id: famBancoEditId || Date.now(), nome };
+  if (famBancoEditId) {
+    const idx = state.familia.banco.findIndex(x => x.id === famBancoEditId);
+    if (idx !== -1) state.familia.banco[idx] = item;
+  } else {
+    state.familia.banco.push(item);
+  }
+  state.familia.banco.sort((a,b) => a.nome.localeCompare(b.nome,'pt-BR'));
+  save(); cancelFamBanco(); renderFamBanco(); renderFam();
+}
+
+function delFamBanco(id) {
+  if (!confirm('Excluir?')) return;
+  state.familia.banco = state.familia.banco.filter(x => x.id !== id);
+  save(); renderFamBanco(); renderFam();
+}
+
+function renderFamBanco() {
+  const el = document.getElementById('fam-banco-list');
+  if (!el) return;
+  const lista = state.familia.banco;
+  if (!lista.length) { el.innerHTML = '<div class="empty"><span class="empty-icon">👥</span>Nenhum nome ainda</div>'; return; }
+  el.innerHTML = lista.map(p => `
+    <div class="trab-item">
+      <div class="trab-avatar">${p.nome[0].toUpperCase()}</div>
+      <div class="trab-info"><div class="trab-nome">${esc(p.nome)}</div></div>
+      <div class="resumo-actions">
+        <button class="act-btn edit" onclick="abrirFormFamBanco(${p.id})">✏️</button>
+        <button class="act-btn del" onclick="delFamBanco(${p.id})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════
+   FAMÍLIA — RECEITAS
+══════════════════════════════ */
+let recEditId = null;
+
+function famSelectNomes() {
+  return state.familia.banco.map(p => `<option value="${esc(p.nome)}">${esc(p.nome)}</option>`).join('');
+}
+
+function abrirFormReceita(id) {
+  recEditId = id || null;
+  const r = id ? state.familia.receitas.find(x => x.id === id) : null;
+  document.getElementById('fam-rec-add-btn').style.display = 'none';
+  document.getElementById('fam-rec-form').innerHTML = `
+    <div class="trab-form">
+      <div class="g1-form-title">${r ? 'Editar receita' : 'Nova receita'}</div>
+      <div class="field-label">Nome (de quem)</div>
+      <select class="sk-select" id="rec-nome"><option value="">Selecione...</option>${famSelectNomes()}</select>
+      <div class="field-label">Descrição</div>
+      <input class="sk-input" id="rec-desc" placeholder="Ex: Salário, freelance..." value="${esc(r?.desc||'')}">
+      <div class="field-label">Valor (R$)</div>
+      <input class="sk-input" id="rec-valor" type="number" step="0.01" placeholder="0,00" value="${r?.valor||''}">
+      <div class="field-label">Data</div>
+      <input class="sk-input" id="rec-data" type="date" value="${r?.data||''}">
+      <div class="sk-form-footer" style="margin-top:8px">
+        <button class="btn-cancel" onclick="cancelReceita()">Cancelar</button>
+        <button class="btn-save" onclick="salvarReceita()">Salvar</button>
+      </div>
+    </div>`;
+  if (r) document.getElementById('rec-nome').value = r.nome;
+}
+
+function cancelReceita() {
+  recEditId = null;
+  document.getElementById('fam-rec-form').innerHTML = '';
+  document.getElementById('fam-rec-add-btn').style.display = '';
+}
+
+function salvarReceita() {
+  const nome = document.getElementById('rec-nome').value;
+  const desc = document.getElementById('rec-desc').value.trim();
+  const valor = parseFloat(document.getElementById('rec-valor').value);
+  const data = document.getElementById('rec-data').value;
+  if (!nome || !valor || !data) { alert('Preencha nome, valor e data.'); return; }
+  const item = { id: recEditId || Date.now(), nome, desc, valor, data };
+  if (recEditId) {
+    const idx = state.familia.receitas.findIndex(x => x.id === recEditId);
+    if (idx !== -1) state.familia.receitas[idx] = item;
+  } else {
+    state.familia.receitas.push(item);
+  }
+  state.familia.receitas.sort((a,b) => b.data.localeCompare(a.data));
+  save(); cancelReceita(); renderReceitas(); renderFam();
+}
+
+function delReceita(id) {
+  if (!confirm('Excluir receita?')) return;
+  state.familia.receitas = state.familia.receitas.filter(x => x.id !== id);
+  save(); renderReceitas(); renderFam();
+}
+
+function renderReceitas() {
+  const el = document.getElementById('fam-receitas-list');
+  if (!el) return;
+  const lista = state.familia.receitas;
+  if (!lista.length) { el.innerHTML = '<div class="empty"><span class="empty-icon">💰</span>Nenhuma receita ainda</div>'; return; }
+  el.innerHTML = lista.map(r => `
+    <div class="fin-item">
+      <span class="fin-tipo receita">Receita</span>
+      <div class="fin-info">
+        <div class="fin-desc">${esc(r.desc||r.nome)}</div>
+        <div class="fin-meta">${esc(r.nome)} · ${fmtData(r.data)}</div>
+      </div>
+      <span class="fin-valor receita">R$ ${Number(r.valor).toFixed(2).replace('.',',')}</span>
+      <div class="resumo-actions" style="margin-left:6px">
+        <button class="act-btn edit" onclick="abrirFormReceita(${r.id})">✏️</button>
+        <button class="act-btn del" onclick="delReceita(${r.id})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════
+   FAMÍLIA — DESPESAS
+══════════════════════════════ */
+let despEditId = null;
+
+function abrirFormDespesa(id) {
+  despEditId = id || null;
+  const d = id ? state.familia.despesas.find(x => x.id === id) : null;
+  document.getElementById('fam-desp-add-btn').style.display = 'none';
+  document.getElementById('fam-desp-form').innerHTML = `
+    <div class="trab-form">
+      <div class="g1-form-title">${d ? 'Editar despesa' : 'Nova despesa'}</div>
+      <div class="field-label">Categoria</div>
+      <select class="sk-select" id="desp-nome"><option value="">Selecione...</option>${famSelectNomes()}</select>
+      <div class="field-label">Descrição</div>
+      <input class="sk-input" id="desp-desc" placeholder="Ex: Supermercado, conta de luz..." value="${esc(d?.desc||'')}">
+      <div class="field-label">Valor (R$)</div>
+      <input class="sk-input" id="desp-valor" type="number" step="0.01" placeholder="0,00" value="${d?.valor||''}">
+      <div class="field-label">Data</div>
+      <input class="sk-input" id="desp-data" type="date" value="${d?.data||''}">
+      <div class="field-label">Quem gastou</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        ${['Vanessa','Rodrigo','Família'].map(q=>`<button type="button" class="dm-month-btn ${d?.quem===q?'selected':''}" style="flex:1;padding:10px 4px" id="qb-${q}" onclick="selecionarQuem('${q}')">${q}</button>`).join('')}
+      </div>
+      <input type="hidden" id="desp-quem" value="${d?.quem||''}">
+      <div class="sk-form-footer" style="margin-top:8px">
+        <button class="btn-cancel" onclick="cancelDespesa()">Cancelar</button>
+        <button class="btn-save" onclick="salvarDespesa()">Salvar</button>
+      </div>
+    </div>`;
+  if (d) document.getElementById('desp-nome').value = d.nome;
+}
+
+function selecionarQuem(q) {
+  document.getElementById('desp-quem').value = q;
+  ['Vanessa','Rodrigo','Família'].forEach(x => document.getElementById('qb-'+x)?.classList.toggle('selected', x===q));
+}
+
+function cancelDespesa() {
+  despEditId = null;
+  document.getElementById('fam-desp-form').innerHTML = '';
+  document.getElementById('fam-desp-add-btn').style.display = '';
+}
+
+function salvarDespesa() {
+  const nome = document.getElementById('desp-nome').value;
+  const desc = document.getElementById('desp-desc').value.trim();
+  const valor = parseFloat(document.getElementById('desp-valor').value);
+  const data = document.getElementById('desp-data').value;
+  const quem = document.getElementById('desp-quem').value;
+  if (!nome || !valor || !data || !quem) { alert('Preencha todos os campos incluindo quem gastou.'); return; }
+  const item = { id: despEditId || Date.now(), nome, desc, valor, data, quem };
+  if (despEditId) {
+    const idx = state.familia.despesas.findIndex(x => x.id === despEditId);
+    if (idx !== -1) state.familia.despesas[idx] = item;
+  } else {
+    state.familia.despesas.push(item);
+  }
+  state.familia.despesas.sort((a,b) => b.data.localeCompare(a.data));
+  save(); cancelDespesa(); renderDespesas(); renderFam();
+}
+
+function delDespesa(id) {
+  if (!confirm('Excluir despesa?')) return;
+  state.familia.despesas = state.familia.despesas.filter(x => x.id !== id);
+  save(); renderDespesas(); renderFam();
+}
+
+function renderDespesas() {
+  const el = document.getElementById('fam-despesas-list');
+  if (!el) return;
+  const lista = state.familia.despesas;
+  if (!lista.length) { el.innerHTML = '<div class="empty"><span class="empty-icon">💸</span>Nenhuma despesa ainda</div>'; return; }
+  el.innerHTML = lista.map(d => `
+    <div class="fin-item">
+      <span class="fin-tipo despesa">${esc(d.quem)}</span>
+      <div class="fin-info">
+        <div class="fin-desc">${esc(d.desc||d.nome)}</div>
+        <div class="fin-meta">${esc(d.nome)} · ${fmtData(d.data)}</div>
+      </div>
+      <span class="fin-valor despesa">R$ ${Number(d.valor).toFixed(2).replace('.',',')}</span>
+      <div class="resumo-actions" style="margin-left:6px">
+        <button class="act-btn edit" onclick="abrirFormDespesa(${d.id})">✏️</button>
+        <button class="act-btn del" onclick="delDespesa(${d.id})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ── FAMÍLIA: render badges ── */
+function renderFam() {
+  const f = state.familia;
+  const bb = document.getElementById('fam-banco-sub');
+  if (bb) bb.textContent = (f.banco?.length||0) + ' nomes';
+  const rb = document.getElementById('fam-rec-sub');
+  if (rb) rb.textContent = (f.receitas?.length||0) + ' itens';
+  const db = document.getElementById('fam-desp-sub');
+  if (db) db.textContent = (f.despesas?.length||0) + ' itens';
+}
+
+/* ── FAMÍLIA: RESUMO (placeholder) ── */
+function renderFamResumo() {
+  const el = document.getElementById('fam-resumo-content');
+  if (!el) return;
+  const totalRec  = state.familia.receitas.reduce((s,r) => s + Number(r.valor), 0);
+  const totalDesp = state.familia.despesas.reduce((s,d) => s + Number(d.valor), 0);
+  const saldo = totalRec - totalDesp;
+  const corSaldo = saldo >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // Por pessoa
+  const porPessoa = {};
+  state.familia.despesas.forEach(d => {
+    porPessoa[d.quem] = (porPessoa[d.quem]||0) + Number(d.valor);
+  });
+
+  el.innerHTML = `
+    <div class="stats-row" style="margin-bottom:16px">
+      <div class="stat-card"><div class="stat-num" style="color:var(--green)">R$${totalRec.toFixed(0)}</div><div class="stat-lbl">Receitas</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--red)">R$${totalDesp.toFixed(0)}</div><div class="stat-lbl">Despesas</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:${corSaldo}">${saldo>=0?'+':''}R$${saldo.toFixed(0)}</div><div class="stat-lbl">Saldo</div></div>
+    </div>
+    ${Object.entries(porPessoa).length ? `
+      <div class="section-title" style="margin-bottom:10px">DESPESAS POR PESSOA</div>
+      ${Object.entries(porPessoa).map(([q,v]) => `
+        <div class="fin-item">
+          <span class="fin-tipo despesa">${q}</span>
+          <span class="fin-desc" style="flex:1;font-size:13px;color:var(--text2)">${q}</span>
+          <span class="fin-valor despesa">R$ ${v.toFixed(2).replace('.',',')}</span>
+        </div>`).join('')}` : ''}
+    <div style="font-size:11px;color:var(--text3);margin-top:14px;text-align:center">Resumo completo — mais detalhes em breve</div>`;
+}
+
+
+function renderFamSubs() {
+  const r = document.getElementById('fam-receitas-sub');
+  if (r) { const n=state.familia.receitas.length; r.textContent=n+(n===1?' item':' itens'); }
+  const d = document.getElementById('fam-despesas-sub');
+  if (d) { const n=state.familia.despesas.length; d.textContent=n+(n===1?' item':' itens'); }
+  const b = document.getElementById('fam-banco-sub');
+  if (b) { const n=state.familia.banco.length; b.textContent=n+(n===1?' nome':' nomes'); }
+}
+
 /* ── INIT ── */
 setDate();
-['trabalho','familia'].forEach(renderEnv);
+renderTrabalho();
+// Guarda HTML original do salão para restaurar após senha
+const salaoOriginalHTML = document.getElementById('salao').innerHTML;
 renderSalao();
 </script>
 </body>
