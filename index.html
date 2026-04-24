@@ -1034,7 +1034,7 @@ function togglePanel(name){
     if(name==='resumo'){renderResumo();renderHist();}
     if(name==='pautas'){renderPautas();}
     if(name==='banco'){renderBanco();}
-    if(name==='grupo1'){renderGrupo1();}
+    if(name==='grupo1'){renderG1();}
     if(name==='anuncios'){renderAnuncios();}
     if(name==='grupo1'){renderG1();}
     if(name==='anuncios'){renderAnuncios();}
@@ -2860,8 +2860,6 @@ function verificarSenha() {
 /* ── INIT ── */
 setDate();
 renderTrab();
-// Guarda HTML original do salão para restaurar após senha
-const salaoOriginalHTML = document.getElementById('salao').innerHTML;
 renderSalao();
 </script>
 
