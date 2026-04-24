@@ -542,10 +542,10 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
         <div class="sk-panel-header"><span class="sk-panel-title">✅ Atividades</span><button class="sk-close" onclick="closeEnvPanel('trab','atividades')">×</button></div>
         <div class="simple-panel-body">
           <div class="sp-add-row">
-            <input class="sp-input" id="trab-ativ-input" placeholder="Nova atividade..." onkeydown="if(event.key==='Enter')addTrabSimple('ativ')">
-            <button class="sp-btn" onclick="addTrabSimple('ativ')">+ Add</button>
+            <input class="sp-input" id="trab-atividades-input" placeholder="Nova atividade..." onkeydown="if(event.key==='Enter')addTrabSimple('atividades')">
+            <button class="sp-btn" onclick="addTrabSimple('atividades')">+ Add</button>
           </div>
-          <div id="trab-ativ-list"></div>
+          <div id="trab-atividades-list"></div>
         </div>
       </div>
 
@@ -565,14 +565,8 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
     <!-- FAMÍLIA -->
     <div id="familia" class="env">
       <!-- SENHA FAMÍLIA -->
-      <div id="fam-lock" style="display:none;text-align:center;padding:40px 20px">
-        <div style="font-size:40px;margin-bottom:12px">🔒</div>
-        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Ambiente Família</div>
-        <div style="font-size:13px;color:var(--text3);margin-bottom:20px">Digite a senha para acessar</div>
-        <input class="sk-input" id="fam-senha-input" type="password" placeholder="Senha..." style="max-width:200px;margin:0 auto 12px;display:block;text-align:center" onkeydown="if(event.key==='Enter')checkSenhaFam()">
-        <button class="btn-save" onclick="checkSenhaFam()">Entrar</button>
-      </div>
-      <div id="fam-content" style="display:none">
+
+      <div id="fam-content">
         <div class="sk-grid">
           <button class="sk-btn highlight" onclick="toggleEnvPanel('fam','banco')">
             <span class="sk-btn-icon">👥</span>
@@ -1028,7 +1022,7 @@ const WDAYS=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
 function setDate(){const d=new Date();document.getElementById('date-pill').textContent=WDAYS[d.getDay()]+', '+d.getDate()+' de '+MONTHS[d.getMonth()];}
 
 function switchTab(env){
-  if(env==='salao' || env==='familia'){
+  if(env==='salao'){
     pedirSenha(env);
     return;
   }
@@ -1037,6 +1031,7 @@ function switchTab(env){
   document.querySelectorAll('.env').forEach(e=>e.classList.remove('active'));
   document.getElementById(env).classList.add('active');
   if(env==='trabalho') renderTrab();
+  if(env==='familia') renderFam();
 }
 
 function renderEnv(env){} // legacy stub
@@ -2785,7 +2780,14 @@ function renderTrab() {
 /* ── TRABALHO: BANCO ── */
 let trabBancoEditId = null;
 
-function abrirFormTrabBanco(id) {
+function addTrabBanco() {
+  const el = document.getElementById('trab-banco-nome');
+  const nome = el.value.trim();
+  el.value = '';
+  abrirFormTrabBanco(null, nome);
+}
+
+function abrirFormTrabBanco(id, nomeInicial) {
   trabBancoEditId = id || null;
   const p = id ? state.trabalho.banco.find(x => x.id === id) : null;
   document.getElementById('trab-banco-add-btn').style.display = 'none';
@@ -3123,12 +3125,18 @@ function renderDespesas() {
 
 /* ── FAMÍLIA: render badges ── */
 function renderFam() {
+  // Garante que o conteúdo aparece
+  const cont = document.getElementById('fam-content');
+  if (cont) cont.style.display = 'block';
+  const lock = document.getElementById('fam-lock');
+  if (lock) lock.style.display = 'none';
+  // Atualiza badges
   const f = state.familia;
   const bb = document.getElementById('fam-banco-sub');
   if (bb) bb.textContent = (f.banco?.length||0) + ' nomes';
-  const rb = document.getElementById('fam-rec-sub');
+  const rb = document.getElementById('fam-receitas-sub');
   if (rb) rb.textContent = (f.receitas?.length||0) + ' itens';
-  const db = document.getElementById('fam-desp-sub');
+  const db = document.getElementById('fam-despesas-sub');
   if (db) db.textContent = (f.despesas?.length||0) + ' itens';
 }
 
