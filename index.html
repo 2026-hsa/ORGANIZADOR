@@ -478,6 +478,14 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
 .fin-valor.receita{color:var(--green)}
 .fin-valor.despesa{color:var(--red)}
 
+
+/* SENHA */
+.senha-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:all .15s}
+.senha-dot.filled{background:var(--accent);border-color:var(--accent)}
+.senha-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.senha-key{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r-sm);padding:14px;font-family:'Inter',sans-serif;font-size:18px;font-weight:600;color:var(--text);cursor:pointer;transition:all .15s}
+.senha-key:active{background:var(--accentbg);border-color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -3173,5 +3181,38 @@ renderTrabalho();
 const salaoOriginalHTML = document.getElementById('salao').innerHTML;
 renderSalao();
 </script>
+
+  <!-- OVERLAY SENHA -->
+  <div class="senha-overlay" id="senha-overlay">
+    <div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:28px 24px;width:280px;text-align:center">
+      <div style="font-size:32px;margin-bottom:10px">🔒</div>
+      <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">Acesso Restrito</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:20px">Digite a senha para continuar</div>
+      <!-- Dots indicadores -->
+      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:24px">
+        <div id="sd0" class="senha-dot"></div>
+        <div id="sd1" class="senha-dot"></div>
+        <div id="sd2" class="senha-dot"></div>
+        <div id="sd3" class="senha-dot"></div>
+      </div>
+      <!-- Numpad -->
+      <div class="senha-numpad">
+        <button class="senha-key" onclick="senhaDigit('1')">1</button>
+        <button class="senha-key" onclick="senhaDigit('2')">2</button>
+        <button class="senha-key" onclick="senhaDigit('3')">3</button>
+        <button class="senha-key" onclick="senhaDigit('4')">4</button>
+        <button class="senha-key" onclick="senhaDigit('5')">5</button>
+        <button class="senha-key" onclick="senhaDigit('6')">6</button>
+        <button class="senha-key" onclick="senhaDigit('7')">7</button>
+        <button class="senha-key" onclick="senhaDigit('8')">8</button>
+        <button class="senha-key" onclick="senhaDigit('9')">9</button>
+        <button class="senha-key" onclick="senhaDel()" style="color:var(--red)">⌫</button>
+        <button class="senha-key" onclick="senhaDigit('0')">0</button>
+        <button class="senha-key" onclick="document.getElementById('senha-overlay').classList.remove('open')" style="color:var(--text3);font-size:11px">✕</button>
+      </div>
+      <div id="senha-erro" style="font-size:12px;color:var(--red);margin-top:8px;min-height:18px"></div>
+    </div>
+  </div>
+
 </body>
 </html>
