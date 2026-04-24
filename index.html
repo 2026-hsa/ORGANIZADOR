@@ -2802,6 +2802,61 @@ function fResumoRender() {
 }
 
 
+
+/* ══════════════════════════
+   SENHA
+══════════════════════════ */
+const SENHA_SALAO = '1234';
+let senhaBuffer = '';
+let senhaTarget = '';
+
+function pedirSenha(target) {
+  senhaTarget = target;
+  senhaBuffer = '';
+  atualizarDots();
+  const err = document.getElementById('senha-erro');
+  if (err) err.textContent = '';
+  document.getElementById('senha-overlay').classList.add('open');
+}
+
+function senhaDigit(d) {
+  if (senhaBuffer.length >= 4) return;
+  senhaBuffer += d;
+  atualizarDots();
+  if (senhaBuffer.length === 4) setTimeout(verificarSenha, 150);
+}
+
+function senhaDel() {
+  senhaBuffer = senhaBuffer.slice(0, -1);
+  atualizarDots();
+  const err = document.getElementById('senha-erro');
+  if (err) err.textContent = '';
+}
+
+function atualizarDots() {
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('sd' + i);
+    if (el) el.classList.toggle('filled', i < senhaBuffer.length);
+  }
+}
+
+function verificarSenha() {
+  if (senhaBuffer === SENHA_SALAO) {
+    document.getElementById('senha-overlay').classList.remove('open');
+    const names = ['trabalho', 'familia', 'salao'];
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', names[i] === senhaTarget));
+    document.querySelectorAll('.env').forEach(e => e.classList.remove('active'));
+    document.getElementById(senhaTarget).classList.add('active');
+    if (senhaTarget === 'salao') renderSalao();
+    senhaBuffer = '';
+  } else {
+    const err = document.getElementById('senha-erro');
+    if (err) err.textContent = 'Senha incorreta. Tente novamente.';
+    senhaBuffer = '';
+    atualizarDots();
+  }
+}
+
 /* ── INIT ── */
 setDate();
 renderTrab();
