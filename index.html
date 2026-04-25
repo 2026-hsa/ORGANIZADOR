@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador</title>
+<title>Organizador - 32</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -247,13 +247,14 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">31</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">32</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
-    <div class="tabs">
+    <div class="tabs" style="gap:3px">
       <button class="tab active" onclick="switchTab('trabalho')"><span class="tab-ic">💼</span>Trabalho</button>
       <button class="tab" onclick="switchTab('familia')"><span class="tab-ic">🏠</span>Família</button>
+      <button class="tab" onclick="switchTab('academia')"><span class="tab-ic">🏋️</span>Academia</button>
       <button class="tab" onclick="switchTab('salao')"><span class="tab-ic">📖</span>Salão</button>
     </div>
   </div>
@@ -345,6 +346,15 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
           <button class="btn-s" style="width:100%;margin-bottom:14px" onclick="fResCalc()">🔍 Calcular período</button>
           <div id="f-res-result"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- ══ ACADEMIA ══ -->
+    <div id="academia" class="env">
+      <div style="padding:40px 20px;text-align:center;color:var(--tx3)">
+        <div style="font-size:48px;margin-bottom:12px">🏋️</div>
+        <div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:8px">Academia</div>
+        <div style="font-size:13px">Em breve! Me conte como quer configurar este ambiente.</div>
       </div>
     </div>
 
@@ -731,7 +741,7 @@ let senhaBuffer = '';
 
 function switchTab(env) {
   if (env === 'salao') { pedirSenha(); return; }
-  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['trabalho','familia','salao'][i]===env));
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['trabalho','familia','academia','salao'][i]===env));
   document.querySelectorAll('.env').forEach(e=>e.classList.remove('active'));
   document.getElementById(env).classList.add('active');
   if (env === 'trabalho') renderTrab();
@@ -850,6 +860,122 @@ function tBancoRender() {
   </div>`).join('');
 }
 
+/* ─── ATIVIDADES (novo sistema completo) ─── */
+let _atEditId = null;
+
+function tAtivAbrir(id) {
+  _atEditId = id || null;
+  const a = id ? state.trabalho.ativ.find(x=>x.id===id) : null;
+  const banco = state.trabalho.banco;
+  const opts = banco.map(p=>`<option value="${esc(p.nome)}" ${a&&a.resp===p.nome?'selected':''}>${esc(p.nome)}</option>`).join('');
+  openOverlay(`
+    <div class="otitle">✅ ${a?'Editar':'Nova'} Atividade</div>
+    <span class="lbl">Atividade</span>
+    <input class="inp" id="at-txt" value="${a?esc(a.texto):''}" placeholder="Descreva a atividade...">
+    <span class="lbl">Responsável</span>
+    <select class="sel" id="at-resp">
+      <option value="">Selecione...</option>${opts}
+    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><span class="lbl">Data inclusão</span><input class="inp" id="at-di" type="date" value="${a?a.dataInc:new Date().toISOString().split('T')[0]}" style="margin:0"></div>
+      <div><span class="lbl">Data conclusão</span><input class="inp" id="at-dc" type="date" value="${a?a.dataCon||'':''}" style="margin:0"></div>
+    </div>
+    <span class="lbl">Observação</span>
+    <textarea class="sel" id="at-obs" style="min-height:64px;resize:vertical">${a?esc(a.obs||''):''}</textarea>
+    <div class="row-btns">
+      <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
+      <button class="btn-s" onclick="tAtivSalvar()">Salvar</button>
+    </div>`);
+}
+
+function tAtivSalvar() {
+  const txt  = document.getElementById('at-txt').value.trim();
+  const resp = document.getElementById('at-resp').value;
+  const di   = document.getElementById('at-di').value;
+  const dc   = document.getElementById('at-dc').value;
+  const obs  = document.getElementById('at-obs').value.trim();
+  if (!txt) { alert('Informe a atividade.'); return; }
+  const item = {
+    id: _atEditId || Date.now(),
+    texto: txt, resp, dataInc: di, dataCon: dc, obs,
+    feito: _atEditId ? (state.trabalho.ativ.find(x=>x.id===_atEditId)||{}).feito||false : false
+  };
+  if (_atEditId) {
+    const i = state.trabalho.ativ.findIndex(x=>x.id===_atEditId);
+    if (i!==-1) state.trabalho.ativ[i] = item;
+  } else {
+    state.trabalho.ativ.push(item);
+  }
+  save(); closeOverlay(); tAtivRender(); renderTrab();
+}
+
+function tAtivVer(id) {
+  const a = state.trabalho.ativ.find(x=>x.id===id); if(!a) return;
+  const status = tAtivStatus(a);
+  const corStatus = {pendente:'var(--amb)',concluido:'var(--grn)',atrasado:'var(--red)'}[status];
+  openOverlay(`
+    <div class="otitle">📋 ${esc(a.texto)}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <span style="font-size:11px;background:${corStatus};color:#0D0D0F;border-radius:20px;padding:3px 10px;font-weight:600">${status.toUpperCase()}</span>
+    </div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Responsável</span><span class="g1-det-val">${esc(a.resp||'—')}</span></div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Data inclusão</span><span class="g1-det-val">${fmtDt(a.dataInc)}</span></div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Data conclusão</span><span class="g1-det-val">${fmtDt(a.dataCon)}</span></div>
+    ${a.obs?`<div class="g1-det-row"><span class="g1-det-lbl">Observação</span><span class="g1-det-val">${esc(a.obs)}</span></div>`:''}
+    <div class="row-btns" style="margin-top:14px">
+      <button class="btn-c" onclick="closeOverlay()">Fechar</button>
+      <button class="btn-s" onclick="closeOverlay();tAtivAbrir(${id})">Editar</button>
+    </div>`);
+}
+
+function tAtivStatus(a) {
+  if (a.feito) return 'concluido';
+  if (!a.dataCon) return 'pendente';
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  if (new Date(a.dataCon+'T00:00:00') < hoje) return 'atrasado';
+  return 'pendente';
+}
+
+function tAtivConcluir(id) {
+  const a = state.trabalho.ativ.find(x=>x.id===id); if(!a) return;
+  a.feito = !a.feito;
+  if (a.feito && !a.dataCon) a.dataCon = new Date().toISOString().split('T')[0];
+  save(); tAtivRender(); renderTrab();
+}
+
+function tAtivDel(id) {
+  if (!confirm('Excluir esta atividade?')) return;
+  state.trabalho.ativ = state.trabalho.ativ.filter(x=>x.id!==id);
+  save(); tAtivRender(); renderTrab();
+}
+
+function tAtivRender() {
+  const el = document.getElementById('t-ativ-list'); if(!el) return;
+  const lista = state.trabalho.ativ;
+  if (!lista.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade ainda</div>'; return; }
+  const corSt = {pendente:['var(--amb)','var(--ambbg)'], concluido:['var(--grn)','var(--grnbg)'], atrasado:['var(--red)','var(--redbg)']};
+  el.innerHTML = lista.map(a => {
+    const st = tAtivStatus(a);
+    const [cor, bg] = corSt[st];
+    return `<div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:8px;padding:11px 14px">
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;color:var(--tx);margin-bottom:3px">${esc(a.texto)}</div>
+          <div style="font-size:11px;color:var(--tx3)">${a.resp?'👤 '+esc(a.resp):''}${a.dataCon?' · 📅 '+fmtDt(a.dataCon):''}</div>
+        </div>
+        <span style="font-size:10px;background:${bg};color:${cor};border-radius:20px;padding:2px 8px;font-weight:600;flex-shrink:0">${st}</span>
+      </div>
+      <div style="display:flex;gap:4px;margin-top:8px">
+        <button class="act" onclick="tAtivVer(${a.id})">👁</button>
+        <button class="act ed" onclick="tAtivAbrir(${a.id})">✏️</button>
+        <button class="act ${a.feito?'':'ed'}" onclick="tAtivConcluir(${a.id})" title="${a.feito?'Reabrir':'Concluir'}">${a.feito?'↩':'✓'}</button>
+        <button class="act dl" onclick="tAtivDel(${a.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── PAUTA (mantém lista simples) ─── */
 function tItemAdd(tipo) {
   const el = document.getElementById('t-'+tipo+'-inp');
   const v = el.value.trim(); if (!v) return;
@@ -866,6 +992,7 @@ function tItemToggle(tipo,id) {
   save(); tListRender(tipo);
 }
 function tListRender(tipo) {
+  if (tipo === 'ativ') { tAtivRender(); return; }
   const el=document.getElementById('t-'+tipo+'-list'); if(!el) return;
   const lista=state.trabalho[tipo];
   if(!lista.length){el.innerHTML='<div class="empty" style="padding:10px 0">Nenhum item ainda</div>';return;}
@@ -874,6 +1001,173 @@ function tListRender(tipo) {
     <span class="tx-task ${item.feito?'done':''}">${esc(item.texto)}</span>
     <button class="delbtn" onclick="tItemDel('${tipo}',${item.id})">×</button>
   </div>`).join('');
+}
+
+/* ─── RELATÓRIO ATIVIDADES ─── */
+function tAtivRelatorioAbrir() {
+  const banco = state.trabalho.banco;
+  const optsResp = `<option value="todos">Todos</option>` +
+    banco.map(p=>`<option value="${esc(p.nome)}">${esc(p.nome)}</option>`).join('');
+  const hoje = new Date().toISOString().split('T')[0];
+  const mesIni = hoje.substring(0,8)+'01';
+  openOverlay(`
+    <div class="otitle">📊 Gerar Relatório</div>
+    <span class="lbl">Responsável</span>
+    <select class="sel" id="rel-resp">${optsResp}</select>
+    <span class="lbl">Status</span>
+    <select class="sel" id="rel-status">
+      <option value="tudo">Tudo</option>
+      <option value="pendente">Pendências</option>
+      <option value="concluido">Concluídos</option>
+    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><span class="lbl">De</span><input class="inp" id="rel-de" type="date" value="${mesIni}" style="margin:0"></div>
+      <div><span class="lbl">Até</span><input class="inp" id="rel-ate" type="date" value="${hoje}" style="margin:0"></div>
+    </div>
+    <div class="row-btns" style="margin-top:16px">
+      <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
+      <button class="btn-s" style="background:var(--grn);flex:1" onclick="tAtivGerarWpp()">📱 WhatsApp</button>
+      <button class="btn-s" style="flex:1" onclick="tAtivGerarPDF()">📄 PDF</button>
+    </div>`);
+}
+
+function tAtivFiltrar() {
+  const resp   = document.getElementById('rel-resp').value;
+  const status = document.getElementById('rel-status').value;
+  const de     = document.getElementById('rel-de').value;
+  const ate    = document.getElementById('rel-ate').value;
+  return state.trabalho.ativ.filter(a => {
+    if (resp !== 'todos' && a.resp !== resp) return false;
+    if (de && a.dataInc < de) return false;
+    if (ate && a.dataInc > ate) return false;
+    const st = tAtivStatus(a);
+    if (status === 'pendente' && st === 'concluido') return false;
+    if (status === 'concluido' && st !== 'concluido') return false;
+    return true;
+  });
+}
+
+function tAtivGerarWpp() {
+  const lista = tAtivFiltrar();
+  if (!lista.length) { alert('Nenhuma atividade no filtro selecionado.'); return; }
+  const linhas = lista.map((a,i) => {
+    const st = tAtivStatus(a);
+    const prazo = a.dataCon ? fmtDt(a.dataCon) : 'Sem prazo';
+    return (i+1)+'. '+a.texto+'\nResponsavel: '+(a.resp||'--')+' - Prazo: '+prazo+'\nStatus: '+st+(a.obs?'\nObs: '+a.obs:'');
+  });
+  const txt = '*Atividade Engenharia*\n\n' + linhas.join('\n\n');
+  window._wppTxt = txt;
+  const area = document.getElementById('t-ativ-list');
+  closeOverlay();
+  const div = document.createElement('div');
+  div.innerHTML = '<div class="txt-box" style="margin-bottom:8px">'+esc(txt)+'</div><button class="copy-btn" onclick="copiarWpp(this)">📋 Copiar para WhatsApp</button>';
+  area.prepend(div);
+}
+
+function copiarWpp(btn) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(window._wppTxt||'').then(()=>{btn.textContent='✅ Copiado!';setTimeout(()=>btn.textContent='📋 Copiar para WhatsApp',2000);});
+  } else {
+    const ta=document.createElement('textarea');ta.value=window._wppTxt||'';ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='✅ Copiado!';setTimeout(()=>btn.textContent='📋 Copiar para WhatsApp',2000);
+  }
+}
+
+function tAtivGerarPDF() {
+  const lista = tAtivFiltrar();
+  if (!lista.length) { alert('Nenhuma atividade no filtro selecionado.'); return; }
+  closeOverlay();
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const W = 900, PL = 260, PG = 560; // left panel, gantt start
+  const ROW = 40, HDR = 80, FOOTER = 30;
+  const H = HDR + lista.length * ROW + FOOTER;
+  const canvas = document.getElementById('main-canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const F = 'Inter,Arial,sans-serif';
+
+  // Background
+  ctx.fillStyle = '#0F0F12'; ctx.fillRect(0,0,W,H);
+  // Header
+  ctx.fillStyle = '#7C6EFA'; ctx.fillRect(0,0,W,5);
+  ctx.font = `700 18px ${F}`; ctx.fillStyle = '#F0EFF4'; ctx.textAlign = 'center';
+  ctx.fillText('ATIVIDADE ENGENHARIA', W/2, 36);
+  ctx.font = `400 11px ${F}`; ctx.fillStyle = '#5A5966';
+  ctx.fillText('Gerado em '+fmtDt(new Date().toISOString().split('T')[0]), W/2, 55);
+  ctx.textAlign = 'left';
+
+  // Gantt: show -10 days to +20 days
+  const dias = 30;
+  const ini10 = new Date(hoje); ini10.setDate(ini10.getDate()-10);
+  const dW = (W - PG - 40) / dias; // pixels per day
+
+  // Day headers
+  ctx.font = `400 9px ${F}`; ctx.fillStyle = '#5A5966';
+  for (let d=0; d<dias; d++) {
+    const dt = new Date(ini10); dt.setDate(ini10.getDate()+d);
+    const x = PG + d*dW;
+    if (d===10) { ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fillRect(x,HDR-20,dW,H-HDR+20); ctx.fillStyle='#7C6EFA'; ctx.fillRect(x,0,1,H); }
+    else ctx.fillStyle = '#5A5966';
+    if (dt.getDate()===1 || d===0 || d===10) {
+      ctx.fillText(String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0'), x+1, HDR-8);
+    }
+  }
+
+  // Rows
+  lista.forEach((a, ri) => {
+    const y = HDR + ri * ROW;
+    // Row bg
+    ctx.fillStyle = ri%2===0 ? '#161618' : '#1A1A1E';
+    ctx.fillRect(0, y, W, ROW);
+    // Left: activity + resp
+    ctx.font = `500 12px ${F}`; ctx.fillStyle = '#F0EFF4';
+    const nm = a.texto.length>28 ? a.texto.substring(0,27)+'…' : a.texto;
+    ctx.fillText(nm, 12, y+16);
+    ctx.font = `400 10px ${F}`; ctx.fillStyle = '#5A5966';
+    ctx.fillText(a.resp||'—', 12, y+30);
+
+    // Gantt bar
+    const st = tAtivStatus(a);
+    if (a.dataInc && a.dataCon) {
+      const dIni = new Date(a.dataInc+'T00:00:00');
+      const dCon = new Date(a.dataCon+'T00:00:00');
+      // Planned bar (top, azul)
+      const xP1 = PG + Math.max(0,(dIni-ini10)/86400000)*dW;
+      const xP2 = PG + Math.min(dias,(dCon-ini10)/86400000+1)*dW;
+      if (xP2>PG && xP1<W-40) {
+        ctx.fillStyle = 'rgba(96,165,250,0.7)';
+        ctx.fillRect(xP1, y+4, Math.max(4,xP2-xP1), 12);
+        ctx.font='700 9px '+F; ctx.fillStyle='#fff'; ctx.fillText('Planejado',xP1+3,y+13);
+      }
+      // Status bar (bottom)
+      let barColor = '';
+      if (st==='concluido') barColor='rgba(52,211,153,0.8)';
+      else if (st==='atrasado') barColor='rgba(248,113,113,0.8)';
+      else if (st==='pendente') { const xH=PG+10*dW; barColor='rgba(251,191,36,0.8)'; ctx.fillStyle=barColor; ctx.fillRect(xP1,y+18,Math.max(4,xH-xP1),12); barColor=''; }
+      if (barColor) { ctx.fillStyle=barColor; ctx.fillRect(xP1,y+18,Math.max(4,xP2-xP1),12); }
+      ctx.font='700 9px '+F; ctx.fillStyle='#fff';
+      const stLabel = st==='concluido'?'✓ Concluído':st==='atrasado'?'Atrasado':'Em andamento';
+      ctx.fillText(stLabel, xP1+3, y+27);
+    }
+    // Obs on right
+    if (a.obs) {
+      ctx.font='400 9px '+F; ctx.fillStyle='#5A5966';
+      const obsMax = a.obs.length>22?a.obs.substring(0,21)+'…':a.obs;
+      ctx.fillText(obsMax, W-130, y+20);
+    }
+    // Row separator
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,y+ROW); ctx.lineTo(W,y+ROW); ctx.stroke();
+  });
+
+  ctx.fillStyle='#7C6EFA'; ctx.fillRect(0,H-4,W,4);
+
+  canvas.toBlob(blob=>{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='atividades_engenharia.png'; a.click();
+    URL.revokeObjectURL(url);
+  },'image/png');
 }
 
 function mascaraTel(input) {
@@ -929,8 +1223,29 @@ function fBancoRender() {
   if(!lista.length){el.innerHTML='<div class="empty"><span class="empty-ic">👥</span>Nenhum nome ainda</div>';return;}
   el.innerHTML=lista.map((n,i)=>`<div class="g1-item">
     <span style="flex:1;font-size:14px;color:var(--tx)">${esc(n)}</span>
+    <button class="act ed" onclick="fBancoEditar(${i})">✏️</button>
     <button class="act dl" onclick="fBancoDel(${i})">🗑</button>
   </div>`).join('');
+}
+
+function fBancoEditar(i) {
+  const nome = state.familia.banco[i];
+  openOverlay(`
+    <div class="otitle">✏️ Editar nome</div>
+    <span class="lbl">Nome</span>
+    <input class="inp" id="fb-ed-nome" value="${esc(nome)}">
+    <div class="row-btns">
+      <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
+      <button class="btn-s" onclick="fBancoSalvarEdit(${i})">Salvar</button>
+    </div>`);
+}
+
+function fBancoSalvarEdit(i) {
+  const novo = document.getElementById('fb-ed-nome').value.trim();
+  if (!novo) { alert('Informe o nome.'); return; }
+  state.familia.banco[i] = novo;
+  state.familia.banco.sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  save(); closeOverlay(); fBancoRender(); renderFam();
 }
 
 /* Receitas e Despesas via overlay */
@@ -956,9 +1271,26 @@ function fFinAbrir(tipo, id) {
       <option value="Rodrigo" ${item&&item.quem==='Rodrigo'?'selected':''}>Rodrigo</option>
       <option value="Família" ${item&&item.quem==='Família'?'selected':''}>Família</option>
     </select>`:''}
+    <span class="lbl">Observação</span>
+    <textarea class="sel" id="ff-obs" style="min-height:60px;resize:vertical">${item&&item.obs?esc(item.obs):''}</textarea>
     <div class="row-btns">
       <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
       <button class="btn-s" onclick="fFinSalvar()">Salvar</button>
+    </div>`);
+}
+
+function fFinVer(tipo, id) {
+  const isRec = tipo === 'rec';
+  const item = state.familia[isRec?'receitas':'despesas'].find(x=>x.id===id); if(!item) return;
+  openOverlay(`
+    <div class="otitle">${isRec?'💰':'💸'} ${esc(item.nome)}</div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Data</span><span class="g1-det-val">${fmtDt(item.data)}</span></div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Valor</span><span class="g1-det-val" style="color:${isRec?'var(--grn)':'var(--red)'}">R$ ${Number(item.valor).toFixed(2).replace('.',',')}</span></div>
+    ${!isRec?`<div class="g1-det-row"><span class="g1-det-lbl">Quem gastou</span><span class="g1-det-val">${esc(item.quem||'—')}</span></div>`:''}
+    ${item.obs?`<div class="g1-det-row"><span class="g1-det-lbl">Observação</span><span class="g1-det-val">${esc(item.obs)}</span></div>`:''}
+    <div class="row-btns" style="margin-top:14px">
+      <button class="btn-c" onclick="closeOverlay()">Fechar</button>
+      <button class="btn-s" onclick="closeOverlay();fFinAbrir('${tipo}',${id})">Editar</button>
     </div>`);
 }
 
@@ -972,9 +1304,10 @@ function fFinSalvar() {
   if (!data) { alert('Informe a data.'); return; }
   if (isNaN(valor)||valor<=0) { alert('Informe o valor.'); return; }
   if (_ft==='desp'&&!quem) { alert('Selecione quem gastou.'); return; }
+  const obs = (document.getElementById('ff-obs')||{}).value||'';
   const isRec = _ft==='rec';
   const lista = isRec ? state.familia.receitas : state.familia.despesas;
-  const item = isRec ? {id:_fid||Date.now(),nome,data,valor} : {id:_fid||Date.now(),nome,data,valor,quem};
+  const item = isRec ? {id:_fid||Date.now(),nome,data,valor,obs} : {id:_fid||Date.now(),nome,data,valor,quem,obs};
   if (_fid) { const i=lista.findIndex(x=>x.id===_fid); if(i!==-1) lista[i]=item; }
   else lista.push(item);
   lista.sort((a,b)=>b.data.localeCompare(a.data));
@@ -1003,6 +1336,7 @@ function fRecRender() {
   lista.map(r=>`<div class="fin">
     <div class="fin-info"><div class="fin-nm">${esc(r.nome)}</div><div class="fin-sb">${fmtDt(r.data)}</div></div>
     <span class="fin-val r">R$ ${Number(r.valor).toFixed(2).replace('.',',')}</span>
+    <button class="act" onclick="fFinVer('rec',${r.id})">👁</button>
     <button class="act ed" onclick="fFinAbrir('rec',${r.id})">✏️</button>
     <button class="act dl" onclick="fRecDel(${r.id})">🗑</button>
   </div>`).join('');
@@ -1017,6 +1351,7 @@ function fDespRender() {
   lista.map(d=>`<div class="fin">
     <div class="fin-info"><div class="fin-nm">${esc(d.nome)}</div><div class="fin-sb">${fmtDt(d.data)} · ${esc(d.quem)}</div></div>
     <span class="fin-val d">R$ ${Number(d.valor).toFixed(2).replace('.',',')}</span>
+    <button class="act" onclick="fFinVer('desp',${d.id})">👁</button>
     <button class="act ed" onclick="fFinAbrir('desp',${d.id})">✏️</button>
     <button class="act dl" onclick="fDespDel(${d.id})">🗑</button>
   </div>`).join('');
