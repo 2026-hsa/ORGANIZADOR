@@ -608,7 +608,7 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
       <div class="backup-bar">
         <button class="backup-btn export" onclick="exportarDados()">💾 Exportar backup</button>
         <button class="backup-btn import" onclick="document.getElementById('import-file').click()">📂 Importar backup</button>
-        <button class="backup-btn" style="background:var(--surface2);color:var(--accent);border-color:rgba(124,110,250,0.3)" onclick="loadFromCloud()">🔄 Sincronizar</button>
+        <button class="backup-btn" style="background:var(--surface2);color:var(--accent);border-color:rgba(124,110,250,0.3)" onclick="carregarNuvem()">🔄 Sincronizar</button>
         <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarDados(this)">
       </div>
 
@@ -1008,86 +1008,79 @@ if(!state.salao.dmGeradas) state.salao.dmGeradas={};
 if(state.salao.pautas.length && typeof state.salao.pautas[0]==='string') state.salao.pautas=[];
 
 function save(){
+  state._ts = Date.now();
   localStorage.setItem('org_v4', JSON.stringify(state));
-  syncToCloud();
+  agendarSync();
 }
 
 let syncTimer = null;
-let isSyncing = false;
 
-function syncToCloud() {
-  // Debounce: espera 1.5s sem alterações para enviar
+function agendarSync() {
   clearTimeout(syncTimer);
-  syncTimer = setTimeout(pushToCloud, 1500);
+  syncTimer = setTimeout(enviarNuvem, 2000);
 }
 
-async function pushToCloud() {
-  if (isSyncing) return;
-  isSyncing = true;
-  showSyncStatus('⏫ Salvando...');
-  try {
-    const res = await fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_ID, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY,
-        'X-Access-Key': JSONBIN_KEY
-      },
-      body: JSON.stringify(state)
-    });
-    if (res.ok) {
-      showSyncStatus('✅ Salvo na nuvem');
+function enviarNuvem() {
+  const url = 'https://api.jsonbin.io/v3/b/' + JSONBIN_ID;
+  fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN_KEY,
+      'X-Bin-Versioning': 'false'
+    },
+    body: JSON.stringify(state)
+  })
+  .then(r => {
+    if (r.ok) {
+      setSyncMsg('✅ Nuvem atualizada');
     } else {
-      const errText = await res.text();
-      console.error('JSONBin PUT error:', res.status, errText);
-      showSyncStatus('⚠️ Erro ' + res.status);
+      r.text().then(t => setSyncMsg('⚠️ Erro: ' + t.substring(0,40)));
     }
-  } catch(e) {
-    showSyncStatus('📴 Offline - salvo local');
-  }
-  isSyncing = false;
+  })
+  .catch(() => setSyncMsg('📴 Sem internet'));
 }
 
-async function loadFromCloud() {
-  showSyncStatus('⏬ Carregando...');
-  try {
-    const res = await fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_ID + '/latest', {
-      headers: {
-        'X-Master-Key': JSONBIN_KEY,
-        'X-Access-Key': JSONBIN_KEY
-      }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      console.log('JSONBin loaded:', JSON.stringify(data).substring(0,100));
-      const cloud = data.record;
-      if (cloud && typeof cloud === 'object' && Object.keys(cloud).length > 1) {
-        state = cloud;
-        // Garantir estrutura
-        ensureState();
-        localStorage.setItem('org_v4', JSON.stringify(state));
-        showSyncStatus('✅ Sincronizado');
-        renderTrab();
-        renderFam();
-        renderSalao();
-      } else {
-        showSyncStatus('☁️ Enviando dados para nuvem...');
-        setTimeout(pushToCloud, 500);
-      }
+function carregarNuvem() {
+  setSyncMsg('⏬ Sincronizando...');
+  const url = 'https://api.jsonbin.io/v3/b/' + JSONBIN_ID + '/latest';
+  fetch(url, {
+    headers: { 'X-Master-Key': JSONBIN_KEY }
+  })
+  .then(r => r.json())
+  .then(data => {
+    const cloud = data.record;
+    if (!cloud || !cloud.salao) {
+      setSyncMsg('📤 Enviando dados...');
+      enviarNuvem();
+      return;
+    }
+    // Compara timestamp: usa o mais recente
+    const cloudTs = cloud._ts || 0;
+    const localTs = state._ts || 0;
+    if (cloudTs > localTs) {
+      state = cloud;
+      ensureState();
+      localStorage.setItem('org_v4', JSON.stringify(state));
+      setSyncMsg('✅ Sincronizado');
+      renderTrab();
+      renderFam();
+      renderSalao();
     } else {
-      showSyncStatus('⚠️ Erro ao carregar nuvem');
+      setSyncMsg('✅ Dados atuais');
+      enviarNuvem();
     }
-  } catch(e) {
-    showSyncStatus('📴 Offline - usando local');
-  }
+  })
+  .catch(() => setSyncMsg('📴 Offline'));
 }
 
-function showSyncStatus(msg) {
+function setSyncMsg(msg) {
   const el = document.getElementById('sync-status');
-  if (!el) return;
-  el.textContent = msg;
-  clearTimeout(el._timer);
-  el._timer = setTimeout(() => { el.textContent = ''; }, 4000);
+  if (el) {
+    el.textContent = msg;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.textContent = ''; }, 5000);
+  }
 }
 
 function ensureState() {
@@ -2862,9 +2855,15 @@ function fDespSalvar() {
     state.familia.despesas.push(item);
   }
   state.familia.despesas.sort((a,b)=>b.data.localeCompare(a.data));
-  fDespCancelar();
   save();
-  setTimeout(fDespRender, 50);
+  // Limpar form e mostrar botão add
+  const form = document.getElementById('f-desp-form');
+  if (form) form.innerHTML = '';
+  const btn = document.getElementById('f-desp-add-btn');
+  if (btn) btn.style.display = '';
+  fDespEditId = null;
+  // Renderizar lista direto
+  fDespRender();
   renderFam();
 }
 function fDespDel(id) {
@@ -2978,7 +2977,7 @@ setDate();
 renderTrab();
 renderSalao();
 // Carrega da nuvem ao abrir
-loadFromCloud();
+carregarNuvem();
 </script>
 
   <!-- OVERLAY SENHA -->
