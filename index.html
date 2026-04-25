@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 32</title>
+<title>Organizador - 33</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -247,7 +247,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">32</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">33</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -279,11 +279,10 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
       <div class="panel" id="tp-ativ">
         <div class="ph"><span class="ph-title">✅ Atividades</span><button class="pcls" onclick="tClose('ativ')">×</button></div>
         <div class="pbody">
-          <div style="display:flex;gap:8px;margin-bottom:10px">
-            <input class="inp" id="t-ativ-inp" placeholder="Nova atividade..." style="margin:0;flex:1" onkeydown="if(event.key==='Enter')tItemAdd('ativ')">
-            <button class="btn-s" onclick="tItemAdd('ativ')">+ Add</button>
-          </div>
+          <button class="addbtn" style="margin-bottom:10px" onclick="tAtivAbrir()">+ Incluir Atividade</button>
           <div id="t-ativ-list"></div>
+          <div id="t-ativ-relatorio-area"></div>
+          <button class="addbtn" style="margin-top:10px;background:var(--surf2);color:var(--acc);border-color:rgba(124,110,250,.3)" onclick="tAtivRelatorioAbrir()">📊 Gerar Relatório</button>
         </div>
       </div>
       <div class="panel" id="tp-pauta">
@@ -890,14 +889,16 @@ function tAtivAbrir(id) {
 
 function tAtivSalvar() {
   const txt  = document.getElementById('at-txt').value.trim();
+  if (!txt) { alert('Informe pelo menos o nome da atividade.'); return; }
   const resp = document.getElementById('at-resp').value;
   const di   = document.getElementById('at-di').value;
   const dc   = document.getElementById('at-dc').value;
   const obs  = document.getElementById('at-obs').value.trim();
-  if (!txt) { alert('Informe a atividade.'); return; }
+  // Incompleto se falta resp, data inclusão ou data conclusão
+  const incompleto = !resp || !di || !dc;
   const item = {
     id: _atEditId || Date.now(),
-    texto: txt, resp, dataInc: di, dataCon: dc, obs,
+    texto: txt, resp, dataInc: di, dataCon: dc, obs, incompleto,
     feito: _atEditId ? (state.trabalho.ativ.find(x=>x.id===_atEditId)||{}).feito||false : false
   };
   if (_atEditId) {
@@ -929,6 +930,7 @@ function tAtivVer(id) {
 }
 
 function tAtivStatus(a) {
+  if (a.incompleto && !a.feito) return 'incompleto';
   if (a.feito) return 'concluido';
   if (!a.dataCon) return 'pendente';
   const hoje = new Date(); hoje.setHours(0,0,0,0);
@@ -953,17 +955,23 @@ function tAtivRender() {
   const el = document.getElementById('t-ativ-list'); if(!el) return;
   const lista = state.trabalho.ativ;
   if (!lista.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade ainda</div>'; return; }
-  const corSt = {pendente:['var(--amb)','var(--ambbg)'], concluido:['var(--grn)','var(--grnbg)'], atrasado:['var(--red)','var(--redbg)']};
+  const corSt = {
+    pendente:    ['var(--amb)','var(--ambbg)'],
+    concluido:   ['var(--grn)','var(--grnbg)'],
+    atrasado:    ['var(--red)','var(--redbg)'],
+    incompleto:  ['var(--tx3)','var(--surf3)']
+  };
   el.innerHTML = lista.map(a => {
     const st = tAtivStatus(a);
-    const [cor, bg] = corSt[st];
+    const [cor, bg] = corSt[st] || corSt.pendente;
+    const stLabel = {pendente:'pendente',concluido:'concluído',atrasado:'atrasado',incompleto:'incompleto'}[st];
     return `<div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:8px;padding:11px 14px">
       <div style="display:flex;align-items:flex-start;gap:8px">
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:500;color:var(--tx);margin-bottom:3px">${esc(a.texto)}</div>
           <div style="font-size:11px;color:var(--tx3)">${a.resp?'👤 '+esc(a.resp):''}${a.dataCon?' · 📅 '+fmtDt(a.dataCon):''}</div>
         </div>
-        <span style="font-size:10px;background:${bg};color:${cor};border-radius:20px;padding:2px 8px;font-weight:600;flex-shrink:0">${st}</span>
+        <span style="font-size:10px;background:${bg};color:${cor};border-radius:20px;padding:2px 8px;font-weight:600;flex-shrink:0">${stLabel}</span>
       </div>
       <div style="display:flex;gap:4px;margin-top:8px">
         <button class="act" onclick="tAtivVer(${a.id})">👁</button>
@@ -1057,11 +1065,9 @@ function tAtivGerarWpp() {
   });
   const txt = '*Atividade Engenharia*\n\n' + linhas.join('\n\n');
   window._wppTxt = txt;
-  const area = document.getElementById('t-ativ-list');
   closeOverlay();
-  const div = document.createElement('div');
-  div.innerHTML = '<div class="txt-box" style="margin-bottom:8px">'+esc(txt)+'</div><button class="copy-btn" onclick="copiarWpp(this)">📋 Copiar para WhatsApp</button>';
-  area.prepend(div);
+  const area = document.getElementById('t-ativ-relatorio-area');
+  if (area) area.innerHTML = '<div class="txt-box" style="margin:10px 0 8px">'+esc(txt)+'</div><button class="copy-btn" onclick="copiarWpp(this)">📋 Copiar para WhatsApp</button>';
 }
 
 function copiarWpp(btn) {
