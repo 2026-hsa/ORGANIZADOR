@@ -106,8 +106,8 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
 .sk-btn-label{font-size:13px;font-weight:600;color:var(--text)}
 .sk-btn-sub{font-size:11px;color:var(--text3)}
 
-.sk-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-top:10px;overflow:hidden;max-height:0;transition:max-height .35s ease}
-.sk-panel.open{max-height:none;overflow:visible}
+.sk-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-top:10px;overflow:hidden;max-height:0;transition:max-height .4s ease}
+.sk-panel.open{max-height:9999px;overflow:visible}
 .sk-panel-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border)}
 .sk-panel-title{font-size:14px;font-weight:600;color:var(--text)}
 .sk-close{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;padding:0}
@@ -1030,14 +1030,17 @@ async function pushToCloud() {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY
+        'X-Master-Key': JSONBIN_KEY,
+        'X-Access-Key': JSONBIN_KEY
       },
       body: JSON.stringify(state)
     });
     if (res.ok) {
       showSyncStatus('✅ Salvo na nuvem');
     } else {
-      showSyncStatus('⚠️ Erro ao salvar');
+      const errText = await res.text();
+      console.error('JSONBin PUT error:', res.status, errText);
+      showSyncStatus('⚠️ Erro ' + res.status);
     }
   } catch(e) {
     showSyncStatus('📴 Offline - salvo local');
@@ -1049,12 +1052,16 @@ async function loadFromCloud() {
   showSyncStatus('⏬ Carregando...');
   try {
     const res = await fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_ID + '/latest', {
-      headers: { 'X-Master-Key': JSONBIN_KEY }
+      headers: {
+        'X-Master-Key': JSONBIN_KEY,
+        'X-Access-Key': JSONBIN_KEY
+      }
     });
     if (res.ok) {
       const data = await res.json();
+      console.log('JSONBin loaded:', JSON.stringify(data).substring(0,100));
       const cloud = data.record;
-      if (cloud && (cloud.trabalho || cloud.familia || cloud.salao)) {
+      if (cloud && typeof cloud === 'object' && Object.keys(cloud).length > 1) {
         state = cloud;
         // Garantir estrutura
         ensureState();
@@ -1064,7 +1071,8 @@ async function loadFromCloud() {
         renderFam();
         renderSalao();
       } else {
-        showSyncStatus('☁️ Nuvem vazia - usando local');
+        showSyncStatus('☁️ Enviando dados para nuvem...');
+        setTimeout(pushToCloud, 500);
       }
     } else {
       showSyncStatus('⚠️ Erro ao carregar nuvem');
@@ -2833,8 +2841,10 @@ function fDespAbrir(id) {
     </div>`;
 }
 function fDespCancelar() {
-  document.getElementById('f-desp-form').innerHTML = '';
-  document.getElementById('f-desp-add-btn').style.display = '';
+  const form = document.getElementById('f-desp-form');
+  if (form) form.innerHTML = '';
+  const btn = document.getElementById('f-desp-add-btn');
+  if (btn) btn.style.display = '';
   fDespEditId = null;
 }
 function fDespSalvar() {
@@ -2843,6 +2853,7 @@ function fDespSalvar() {
   const data = document.getElementById('fd-data').value;
   const quem = document.getElementById('fd-quem').value;
   if (!nome||isNaN(valor)||!data||!quem) { alert('Preencha todos os campos.'); return; }
+  if (!state.familia.despesas) state.familia.despesas = [];
   const item = { id: fDespEditId||Date.now(), nome, valor, data, quem };
   if (fDespEditId) {
     const idx = state.familia.despesas.findIndex(x=>x.id===fDespEditId);
@@ -2851,7 +2862,10 @@ function fDespSalvar() {
     state.familia.despesas.push(item);
   }
   state.familia.despesas.sort((a,b)=>b.data.localeCompare(a.data));
-  fDespCancelar(); save(); fDespRender(); renderFam();
+  fDespCancelar();
+  save();
+  setTimeout(fDespRender, 50);
+  renderFam();
 }
 function fDespDel(id) {
   if (!confirm('Excluir?')) return;
@@ -2860,6 +2874,8 @@ function fDespDel(id) {
 }
 function fDespRender() {
   const el = document.getElementById('f-desp-list'); if(!el) return;
+  if (!state.familia) state.familia = {banco:[],receitas:[],despesas:[]};
+  if (!state.familia.despesas) state.familia.despesas = [];
   const lista = state.familia.despesas;
   if (!lista.length) { el.innerHTML='<div class="empty"><span class="empty-icon">💸</span>Nenhuma despesa ainda</div>'; return; }
   const total = lista.reduce((s,d)=>s+Number(d.valor),0);
