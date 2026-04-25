@@ -495,6 +495,7 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
     <div class="header-top">
       <span class="app-title">Organizador</span>
       <span class="date-pill" id="date-pill"></span>
+      <span id="sync-status" style="font-size:10px;color:var(--text3);margin-left:4px"></span>
     </div>
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('trabalho')"><span class="tab-icon">💼</span>Trabalho</button>
@@ -607,6 +608,7 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
       <div class="backup-bar">
         <button class="backup-btn export" onclick="exportarDados()">💾 Exportar backup</button>
         <button class="backup-btn import" onclick="document.getElementById('import-file').click()">📂 Importar backup</button>
+        <button class="backup-btn" style="background:var(--surface2);color:var(--accent);border-color:rgba(124,110,250,0.3)" onclick="loadFromCloud()">🔄 Sincronizar</button>
         <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarDados(this)">
       </div>
 
@@ -955,6 +957,9 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
 <script>
 const DAYS=['D','S','T','Q','Q','S','S'];
 
+const JSONBIN_KEY = '$2a$10$csk/mbe7QxOEj24A7N6mL.OfvI00PQAZmKjvRoQ4ZhQEJH2Db429C';
+const JSONBIN_ID  = '69ec0a1e36566621a8ebb42c';
+
 let state=JSON.parse(localStorage.getItem('org_v4')||'null')||{
   trabalho:{banco:[],ativ:[],pautas:[]},
   familia:{banco:[],receitas:[],despesas:[]},
@@ -1002,7 +1007,102 @@ if(!state.salao.dmGeradas) state.salao.dmGeradas={};
 // migrate pautas: if strings, reset to []
 if(state.salao.pautas.length && typeof state.salao.pautas[0]==='string') state.salao.pautas=[];
 
-function save(){localStorage.setItem('org_v4',JSON.stringify(state))}
+function save(){
+  localStorage.setItem('org_v4', JSON.stringify(state));
+  syncToCloud();
+}
+
+let syncTimer = null;
+let isSyncing = false;
+
+function syncToCloud() {
+  // Debounce: espera 1.5s sem alterações para enviar
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushToCloud, 1500);
+}
+
+async function pushToCloud() {
+  if (isSyncing) return;
+  isSyncing = true;
+  showSyncStatus('⏫ Salvando...');
+  try {
+    const res = await fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_ID, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_KEY
+      },
+      body: JSON.stringify(state)
+    });
+    if (res.ok) {
+      showSyncStatus('✅ Salvo na nuvem');
+    } else {
+      showSyncStatus('⚠️ Erro ao salvar');
+    }
+  } catch(e) {
+    showSyncStatus('📴 Offline - salvo local');
+  }
+  isSyncing = false;
+}
+
+async function loadFromCloud() {
+  showSyncStatus('⏬ Carregando...');
+  try {
+    const res = await fetch('https://api.jsonbin.io/v3/b/' + JSONBIN_ID + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const cloud = data.record;
+      if (cloud && (cloud.trabalho || cloud.familia || cloud.salao)) {
+        state = cloud;
+        // Garantir estrutura
+        ensureState();
+        localStorage.setItem('org_v4', JSON.stringify(state));
+        showSyncStatus('✅ Sincronizado');
+        renderTrab();
+        renderFam();
+        renderSalao();
+      } else {
+        showSyncStatus('☁️ Nuvem vazia - usando local');
+      }
+    } else {
+      showSyncStatus('⚠️ Erro ao carregar nuvem');
+    }
+  } catch(e) {
+    showSyncStatus('📴 Offline - usando local');
+  }
+}
+
+function showSyncStatus(msg) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.textContent = ''; }, 4000);
+}
+
+function ensureState() {
+  if(!state.salao) state.salao={};
+  if(!state.salao.historico) state.salao.historico=[];
+  if(!state.salao.banco) state.salao.banco=[];
+  if(!state.salao.dmHistorico) state.salao.dmHistorico={};
+  if(!state.salao.dmGeradas) state.salao.dmGeradas={};
+  if(!state.salao.grupo1) state.salao.grupo1=[];
+  if(!state.salao.anuncios) state.salao.anuncios=[];
+  if(!state.salao.pautas) state.salao.pautas=[];
+  if(!state.salao.lembretes) state.salao.lembretes=[];
+  if(!state.salao.anotacoes) state.salao.anotacoes=[];
+  if(!state.salao.designacoes) state.salao.designacoes=[];
+  if(!state.trabalho) state.trabalho={banco:[],ativ:[],pauta:[]};
+  if(!state.trabalho.banco) state.trabalho.banco=[];
+  if(!state.trabalho.ativ) state.trabalho.ativ=[];
+  if(!state.trabalho.pauta) state.trabalho.pauta=[];
+  if(!state.familia) state.familia={banco:[],receitas:[],despesas:[]};
+  if(!state.familia.banco) state.familia.banco=[];
+  if(!state.familia.receitas) state.familia.receitas=[];
+  if(!state.familia.despesas) state.familia.despesas=[];
+}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
 const MONTHS=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -2861,6 +2961,8 @@ function verificarSenha() {
 setDate();
 renderTrab();
 renderSalao();
+// Carrega da nuvem ao abrir
+loadFromCloud();
 </script>
 
   <!-- OVERLAY SENHA -->
