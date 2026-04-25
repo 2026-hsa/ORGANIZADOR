@@ -582,19 +582,17 @@ input::placeholder,textarea::placeholder{color:var(--text3)}
       </div>
       <div class="sk-panel" id="f-panel-receitas">
         <div class="sk-panel-header"><span class="sk-panel-title">💰 Receitas</span><button class="sk-close" onclick="fClose('receitas')">×</button></div>
-        <div class="db-body">
-          <div id="f-rec-form"></div>
-          <button class="g1-add-btn" id="f-rec-add-btn" onclick="fRecAbrir()">+ Adicionar receita</button>
-          <div id="f-rec-list"></div>
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+          <button class="pauta-add-btn" onclick="fRecAbrir()">+ Adicionar receita</button>
         </div>
+        <div id="f-rec-list"></div>
       </div>
       <div class="sk-panel" id="f-panel-despesas">
         <div class="sk-panel-header"><span class="sk-panel-title">💸 Despesas</span><button class="sk-close" onclick="fClose('despesas')">×</button></div>
-        <div class="db-body">
-          <div id="f-desp-form"></div>
-          <button class="g1-add-btn" id="f-desp-add-btn" onclick="fDespAbrir()">+ Adicionar despesa</button>
-          <div id="f-desp-list"></div>
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+          <button class="pauta-add-btn" onclick="fDespAbrir()">+ Adicionar despesa</button>
         </div>
+        <div id="f-desp-list"></div>
       </div>
       <div class="sk-panel" id="f-panel-resumo">
         <div class="sk-panel-header"><span class="sk-panel-title">📊 Resumo Financeiro</span><button class="sk-close" onclick="fClose('resumo')">×</button></div>
