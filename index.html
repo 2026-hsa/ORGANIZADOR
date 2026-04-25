@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 33</title>
+<title>Organizador - 34</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -247,7 +247,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">33</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">34</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -281,6 +281,8 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
         <div class="pbody">
           <button class="addbtn" style="margin-bottom:10px" onclick="tAtivAbrir()">+ Incluir Atividade</button>
           <div id="t-ativ-list"></div>
+          <button class="addbtn" style="margin-top:4px;background:var(--surf2);color:var(--grn);border-color:rgba(52,211,153,.3)" onclick="tAtivConcluidos()">✅ Ver Concluídos</button>
+          <div id="t-ativ-conc" style="display:none;margin-top:8px"></div>
           <div id="t-ativ-relatorio-area"></div>
           <button class="addbtn" style="margin-top:10px;background:var(--surf2);color:var(--acc);border-color:rgba(124,110,250,.3)" onclick="tAtivRelatorioAbrir()">📊 Gerar Relatório</button>
         </div>
@@ -350,10 +352,74 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
     <!-- ══ ACADEMIA ══ -->
     <div id="academia" class="env">
-      <div style="padding:40px 20px;text-align:center;color:var(--tx3)">
-        <div style="font-size:48px;margin-bottom:12px">🏋️</div>
-        <div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:8px">Academia</div>
-        <div style="font-size:13px">Em breve! Me conte como quer configurar este ambiente.</div>
+      <!-- Seletor de perfil -->
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="tab on" id="ac-tab-v" style="flex:1;padding:12px 8px;border-radius:var(--rs);border:1px solid var(--bord2);background:var(--surf2);font-size:13px;font-weight:600;color:var(--acc)" onclick="acPerfil('vanessa')">🏋️ Vanessa</button>
+        <button class="tab" id="ac-tab-r" style="flex:1;padding:12px 8px;border-radius:var(--rs);border:1px solid var(--bord2);background:var(--surf2);font-size:13px;font-weight:600;color:var(--tx3)" onclick="acPerfil('rodrigo')">🏋️ Rodrigo</button>
+      </div>
+
+      <!-- Perfil Vanessa -->
+      <div id="ac-vanessa">
+        <div class="grid">
+          <button class="gbtn hi" onclick="acPanel('v','banco')"><span class="gbtn-ic">📚</span><span class="gbtn-lb">Banco de Dados</span><span class="gbtn-sb" id="ac-v-banco-sub">0 exercícios</span></button>
+          <button class="gbtn" onclick="acPanel('v','aval')"><span class="gbtn-ic">📏</span><span class="gbtn-lb">Avaliação</span><span class="gbtn-sb">Em breve</span></button>
+          <button class="gbtn" onclick="acPanel('v','treino')"><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb">Em breve</span></button>
+          <button class="gbtn" onclick="acPanel('v','hist')"><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico</span><span class="gbtn-sb">Em breve</span></button>
+        </div>
+        <div class="panel" id="ac-v-panel-banco">
+          <div class="ph"><span class="ph-title">📚 Banco de Exercícios</span><button class="pcls" onclick="acClosePanel('v','banco')">×</button></div>
+          <div class="pbody">
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <input class="inp" id="ac-v-banco-inp" placeholder="Nome do exercício..." style="margin:0;flex:1">
+              <button class="btn-s" onclick="acBancoAdd('vanessa')">+ Add</button>
+            </div>
+            <div id="ac-v-banco-list"></div>
+          </div>
+        </div>
+        <div class="panel" id="ac-v-panel-aval">
+          <div class="ph"><span class="ph-title">📏 Avaliação</span><button class="pcls" onclick="acClosePanel('v','aval')">×</button></div>
+          <div class="pbody"><div class="empty"><span class="empty-ic">📏</span>Em breve — aguardo suas instruções!</div></div>
+        </div>
+        <div class="panel" id="ac-v-panel-treino">
+          <div class="ph"><span class="ph-title">💪 Treinos</span><button class="pcls" onclick="acClosePanel('v','treino')">×</button></div>
+          <div class="pbody"><div class="empty"><span class="empty-ic">💪</span>Em breve — aguardo suas instruções!</div></div>
+        </div>
+        <div class="panel" id="ac-v-panel-hist">
+          <div class="ph"><span class="ph-title">📈 Histórico de Treinos</span><button class="pcls" onclick="acClosePanel('v','hist')">×</button></div>
+          <div class="pbody"><div class="empty"><span class="empty-ic">📈</span>Em breve — aguardo suas instruções!</div></div>
+        </div>
+      </div>
+
+      <!-- Perfil Rodrigo -->
+      <div id="ac-rodrigo" style="display:none">
+        <div class="grid">
+          <button class="gbtn hi" onclick="acPanel('r','banco')"><span class="gbtn-ic">📚</span><span class="gbtn-lb">Banco de Dados</span><span class="gbtn-sb" id="ac-r-banco-sub">0 exercícios</span></button>
+          <button class="gbtn" onclick="acPanel('r','aval')"><span class="gbtn-ic">📏</span><span class="gbtn-lb">Avaliação</span><span class="gbtn-sb">Em breve</span></button>
+          <button class="gbtn" onclick="acPanel('r','treino')"><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb">Em breve</span></button>
+          <button class="gbtn" onclick="acPanel('r','hist')"><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico</span><span class="gbtn-sb">Em breve</span></button>
+        </div>
+        <div class="panel" id="ac-r-panel-banco">
+          <div class="ph"><span class="ph-title">📚 Banco de Exercícios</span><button class="pcls" onclick="acClosePanel('r','banco')">×</button></div>
+          <div class="pbody">
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <input class="inp" id="ac-r-banco-inp" placeholder="Nome do exercício..." style="margin:0;flex:1">
+              <button class="btn-s" onclick="acBancoAdd('rodrigo')">+ Add</button>
+            </div>
+            <div id="ac-r-banco-list"></div>
+          </div>
+        </div>
+        <div class="panel" id="ac-r-panel-aval">
+          <div class="ph"><span class="ph-title">📏 Avaliação</span><button class="pcls" onclick="acClosePanel('r','aval')">×</button></div>
+          <div class="pbody"><div class="empty"><span class="empty-ic">📏</span>Em breve — aguardo suas instruções!</div></div>
+        </div>
+        <div class="panel" id="ac-r-panel-treino">
+          <div class="ph"><span class="ph-title">💪 Treinos</span><button class="pcls" onclick="acClosePanel('r','treino')">×</button></div>
+          <div class="pbody"><div class="empty"><span class="empty-ic">💪</span>Em breve — aguardo suas instruções!</div></div>
+        </div>
+        <div class="panel" id="ac-r-panel-hist">
+          <div class="ph"><span class="ph-title">📈 Histórico de Treinos</span><button class="pcls" onclick="acClosePanel('r','hist')">×</button></div>
+          <div class="pbody"><div class="empty"><span class="empty-ic">📈</span>Em breve — aguardo suas instruções!</div></div>
+        </div>
       </div>
     </div>
 
@@ -634,6 +700,10 @@ function ensureState() {
   if (!state.trabalho.banco) state.trabalho.banco = [];
   if (!state.trabalho.ativ)  state.trabalho.ativ  = [];
   if (!state.trabalho.pauta) state.trabalho.pauta = [];
+  if (!state.trabalho.ativHist) state.trabalho.ativHist = [];
+  if (!state.academia) state.academia = { vanessa:{ banco:[] }, rodrigo:{ banco:[] } };
+  if (!state.academia.vanessa) state.academia.vanessa = { banco:[] };
+  if (!state.academia.rodrigo) state.academia.rodrigo = { banco:[] };
   if (!state.familia) state.familia = {};
   if (!state.familia.banco)    state.familia.banco    = [];
   if (!state.familia.receitas) state.familia.receitas = [];
@@ -932,17 +1002,80 @@ function tAtivVer(id) {
 function tAtivStatus(a) {
   if (a.incompleto && !a.feito) return 'incompleto';
   if (a.feito) return 'concluido';
-  if (!a.dataCon) return 'pendente';
   const hoje = new Date(); hoje.setHours(0,0,0,0);
+  // Se data de início (dataInc) está no futuro → planejado
+  if (a.dataInc && new Date(a.dataInc+'T00:00:00') > hoje) return 'planejado';
+  if (!a.dataCon) return 'pendente';
   if (new Date(a.dataCon+'T00:00:00') < hoje) return 'atrasado';
   return 'pendente';
 }
 
 function tAtivConcluir(id) {
   const a = state.trabalho.ativ.find(x=>x.id===id); if(!a) return;
-  a.feito = !a.feito;
-  if (a.feito && !a.dataCon) a.dataCon = new Date().toISOString().split('T')[0];
+  a.feito = true;
+  if (!a.dataCon) a.dataCon = new Date().toISOString().split('T')[0];
+  a.concluidoEm = new Date().toISOString().split('T')[0];
+  // Move para histórico
+  if (!state.trabalho.ativHist) state.trabalho.ativHist = [];
+  state.trabalho.ativHist.unshift(a);
+  state.trabalho.ativ = state.trabalho.ativ.filter(x=>x.id!==id);
   save(); tAtivRender(); renderTrab();
+}
+
+function tAtivConcluidos() {
+  const el = document.getElementById('t-ativ-conc'); if(!el) return;
+  const visible = el.style.display !== 'none';
+  if (visible) { el.style.display='none'; return; }
+  el.style.display = 'block';
+  if (!state.trabalho.ativHist) state.trabalho.ativHist = [];
+  const hist = state.trabalho.ativHist;
+  if (!hist.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade concluída ainda</div>'; return; }
+  const corSt = {pendente:['var(--amb)','var(--ambbg)'],planejado:['var(--blu)','var(--blubg)'],concluido:['var(--grn)','var(--grnbg)'],atrasado:['var(--red)','var(--redbg)'],incompleto:['var(--tx3)','var(--surf3)']};
+  el.innerHTML = '<div style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Concluídas</div>' +
+  hist.map(a => {
+    return `<div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:8px;padding:11px 14px;opacity:.8">
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;color:var(--tx);margin-bottom:3px">${esc(a.texto)}</div>
+          <div style="font-size:11px;color:var(--tx3)">${a.resp?'👤 '+esc(a.resp):''}${a.concluidoEm?' · ✅ '+fmtDt(a.concluidoEm):''}</div>
+        </div>
+        <span style="font-size:10px;background:var(--grnbg);color:var(--grn);border-radius:20px;padding:2px 8px;font-weight:600;flex-shrink:0">concluído</span>
+      </div>
+      <div style="display:flex;gap:4px;margin-top:8px">
+        <button class="act" onclick="tAtivVerHist(${a.id})">👁</button>
+        <button class="act ed" onclick="tAtivReabrir(${a.id})">↩ Reabrir</button>
+        <button class="act dl" onclick="tAtivDelHist(${a.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function tAtivVerHist(id) {
+  if (!state.trabalho.ativHist) return;
+  const a = state.trabalho.ativHist.find(x=>x.id===id); if(!a) return;
+  openOverlay(`
+    <div class="otitle">📋 ${esc(a.texto)}</div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Responsável</span><span class="g1-det-val">${esc(a.resp||'—')}</span></div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Data inclusão</span><span class="g1-det-val">${fmtDt(a.dataInc)}</span></div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Data conclusão</span><span class="g1-det-val">${fmtDt(a.dataCon)}</span></div>
+    <div class="g1-det-row"><span class="g1-det-lbl">Concluído em</span><span class="g1-det-val">${fmtDt(a.concluidoEm)}</span></div>
+    ${a.obs?`<div class="g1-det-row"><span class="g1-det-lbl">Observação</span><span class="g1-det-val">${esc(a.obs)}</span></div>`:''}
+    <div class="row-btns" style="margin-top:14px"><button class="btn-s" onclick="closeOverlay()">Fechar</button></div>`);
+}
+
+function tAtivReabrir(id) {
+  if (!state.trabalho.ativHist) return;
+  const a = state.trabalho.ativHist.find(x=>x.id===id); if(!a) return;
+  a.feito = false; a.concluidoEm = null;
+  state.trabalho.ativ.push(a);
+  state.trabalho.ativHist = state.trabalho.ativHist.filter(x=>x.id!==id);
+  save(); tAtivRender(); tAtivConcluidos(); renderTrab();
+}
+
+function tAtivDelHist(id) {
+  if (!confirm('Excluir do histórico?')) return;
+  state.trabalho.ativHist = (state.trabalho.ativHist||[]).filter(x=>x.id!==id);
+  save(); tAtivConcluidos();
 }
 
 function tAtivDel(id) {
@@ -957,14 +1090,17 @@ function tAtivRender() {
   if (!lista.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade ainda</div>'; return; }
   const corSt = {
     pendente:    ['var(--amb)','var(--ambbg)'],
+    planejado:   ['var(--blu)','var(--blubg)'],
     concluido:   ['var(--grn)','var(--grnbg)'],
     atrasado:    ['var(--red)','var(--redbg)'],
     incompleto:  ['var(--tx3)','var(--surf3)']
   };
-  el.innerHTML = lista.map(a => {
+  const ativas = lista.filter(a => !a.feito);
+  if (!ativas.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade ativa</div>'; return; }
+  el.innerHTML = ativas.map(a => {
     const st = tAtivStatus(a);
     const [cor, bg] = corSt[st] || corSt.pendente;
-    const stLabel = {pendente:'pendente',concluido:'concluído',atrasado:'atrasado',incompleto:'incompleto'}[st];
+    const stLabel = {pendente:'pendente',planejado:'planejado',concluido:'concluído',atrasado:'atrasado',incompleto:'incompleto'}[st];
     return `<div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:8px;padding:11px 14px">
       <div style="display:flex;align-items:flex-start;gap:8px">
         <div style="flex:1;min-width:0">
@@ -976,7 +1112,7 @@ function tAtivRender() {
       <div style="display:flex;gap:4px;margin-top:8px">
         <button class="act" onclick="tAtivVer(${a.id})">👁</button>
         <button class="act ed" onclick="tAtivAbrir(${a.id})">✏️</button>
-        <button class="act ${a.feito?'':'ed'}" onclick="tAtivConcluir(${a.id})" title="${a.feito?'Reabrir':'Concluir'}">${a.feito?'↩':'✓'}</button>
+        <button class="act ed" onclick="tAtivConcluir(${a.id})" title="Concluir">✓</button>
         <button class="act dl" onclick="tAtivDel(${a.id})">🗑</button>
       </div>
     </div>`;
@@ -1044,15 +1180,25 @@ function tAtivFiltrar() {
   const status = document.getElementById('rel-status').value;
   const de     = document.getElementById('rel-de').value;
   const ate    = document.getElementById('rel-ate').value;
-  return state.trabalho.ativ.filter(a => {
+  // Ativas
+  const ativas = state.trabalho.ativ.filter(a => {
     if (resp !== 'todos' && a.resp !== resp) return false;
-    if (de && a.dataInc < de) return false;
-    if (ate && a.dataInc > ate) return false;
-    const st = tAtivStatus(a);
-    if (status === 'pendente' && st === 'concluido') return false;
-    if (status === 'concluido' && st !== 'concluido') return false;
+    if (de && a.dataInc && a.dataInc < de) return false;
+    if (ate && a.dataInc && a.dataInc > ate) return false;
+    if (status === 'concluido') return false; // concluídos estão no hist
     return true;
   });
+  // Histórico (concluídos)
+  const hist = (state.trabalho.ativHist||[]).filter(a => {
+    if (resp !== 'todos' && a.resp !== resp) return false;
+    if (de && a.dataInc && a.dataInc < de) return false;
+    if (ate && a.dataInc && a.dataInc > ate) return false;
+    if (status === 'pendente') return false;
+    return true;
+  });
+  if (status === 'concluido') return hist;
+  if (status === 'tudo') return [...ativas, ...hist];
+  return ativas;
 }
 
 function tAtivGerarWpp() {
@@ -1060,8 +1206,9 @@ function tAtivGerarWpp() {
   if (!lista.length) { alert('Nenhuma atividade no filtro selecionado.'); return; }
   const linhas = lista.map((a,i) => {
     const st = tAtivStatus(a);
+    const stLabel = {pendente:'Pendente',planejado:'Planejado',concluido:'Concluído',atrasado:'Atrasado',incompleto:'Incompleto'}[st]||st;
     const prazo = a.dataCon ? fmtDt(a.dataCon) : 'Sem prazo';
-    return (i+1)+'. '+a.texto+'\nResponsavel: '+(a.resp||'--')+' - Prazo: '+prazo+'\nStatus: '+st+(a.obs?'\nObs: '+a.obs:'');
+    return (i+1)+'. '+a.texto+'\nResponsável: '+(a.resp||'--')+' - Prazo: '+prazo+'\nStatus: '+stLabel+(a.obs?'\nObs: '+a.obs:'');
   });
   const txt = '*Atividade Engenharia*\n\n' + linhas.join('\n\n');
   window._wppTxt = txt;
@@ -1149,10 +1296,11 @@ function tAtivGerarPDF() {
       let barColor = '';
       if (st==='concluido') barColor='rgba(52,211,153,0.8)';
       else if (st==='atrasado') barColor='rgba(248,113,113,0.8)';
+      else if (st==='planejado') barColor='rgba(96,165,250,0.5)';
       else if (st==='pendente') { const xH=PG+10*dW; barColor='rgba(251,191,36,0.8)'; ctx.fillStyle=barColor; ctx.fillRect(xP1,y+18,Math.max(4,xH-xP1),12); barColor=''; }
       if (barColor) { ctx.fillStyle=barColor; ctx.fillRect(xP1,y+18,Math.max(4,xP2-xP1),12); }
       ctx.font='700 9px '+F; ctx.fillStyle='#fff';
-      const stLabel = st==='concluido'?'✓ Concluído':st==='atrasado'?'Atrasado':'Em andamento';
+      const stLabel = st==='concluido'?'✓ Concluído':st==='atrasado'?'Atrasado':st==='planejado'?'Planejado':'Em andamento';
       ctx.fillText(stLabel, xP1+3, y+27);
     }
     // Obs on right
@@ -2128,6 +2276,74 @@ function dmGerarImagem() {
     const url=URL.createObjectURL(blob);const a=document.createElement('a');
     a.href=url;a.download=`desig_${MESES_PT[dmMesSel].toLowerCase()}_${dmAnoSel}.png`;a.click();URL.revokeObjectURL(url);
   },'image/png');
+}
+
+// ═══════════════════════════════════════
+//  ACADEMIA
+// ═══════════════════════════════════════
+let _acPerfil = 'vanessa';
+const AC_PANELS = ['banco','aval','treino','hist'];
+
+function acPerfil(p) {
+  _acPerfil = p;
+  document.getElementById('ac-vanessa').style.display = p==='vanessa' ? 'block' : 'none';
+  document.getElementById('ac-rodrigo').style.display = p==='rodrigo' ? 'block' : 'none';
+  const tv = document.getElementById('ac-tab-v');
+  const tr = document.getElementById('ac-tab-r');
+  if (tv) { tv.style.color = p==='vanessa' ? 'var(--acc)' : 'var(--tx3)'; tv.style.borderColor = p==='vanessa' ? 'rgba(124,110,250,.35)' : 'var(--bord2)'; }
+  if (tr) { tr.style.color = p==='rodrigo' ? 'var(--acc)' : 'var(--tx3)'; tr.style.borderColor = p==='rodrigo' ? 'rgba(124,110,250,.35)' : 'var(--bord2)'; }
+}
+
+function acPanel(pfx, name) {
+  const isOpen = document.getElementById('ac-'+pfx+'-panel-'+name).classList.contains('open');
+  AC_PANELS.forEach(p => { const el=document.getElementById('ac-'+pfx+'-panel-'+p); if(el) el.classList.remove('open'); });
+  if (!isOpen) {
+    document.getElementById('ac-'+pfx+'-panel-'+name).classList.add('open');
+    if (name==='banco') acBancoRender(pfx==='v'?'vanessa':'rodrigo');
+  }
+}
+
+function acClosePanel(pfx, name) {
+  const el = document.getElementById('ac-'+pfx+'-panel-'+name);
+  if (el) el.classList.remove('open');
+}
+
+function acBancoAdd(pessoa) {
+  const pfx = pessoa==='vanessa' ? 'v' : 'r';
+  const el = document.getElementById('ac-'+pfx+'-banco-inp'); if(!el) return;
+  const nome = el.value.trim(); if(!nome) return;
+  if (!state.academia) state.academia = { vanessa: { banco:[] }, rodrigo: { banco:[] } };
+  if (!state.academia[pessoa]) state.academia[pessoa] = { banco:[] };
+  if (state.academia[pessoa].banco.includes(nome)) { alert('Já cadastrado.'); return; }
+  state.academia[pessoa].banco.push(nome);
+  state.academia[pessoa].banco.sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  el.value = '';
+  save(); acBancoRender(pessoa); acUpdateSub(pessoa);
+}
+
+function acBancoDel(pessoa, i) {
+  if (!confirm('Excluir?')) return;
+  state.academia[pessoa].banco.splice(i, 1);
+  save(); acBancoRender(pessoa); acUpdateSub(pessoa);
+}
+
+function acBancoRender(pessoa) {
+  const pfx = pessoa==='vanessa' ? 'v' : 'r';
+  const el = document.getElementById('ac-'+pfx+'-banco-list'); if(!el) return;
+  if (!state.academia || !state.academia[pessoa]) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhum exercício</div>'; return; }
+  const lista = state.academia[pessoa].banco || [];
+  if (!lista.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhum exercício cadastrado</div>'; return; }
+  el.innerHTML = lista.map((n,i) => `<div class="g1-item">
+    <span style="flex:1;font-size:14px;color:var(--tx)">${esc(n)}</span>
+    <button class="act dl" onclick="acBancoDel('${pessoa}',${i})">🗑</button>
+  </div>`).join('');
+}
+
+function acUpdateSub(pessoa) {
+  const pfx = pessoa==='vanessa' ? 'v' : 'r';
+  const el = document.getElementById('ac-'+pfx+'-banco-sub'); if(!el) return;
+  const n = (state.academia&&state.academia[pessoa]&&state.academia[pessoa].banco||[]).length;
+  el.textContent = n+' '+(n===1?'exercício':'exercícios');
 }
 
 // ═══════════════════════════════════════
