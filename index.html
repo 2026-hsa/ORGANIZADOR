@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 35</title>
+<title>Organizador - 36</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -240,6 +240,35 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 .inv-confirm{width:100%;margin-top:14px;background:var(--acc);color:#fff;border:none;border-radius:var(--rs);padding:12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
 
 .bottom-safe{height:env(safe-area-inset-bottom,16px)}
+
+/* Pauta preview overlay */
+.pauta-prev-ov{position:fixed;inset:0;background:#0D0D0F;z-index:300;display:none;flex-direction:column;overflow-y:auto}
+.pauta-prev-ov.open{display:flex}
+.pauta-prev-hdr{background:#1C1C20;border-bottom:1px solid rgba(255,255,255,.07);padding:14px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.pauta-prev-title{flex:1;font-size:14px;font-weight:600;color:#F0EFF4}
+.pauta-prev-close{background:none;border:none;color:#9D9CA8;font-size:20px;cursor:pointer}
+.pauta-prev-body{padding:20px;max-width:600px;margin:0 auto;width:100%}
+.pauta-prev-section{margin-bottom:18px}
+.pauta-prev-sec-title{font-size:10px;font-weight:600;color:#7C6EFA;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.pauta-prev-item{background:#1C1C20;border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:12px 14px;margin-bottom:8px}
+.pauta-prev-item-title{font-size:14px;font-weight:600;color:#F0EFF4;margin-bottom:4px}
+.pauta-prev-item-sub{font-size:11px;color:#5A5966;margin-bottom:8px}
+.pauta-prev-note{width:100%;background:#242428;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;color:#F0EFF4;outline:none;resize:vertical;min-height:60px}
+.pauta-prev-note:focus{border-color:#7C6EFA}
+.pauta-prev-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-bottom:32px}
+.ppbtn{flex:1;min-width:120px;padding:11px 10px;border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.12);transition:opacity .15s}
+.ppbtn:active{opacity:.75}
+.ppbtn.save{background:#7C6EFA;color:#fff;border-color:#7C6EFA}
+.ppbtn.img{background:rgba(251,191,36,.1);color:#FBBF24;border-color:rgba(251,191,36,.3)}
+.ppbtn.pdf{background:rgba(52,211,153,.1);color:#34D399;border-color:rgba(52,211,153,.3)}
+.ppbtn.del{background:rgba(248,113,113,.1);color:#F87171;border-color:rgba(248,113,113,.3)}
+.ppbtn.edit{background:#242428;color:#9D9CA8}
+/* Registros lista */
+.reg-item{background:#1C1C20;border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.reg-info{flex:1;min-width:0}
+.reg-data{font-size:13px;font-weight:600;color:#F0EFF4}
+.reg-sub{font-size:11px;color:#5A5966;margin-top:2px}
+
 </style>
 </head>
 <body>
@@ -247,7 +276,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">35</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">36</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -521,6 +550,8 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
           <button class="addbtn" id="pauta-addbtn" onclick="pautaAbrir()">+ Adicionar item</button>
           <div id="pauta-list" style="margin-top:10px"></div>
           <button class="pauta-gerar" style="margin-top:14px" onclick="abrirGerarPauta()">📋 Gerar Pauta</button>
+          <div id="pauta-reg-btn-area"></div>
+          <div id="pauta-registros-area" style="margin-top:10px"></div>
         </div>
       </div>
 
@@ -650,6 +681,24 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
   </div>
 
   <canvas id="main-canvas" style="display:none"></canvas>
+
+  <!-- Pauta Preview Full Page -->
+  <div class="pauta-prev-ov" id="pauta-prev-ov">
+    <div class="pauta-prev-hdr">
+      <span class="pauta-prev-title" id="pp-title">Pauta da Reunião</span>
+      <button class="pauta-prev-close" onclick="fecharPautaPreview()">×</button>
+    </div>
+    <div class="pauta-prev-body" id="pp-body"></div>
+  </div>
+
+  <!-- Registros de Pautas Full Page -->
+  <div class="pauta-prev-ov" id="registros-ov">
+    <div class="pauta-prev-hdr">
+      <span class="pauta-prev-title">📚 Registros de Pautas</span>
+      <button class="pauta-prev-close" onclick="fecharRegistros()">×</button>
+    </div>
+    <div class="pauta-prev-body" id="registros-body"></div>
+  </div>
   <div class="bottom-safe"></div>
 </div>
 
@@ -1880,50 +1929,257 @@ function abrirGerarPauta() {
   document.getElementById('gp-data').value=new Date().toISOString().split('T')[0];
   document.getElementById('gerar-pauta-overlay').classList.add('open');
 }
+
+// Gera canvas da pauta e retorna dataURL
+function gerarPautaCanvas(dataVal, inicio, oIni, oFim, pautas, notas) {
+  const [y,m,d]=dataVal.split('-');
+  const [hI,mI]=inicio.split(':').map(Number);
+  const totMin=pautas.reduce((s,p)=>s+(p.tempo||0),0);
+  const encMin=hI*60+mI+totMin;
+  const encH=Math.floor(encMin/60)%24,encM=encMin%60;
+  const encFmt=String(encH).padStart(2,'0')+':'+String(encM).padStart(2,'0');
+  const canvas=document.getElementById('main-canvas');
+  const W=800,F="Inter,Arial,sans-serif";
+  let H=110+50+50+30+50;
+  pautas.forEach(p=>{
+    H+=30; if(p.responsavel)H+=22; if(p.ref)H+=22; if(notas&&notas[p.id])H+=22;
+  });
+  H+=50+50+60;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#0F0F12';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#7C6EFA';ctx.fillRect(0,0,W,5);
+  let y2=46;
+  function sep(){ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(42,y2+4);ctx.lineTo(W-42,y2+4);ctx.stroke();y2+=18;}
+  ctx.font=`700 24px ${F}`;ctx.fillStyle='#F0EFF4';ctx.fillText('PAUTA DA REUNIÃO',42,y2);y2+=32;
+  ctx.font=`400 13px ${F}`;ctx.fillStyle='#9D9CA8';ctx.fillText(`${d}/${m}/${y}  |  Início: ${inicio}`,42,y2);y2+=28;
+  sep();
+  ctx.font=`600 11px ${F}`;ctx.fillStyle='#7C6EFA';ctx.fillText('ORAÇÃO INICIAL',42,y2+14);y2+=32;
+  ctx.font=`500 14px ${F}`;ctx.fillStyle='#F0EFF4';ctx.fillText(oIni||'—',42,y2+14);y2+=28;
+  sep();
+  ctx.font=`600 11px ${F}`;ctx.fillStyle='#7C6EFA';ctx.fillText('ASSUNTOS',42,y2+14);y2+=32;
+  pautas.forEach((p,i)=>{
+    ctx.font=`600 13px ${F}`;ctx.fillStyle='#7C6EFA';ctx.fillText(`${i+1}.`,42,y2+14);
+    ctx.font=`500 14px ${F}`;ctx.fillStyle='#F0EFF4';
+    const txt=p.assunto+(p.tempo?` (${p.tempo} min)`:'');
+    ctx.fillText(txt,66,y2+14);y2+=28;
+    if(p.responsavel){ctx.font=`400 12px ${F}`;ctx.fillStyle='#5A5966';ctx.fillText(`Responsável: ${p.responsavel}`,66,y2);y2+=20;}
+    if(p.ref){ctx.font=`400 12px ${F}`;ctx.fillStyle='#5A5966';ctx.fillText(`Ref.: ${p.ref}`,66,y2);y2+=20;}
+    if(notas&&notas[p.id]){ctx.font=`400 12px ${F}`;ctx.fillStyle='#9D9CA8';ctx.fillText(`↳ ${notas[p.id]}`,66,y2);y2+=20;}
+  });
+  sep();
+  ctx.font=`600 11px ${F}`;ctx.fillStyle='#7C6EFA';ctx.fillText('ORAÇÃO FINAL',42,y2+14);y2+=32;
+  ctx.font=`500 14px ${F}`;ctx.fillStyle='#F0EFF4';ctx.fillText(oFim||'—',42,y2+14);y2+=30;
+  sep();
+  ctx.font=`600 15px ${F}`;ctx.fillStyle='#34D399';ctx.fillText(`Encerramento previsto: ${encFmt}`,42,y2+18);
+  ctx.fillStyle='#7C6EFA';ctx.fillRect(0,H-4,W,4);
+  return canvas.toDataURL('image/png');
+}
+
 function gerarImagemPauta() {
   const dataVal=document.getElementById('gp-data').value;
   const inicio=document.getElementById('gp-inicio').value;
   const oIni=document.getElementById('gp-ini').value.trim();
   const oFim=document.getElementById('gp-fim').value.trim();
   if(!dataVal||!inicio){alert('Informe data e horário.');return;}
-  const[y,m,d]=dataVal.split('-');
-  const[hI,mI]=inicio.split(':').map(Number);
-  const totMin=state.salao.pautas.reduce((s,p)=>s+(p.tempo||0),0);
-  const encMin=hI*60+mI+totMin;
-  const encH=Math.floor(encMin/60)%24,encM=encMin%60;
-  const encFmt=String(encH).padStart(2,'0')+':'+String(encM).padStart(2,'0');
-  const canvas=document.getElementById('main-canvas');
-  const W=800,F="Inter,Arial,sans-serif";
-  let H=90+50+50+30+50+state.salao.pautas.length*70+50+60;
-  canvas.width=W;canvas.height=H;
-  const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#0F0F12';ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#7C6EFA';ctx.fillRect(0,0,W,5);
-  let y2=46;
-  ctx.font=`700 24px ${F}`;ctx.fillStyle='#F0EFF4';ctx.fillText('PAUTA DA REUNIÃO',42,y2);y2+=32;
-  ctx.font=`400 13px ${F}`;ctx.fillStyle='#9D9CA8';ctx.fillText(`${d}/${m}/${y}  |  Início: ${inicio}`,42,y2);y2+=28;
-  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(42,y2+4);ctx.lineTo(W-42,y2+4);ctx.stroke();y2+=18;
-  ctx.font=`600 11px ${F}`;ctx.fillStyle='#7C6EFA';ctx.fillText('ORAÇÃO INICIAL',42,y2+14);y2+=32;
-  ctx.font=`500 14px ${F}`;ctx.fillStyle='#F0EFF4';ctx.fillText(oIni||'—',42,y2+14);y2+=28;
-  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.beginPath();ctx.moveTo(42,y2+4);ctx.lineTo(W-42,y2+4);ctx.stroke();y2+=18;
-  ctx.font=`600 11px ${F}`;ctx.fillStyle='#7C6EFA';ctx.fillText('ASSUNTOS',42,y2+14);y2+=32;
-  state.salao.pautas.forEach((p,i)=>{
-    ctx.font=`600 13px ${F}`;ctx.fillStyle='#7C6EFA';ctx.fillText(`${i+1}.`,42,y2+14);
-    ctx.font=`500 14px ${F}`;ctx.fillStyle='#F0EFF4';ctx.fillText(p.assunto+(p.tempo?` (${p.tempo} min)`:''),66,y2+14);
-    if(p.responsavel){ctx.font=`400 12px ${F}`;ctx.fillStyle='#5A5966';ctx.fillText(`Responsável: ${p.responsavel}`,66,y2+30);}
-    y2+=p.responsavel?48:30;
+
+  // Salvar pauta nos registros
+  const registro = {
+    id: Date.now(),
+    data: dataVal,
+    inicio,
+    oIni,
+    oFim,
+    pautas: JSON.parse(JSON.stringify(state.salao.pautas)),
+    notas: {},
+    criadoEm: new Date().toISOString()
+  };
+  if(!state.salao.pautasSalvas) state.salao.pautasSalvas=[];
+  state.salao.pautasSalvas.unshift(registro);
+  save();
+
+  // Fechar overlay e abrir visualizador
+  document.getElementById('gerar-pauta-overlay').classList.remove('open');
+  abrirVisualizadorPauta(registro.id);
+
+  // Atualizar botão registros
+  pautaAtualizarBotaoReg();
+}
+
+/* ── VISUALIZADOR DE PAUTA (nova página overlay) ── */
+function abrirVisualizadorPauta(id) {
+  const reg = state.salao.pautasSalvas.find(x=>x.id===id);
+  if(!reg) return;
+
+  // Gera imagem preview
+  const dataURL = gerarPautaCanvas(reg.data, reg.inicio, reg.oIni, reg.oFim, reg.pautas, reg.notas);
+
+  const ov = document.getElementById('main-overlay');
+  ov.innerHTML = `
+    <div style="background:var(--surf);border-radius:var(--r);width:100%;max-width:420px;max-height:95vh;overflow-y:auto;padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <span style="font-size:15px;font-weight:600;color:var(--tx)">📋 Pauta Gerada</span>
+        <button class="btn-c" onclick="fecharMainOverlay()">×</button>
+      </div>
+      <!-- Preview imagem -->
+      <img src="${dataURL}" style="width:100%;border-radius:var(--rs);border:1px solid var(--bord);margin-bottom:16px">
+      <!-- Botões de ação -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn-s" style="flex:1" onclick="baixarPautaPNG(${id})">⬇️ Baixar PNG</button>
+        <button class="btn-s" style="flex:1;background:var(--red)" onclick="baixarPautaPDF(${id})">📄 Baixar PDF</button>
+      </div>
+      <button class="btn-c" style="width:100%" onclick="abrirEdicaoPauta(${id})">✏️ Editar notas da pauta</button>
+    </div>`;
+  ov.classList.add('open');
+}
+
+function baixarPautaPNG(id) {
+  const reg = state.salao.pautasSalvas.find(x=>x.id===id);
+  if(!reg) return;
+  const dataURL = gerarPautaCanvas(reg.data, reg.inicio, reg.oIni, reg.oFim, reg.pautas, reg.notas);
+  const a = document.createElement('a');
+  a.href = dataURL;
+  a.download = `pauta_${reg.data}.png`;
+  a.click();
+}
+
+function baixarPautaPDF(id) {
+  const reg = state.salao.pautasSalvas.find(x=>x.id===id);
+  if(!reg) return;
+  const dataURL = gerarPautaCanvas(reg.data, reg.inicio, reg.oIni, reg.oFim, reg.pautas, reg.notas);
+  // Cria janela de impressão com a imagem para salvar como PDF
+  const win = window.open('');
+  win.document.write(`<!DOCTYPE html><html><head><title>Pauta ${reg.data}</title>
+  <style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0F0F12}
+  img{width:100%;display:block}
+  @media print{body{margin:0}@page{margin:0;size:A4}}</style></head>
+  <body><img src="${dataURL}">
+  <script>window.onload=function(){window.print();}<\/script></body></html>`);
+  win.document.close();
+}
+
+/* ── EDIÇÃO DE NOTAS DA PAUTA ── */
+function abrirEdicaoPauta(id) {
+  const reg = state.salao.pautasSalvas.find(x=>x.id===id);
+  if(!reg) return;
+  const notasFields = reg.pautas.map((p,i)=>`
+    <div style="margin-bottom:14px;background:var(--surf2);border-radius:var(--rs);padding:12px;border:1px solid var(--bord)">
+      <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:6px">${i+1}. ${esc(p.assunto)}</div>
+      ${p.responsavel?`<div style="font-size:11px;color:var(--tx3);margin-bottom:6px">👤 ${esc(p.responsavel)}</div>`:''}
+      ${p.ref?`<div style="font-size:11px;color:var(--tx3);margin-bottom:6px">📖 ${esc(p.ref)}</div>`:''}
+      <textarea class="ta" id="nota-${p.id}" placeholder="Anotações..." style="margin:0;min-height:56px">${esc(reg.notas[p.id]||'')}</textarea>
+    </div>`).join('');
+
+  const ov = document.getElementById('main-overlay');
+  ov.innerHTML = `
+    <div style="background:var(--surf);border-radius:var(--r);width:100%;max-width:420px;max-height:95vh;overflow-y:auto;padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:15px;font-weight:600;color:var(--tx)">✏️ Notas da Pauta</span>
+        <button class="btn-c" onclick="fecharMainOverlay()">×</button>
+      </div>
+      <div style="font-size:12px;color:var(--tx3);margin-bottom:16px">${fmtDt(reg.data)} | ${reg.inicio}</div>
+      ${notasFields}
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-c" style="flex:1" onclick="fecharMainOverlay()">Cancelar</button>
+        <button class="btn-s" style="flex:1" onclick="salvarNotasPauta(${id})">💾 Salvar</button>
+      </div>
+    </div>`;
+  ov.classList.add('open');
+}
+
+function salvarNotasPauta(id) {
+  const reg = state.salao.pautasSalvas.find(x=>x.id===id);
+  if(!reg) return;
+  reg.notas = reg.notas || {};
+  reg.pautas.forEach(p=>{
+    const el = document.getElementById(`nota-${p.id}`);
+    if(el) reg.notas[p.id] = el.value.trim();
   });
-  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.beginPath();ctx.moveTo(42,y2+4);ctx.lineTo(W-42,y2+4);ctx.stroke();y2+=18;
-  ctx.font=`600 11px ${F}`;ctx.fillStyle='#7C6EFA';ctx.fillText('ORAÇÃO FINAL',42,y2+14);y2+=32;
-  ctx.font=`500 14px ${F}`;ctx.fillStyle='#F0EFF4';ctx.fillText(oFim||'—',42,y2+14);y2+=30;
-  ctx.strokeStyle='rgba(255,255,255,.07)';ctx.beginPath();ctx.moveTo(42,y2+4);ctx.lineTo(W-42,y2+4);ctx.stroke();y2+=18;
-  ctx.font=`600 15px ${F}`;ctx.fillStyle='#34D399';ctx.fillText(`Encerramento previsto: ${encFmt}`,42,y2+18);
-  ctx.fillStyle='#7C6EFA';ctx.fillRect(0,H-4,W,4);
-  canvas.toBlob(blob=>{
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');
-    a.href=url;a.download=`pauta_${dataVal}.png`;a.click();URL.revokeObjectURL(url);
-    document.getElementById('gerar-pauta-overlay').classList.remove('open');
-  },'image/png');
+  save();
+  // Volta para visualizador
+  abrirVisualizadorPauta(id);
+}
+
+/* ── REGISTROS DE PAUTAS ── */
+function pautaAtualizarBotaoReg() {
+  const area = document.getElementById('pauta-reg-btn-area');
+  if(!area) return;
+  const n = (state.salao.pautasSalvas||[]).length;
+  area.innerHTML = n > 0
+    ? `<button class="addbtn" style="margin-top:8px;background:var(--surf2);color:var(--amb);border-color:var(--ambd)" onclick="abrirRegistrosPautas()">📚 Registros das Pautas (${n})</button>`
+    : '';
+}
+
+function abrirRegistrosPautas() {
+  const regs = state.salao.pautasSalvas||[];
+  if(!regs.length){alert('Nenhum registro ainda.');return;}
+  const lista = regs.map((r,i)=>`
+    <div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:10px;padding:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--tx)">${fmtDt(r.data)} — ${r.inicio}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:2px">${r.pautas.length} itens · Oração: ${esc(r.oIni||'—')}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="act" onclick="abrirVisualizadorPauta(${r.id})" title="Visualizar">👁 Ver</button>
+        <button class="act ed" onclick="abrirEdicaoPauta(${r.id})" title="Editar notas">✏️ Notas</button>
+        <button class="act ed" onclick="editarCabecalhoPauta(${r.id})" title="Editar cabeçalho">⚙️ Editar</button>
+        <button class="act dl" onclick="excluirRegistroPauta(${r.id})" title="Excluir">🗑</button>
+      </div>
+    </div>`).join('');
+
+  const ov = document.getElementById('main-overlay');
+  ov.innerHTML = `
+    <div style="background:var(--surf);border-radius:var(--r);width:100%;max-width:420px;max-height:95vh;overflow-y:auto;padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <span style="font-size:15px;font-weight:600;color:var(--tx)">📚 Registros das Pautas</span>
+        <button class="btn-c" onclick="fecharMainOverlay()">×</button>
+      </div>
+      ${lista}
+    </div>`;
+  ov.classList.add('open');
+}
+
+function editarCabecalhoPauta(id) {
+  const reg = state.salao.pautasSalvas.find(x=>x.id===id);
+  if(!reg) return;
+  const ov = document.getElementById('main-overlay');
+  ov.innerHTML = `
+    <div style="background:var(--surf);border-radius:var(--r);width:100%;max-width:420px;max-height:95vh;overflow-y:auto;padding:20px">
+      <div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:14px">⚙️ Editar Pauta</div>
+      <span class="lbl">Data</span><input class="inp" id="ep-data" type="date" value="${reg.data}">
+      <span class="lbl">Horário de início</span><input class="inp" id="ep-inicio" type="time" value="${reg.inicio}">
+      <span class="lbl">Oração Inicial</span><input class="inp" id="ep-oini" value="${esc(reg.oIni||'')}">
+      <span class="lbl">Oração Final</span><input class="inp" id="ep-ofim" value="${esc(reg.oFim||'')}">
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn-c" style="flex:1" onclick="abrirRegistrosPautas()">Cancelar</button>
+        <button class="btn-s" style="flex:1" onclick="salvarEdicaoCabecalhoPauta(${id})">Salvar</button>
+      </div>
+    </div>`;
+}
+
+function salvarEdicaoCabecalhoPauta(id) {
+  const reg = state.salao.pautasSalvas.find(x=>x.id===id);
+  if(!reg) return;
+  reg.data   = document.getElementById('ep-data').value || reg.data;
+  reg.inicio = document.getElementById('ep-inicio').value || reg.inicio;
+  reg.oIni   = document.getElementById('ep-oini').value.trim();
+  reg.oFim   = document.getElementById('ep-ofim').value.trim();
+  save();
+  abrirVisualizadorPauta(id);
+}
+
+function excluirRegistroPauta(id) {
+  if(!confirm('Excluir este registro?')) return;
+  state.salao.pautasSalvas = state.salao.pautasSalvas.filter(x=>x.id!==id);
+  save(); pautaAtualizarBotaoReg(); fecharMainOverlay();
+}
+
+function fecharMainOverlay() {
+  const ov = document.getElementById('main-overlay');
+  ov.classList.remove('open');
+  ov.innerHTML = '';
 }
 
 /* Grupo 1 */
