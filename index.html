@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 37</title>
+<title>Organizador - 38</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -276,7 +276,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">37</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">38</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -319,11 +319,9 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
       <div class="panel" id="tp-pauta">
         <div class="ph"><span class="ph-title">📄 Pautas</span><button class="pcls" onclick="tClose('pauta')">×</button></div>
         <div class="pbody">
-          <div style="display:flex;gap:8px;margin-bottom:10px">
-            <input class="inp" id="t-pauta-inp" placeholder="Nova pauta..." style="margin:0;flex:1" onkeydown="if(event.key==='Enter')tItemAdd('pauta')">
-            <button class="btn-s" onclick="tItemAdd('pauta')">+ Add</button>
-          </div>
-          <div id="t-pauta-list"></div>
+          <button class="addbtn" onclick="tPautaAbrir()">+ Incluir Pauta</button>
+          <div id="t-pauta-list" style="margin-top:10px"></div>
+          <div id="t-pauta-concluidos-area"></div>
         </div>
       </div>
     </div>
@@ -750,6 +748,7 @@ function ensureState() {
   if (!state.trabalho.ativ)  state.trabalho.ativ  = [];
   if (!state.trabalho.pauta) state.trabalho.pauta = [];
   if (!state.trabalho.ativHist) state.trabalho.ativHist = [];
+  if (!state.trabalho.pautaHist) state.trabalho.pautaHist = [];
   if (!state.academia) state.academia = { vanessa:{ banco:[] }, rodrigo:{ banco:[] } };
   if (!state.academia.vanessa) state.academia.vanessa = { banco:[] };
   if (!state.academia.rodrigo) state.academia.rodrigo = { banco:[] };
@@ -937,7 +936,7 @@ function tToggle(name) {
     panel.classList.add('open');
     if (name==='banco') tBancoRender();
     if (name==='ativ')  tListRender('ativ');
-    if (name==='pauta') tListRender('pauta');
+    if (name==='pauta') tPautaRender();
   }
 }
 function tClose(name) { document.getElementById('tp-'+name).classList.remove('open'); }
@@ -1082,6 +1081,7 @@ function tAtivConcluir(id) {
   a.concluidoEm = new Date().toISOString().split('T')[0];
   // Move para histórico
   if (!state.trabalho.ativHist) state.trabalho.ativHist = [];
+  if (!state.trabalho.pautaHist) state.trabalho.pautaHist = [];
   state.trabalho.ativHist.unshift(a);
   state.trabalho.ativ = state.trabalho.ativ.filter(x=>x.id!==id);
   save(); tAtivRender(); renderTrab();
@@ -1093,6 +1093,7 @@ function tAtivConcluidos() {
   if (visible) { el.style.display='none'; return; }
   el.style.display = 'block';
   if (!state.trabalho.ativHist) state.trabalho.ativHist = [];
+  if (!state.trabalho.pautaHist) state.trabalho.pautaHist = [];
   const hist = state.trabalho.ativHist;
   if (!hist.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade concluída ainda</div>'; return; }
   const corSt = {pendente:['var(--amb)','var(--ambbg)'],planejado:['var(--blu)','var(--blubg)'],concluido:['var(--grn)','var(--grnbg)'],atrasado:['var(--red)','var(--redbg)'],incompleto:['var(--tx3)','var(--surf3)']};
@@ -1160,7 +1161,13 @@ function tAtivRender() {
     atrasado:    ['var(--red)','var(--redbg)'],
     incompleto:  ['var(--tx3)','var(--surf3)']
   };
-  const ativas = lista.filter(a => !a.feito);
+  // Ordenar: primeiro com data (mais próxima primeiro), depois sem data
+  const ativas = lista.filter(a => !a.feito).sort((a,b) => {
+    if (a.dataCon && b.dataCon) return a.dataCon.localeCompare(b.dataCon);
+    if (a.dataCon) return -1;
+    if (b.dataCon) return 1;
+    return 0;
+  });
   if (!ativas.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade ativa</div>'; return; }
   el.innerHTML = ativas.map(a => {
     const st = tAtivStatus(a);
@@ -1202,6 +1209,7 @@ function tItemToggle(tipo,id) {
 }
 function tListRender(tipo) {
   if (tipo === 'ativ') { tAtivRender(); return; }
+  if (tipo === 'pauta') { tPautaRender(); return; }
   const el=document.getElementById('t-'+tipo+'-list'); if(!el) return;
   const lista=state.trabalho[tipo];
   if(!lista.length){el.innerHTML='<div class="empty" style="padding:10px 0">Nenhum item ainda</div>';return;}
@@ -1210,6 +1218,145 @@ function tListRender(tipo) {
     <span class="tx-task ${item.feito?'done':''}">${esc(item.texto)}</span>
     <button class="delbtn" onclick="tItemDel('${tipo}',${item.id})">×</button>
   </div>`).join('');
+}
+
+/* ─── PAUTAS TRABALHO (novo sistema) ─── */
+let _tPautaEditId = null;
+
+function tPautaAbrir(id) {
+  _tPautaEditId = id || null;
+  const p = id ? (state.trabalho.pauta||[]).find(x=>x.id===id) : null;
+  const optsResp = '<option value="">— Nenhum —</option>' +
+    (state.trabalho.banco||[]).map(b=>`<option value="${esc(b.nome)}" ${p&&p.responsavel===b.nome?'selected':''}>${esc(b.nome)}</option>`).join('');
+  openOverlay(`
+    <div class="otitle">${p?'✏️ Editar Pauta':'📄 Incluir Pauta'}</div>
+    <span class="lbl">Pauta</span>
+    <input class="inp" id="tp-pauta-txt" placeholder="Descreva a pauta..." value="${p?esc(p.texto):''}">
+    <span class="lbl">Tratar com quem?</span>
+    <select class="sel" id="tp-pauta-resp">${optsResp}</select>
+    <span class="lbl">OBS</span>
+    <textarea class="ta" id="tp-pauta-obs" placeholder="Observações...">${p?esc(p.obs||''):''}</textarea>
+    <div class="row-btns">
+      <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
+      <button class="btn-s" onclick="tPautaSalvar()">Salvar</button>
+    </div>`);
+}
+
+function tPautaSalvar() {
+  const txt = document.getElementById('tp-pauta-txt').value.trim();
+  if (!txt) { alert('Informe a pauta.'); return; }
+  const resp = document.getElementById('tp-pauta-resp').value;
+  const obs  = document.getElementById('tp-pauta-obs').value.trim();
+  if (!state.trabalho.pauta) state.trabalho.pauta = [];
+  const item = { id: _tPautaEditId||Date.now(), texto: txt, responsavel: resp, obs, feito: false };
+  if (_tPautaEditId) {
+    const i = state.trabalho.pauta.findIndex(x=>x.id===_tPautaEditId);
+    if (i!==-1) state.trabalho.pauta[i] = item;
+  } else {
+    state.trabalho.pauta.push(item);
+  }
+  save(); closeOverlay(); tPautaRender(); renderTrab();
+}
+
+function tPautaVer(id) {
+  const p = (state.trabalho.pauta||[]).find(x=>x.id===id); if(!p) return;
+  openOverlay(`
+    <div class="otitle">📄 Pauta</div>
+    <div style="background:var(--surf2);border-radius:var(--rs);padding:12px;margin-bottom:8px">
+      <div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:8px">${esc(p.texto)}</div>
+      ${p.responsavel?`<div style="font-size:13px;color:var(--tx2);margin-bottom:6px">👤 ${esc(p.responsavel)}</div>`:''}
+      ${p.obs?`<div style="font-size:13px;color:var(--tx3);line-height:1.5">${esc(p.obs)}</div>`:''}
+    </div>
+    <div class="row-btns">
+      <button class="btn-c" onclick="closeOverlay()">Fechar</button>
+      <button class="btn-s" onclick="closeOverlay();tPautaAbrir(${id})">✏️ Editar</button>
+    </div>`);
+}
+
+function tPautaConcluirAbrir(id) {
+  const p = (state.trabalho.pauta||[]).find(x=>x.id===id); if(!p) return;
+  openOverlay(`
+    <div class="otitle">✅ Concluir Pauta</div>
+    <div style="background:var(--surf2);border-radius:var(--rs);padding:12px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:var(--tx)">${esc(p.texto)}</div>
+      ${p.responsavel?`<div style="font-size:11px;color:var(--tx3);margin-top:4px">👤 ${esc(p.responsavel)}</div>`:''}
+    </div>
+    <span class="lbl">Decisão / Resultado</span>
+    <textarea class="ta" id="tp-decisao" placeholder="Descreva a decisão tomada..."></textarea>
+    <div class="row-btns">
+      <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
+      <button class="btn-s" style="background:var(--grn)" onclick="tPautaConcluirSalvar(${id})">✅ Salvar e Concluir</button>
+    </div>`);
+}
+
+function tPautaConcluirSalvar(id) {
+  const decisao = document.getElementById('tp-decisao').value.trim();
+  const p = (state.trabalho.pauta||[]).find(x=>x.id===id); if(!p) return;
+  p.feito = true;
+  p.decisao = decisao;
+  p.concluidoEm = new Date().toISOString().split('T')[0];
+  if (!state.trabalho.pautaHist) state.trabalho.pautaHist = [];
+  state.trabalho.pautaHist.unshift({...p});
+  state.trabalho.pauta = state.trabalho.pauta.filter(x=>x.id!==id);
+  save(); closeOverlay(); tPautaRender(); renderTrab();
+}
+
+function tPautaDel(id) {
+  if (!confirm('Excluir esta pauta?')) return;
+  state.trabalho.pauta = state.trabalho.pauta.filter(x=>x.id!==id);
+  save(); tPautaRender(); renderTrab();
+}
+
+function tPautaRender() {
+  const el = document.getElementById('t-pauta-list'); if(!el) return;
+  const lista = (state.trabalho.pauta||[]).filter(p=>!p.feito);
+  const hist  = state.trabalho.pautaHist||[];
+
+  if (!lista.length) {
+    el.innerHTML = '<div class="empty" style="padding:10px 0">Nenhuma pauta ativa</div>';
+  } else {
+    el.innerHTML = lista.map(p=>`
+      <div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:8px;padding:11px 14px">
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:3px">${esc(p.texto)}</div>
+            ${p.responsavel?`<div style="font-size:11px;color:var(--tx3)">👤 ${esc(p.responsavel)}</div>`:''}
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            <button class="act" onclick="tPautaVer(${p.id})" title="Ver">👁</button>
+            <button class="act ed" onclick="tPautaAbrir(${p.id})" title="Editar">✏️</button>
+            <button class="act" style="background:var(--grnbg);color:var(--grn);border-color:rgba(52,211,153,.3)" onclick="tPautaConcluirAbrir(${p.id})" title="Concluir">✓</button>
+            <button class="act dl" onclick="tPautaDel(${p.id})" title="Excluir">🗑</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Histórico de concluídas
+  const area = document.getElementById('t-pauta-concluidos-area'); if(!area) return;
+  if (!hist.length) { area.innerHTML=''; return; }
+  area.innerHTML = `
+    <button class="addbtn" style="margin-top:10px;background:var(--surf2);color:var(--grn);border-color:rgba(52,211,153,.3)" onclick="tPautaToggleHist(this)">
+      ✅ Concluídos (${hist.length})
+    </button>
+    <div id="t-pauta-hist-list" style="display:none;margin-top:8px">
+      ${hist.map((p,i)=>`
+        <div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:6px;padding:10px 14px;opacity:.75">
+          <div style="font-size:13px;font-weight:500;color:var(--tx2);margin-bottom:4px">${esc(p.texto)}</div>
+          ${p.responsavel?`<div style="font-size:11px;color:var(--tx3)">👤 ${esc(p.responsavel)}</div>`:''}
+          ${p.decisao?`<div style="font-size:12px;color:var(--grn);margin-top:4px">→ ${esc(p.decisao)}</div>`:''}
+          <div style="font-size:10px;color:var(--tx3);margin-top:4px">${fmtDt(p.concluidoEm)}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function tPautaToggleHist(btn) {
+  const el = document.getElementById('t-pauta-hist-list'); if(!el) return;
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  btn.textContent = open
+    ? `▲ Ocultar Concluídos (${(state.trabalho.pautaHist||[]).length})`
+    : `✅ Concluídos (${(state.trabalho.pautaHist||[]).length})`;
 }
 
 /* ─── RELATÓRIO ATIVIDADES ─── */
