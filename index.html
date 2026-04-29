@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 38</title>
+<title>Organizador - 39</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -269,6 +269,36 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 .reg-data{font-size:13px;font-weight:600;color:#F0EFF4}
 .reg-sub{font-size:11px;color:#5A5966;margin-top:2px}
 
+
+/* Academia */
+.ac-section{background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:8px;overflow:hidden}
+.ac-sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none}
+.ac-sec-title{font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px}
+.ac-sec-body{padding:12px 14px;border-top:1px solid var(--bord)}
+.ac-field{margin-bottom:10px}
+.ac-label{font-size:11px;color:var(--tx3);margin-bottom:4px;display:block}
+.ac-inp{width:100%;background:var(--surf3);border:1px solid var(--bord2);border-radius:6px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:13px;color:var(--tx);outline:none}
+.ac-inp:focus{border-color:var(--acc)}
+.ac-inp[type=number]{-moz-appearance:textfield}
+.ac-calc{background:var(--acbg);border:1px solid rgba(124,110,250,.25);border-radius:6px;padding:8px 10px;font-size:14px;font-weight:600;color:var(--acc)}
+.parq-row{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--bord)}
+.parq-row:last-child{border-bottom:none}
+.parq-txt{flex:1;font-size:12px;color:var(--tx2);line-height:1.4}
+.parq-btns{display:flex;gap:4px;flex-shrink:0}
+.parq-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--bord2);background:var(--surf3);font-size:11px;font-weight:600;cursor:pointer;color:var(--tx3);transition:all .15s}
+.parq-btn.sim{background:var(--redbg);color:var(--red);border-color:var(--redbd)}
+.parq-btn.nao{background:var(--grnbg);color:var(--grn);border-color:rgba(52,211,153,.3)}
+/* Avaliação overlay full */
+.aval-ov{position:fixed;inset:0;background:var(--bg);z-index:250;display:none;flex-direction:column;overflow-y:auto}
+.aval-ov.open{display:flex}
+.aval-ov-hdr{background:var(--surf);border-bottom:1px solid var(--bord);padding:14px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.aval-ov-body{padding:18px;max-width:600px;margin:0 auto;width:100%;padding-bottom:40px}
+.aval-list-item{background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.aval-list-num{font-size:12px;font-weight:600;color:var(--acc);width:24px;flex-shrink:0}
+.aval-list-info{flex:1;min-width:0}
+.aval-list-date{font-size:13px;font-weight:600;color:var(--tx)}
+.aval-list-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+
 </style>
 </head>
 <body>
@@ -276,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">38</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">39</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -379,75 +409,26 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
     <!-- ══ ACADEMIA ══ -->
     <div id="academia" class="env">
+      <!-- Banco compartilhado -->
+      <div class="panel on" id="ac-panel-banco" style="margin-top:0;margin-bottom:12px">
+        <div class="ph"><span class="ph-title">📚 Banco de Exercícios (compartilhado)</span><button class="pcls" onclick="document.getElementById('ac-panel-banco').classList.toggle('on')">−</button></div>
+        <div class="pbody">
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input class="inp" id="ac-banco-inp" placeholder="Nome do exercício..." style="margin:0;flex:1" onkeydown="if(event.key==='Enter')acBancoAdd()">
+            <button class="btn-s" onclick="acBancoAdd()">+ Add</button>
+          </div>
+          <div id="ac-banco-list"></div>
+        </div>
+      </div>
+
       <!-- Seletor de perfil -->
-      <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button class="tab on" id="ac-tab-v" style="flex:1;padding:12px 8px;border-radius:var(--rs);border:1px solid var(--bord2);background:var(--surf2);font-size:13px;font-weight:600;color:var(--acc)" onclick="acPerfil('vanessa')">🏋️ Vanessa</button>
-        <button class="tab" id="ac-tab-r" style="flex:1;padding:12px 8px;border-radius:var(--rs);border:1px solid var(--bord2);background:var(--surf2);font-size:13px;font-weight:600;color:var(--tx3)" onclick="acPerfil('rodrigo')">🏋️ Rodrigo</button>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button id="ac-tab-v" style="flex:1;padding:12px 8px;border-radius:var(--rs);border:1px solid var(--acc);background:var(--acbg);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--acc);cursor:pointer" onclick="acPerfil('vanessa')">🏋️ Vanessa</button>
+        <button id="ac-tab-r" style="flex:1;padding:12px 8px;border-radius:var(--rs);border:1px solid var(--bord);background:var(--surf2);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--tx3);cursor:pointer" onclick="acPerfil('rodrigo')">🏋️ Rodrigo</button>
       </div>
 
-      <!-- Perfil Vanessa -->
-      <div id="ac-vanessa">
-        <div class="grid">
-          <button class="gbtn hi" onclick="acPanel('v','banco')"><span class="gbtn-ic">📚</span><span class="gbtn-lb">Banco de Dados</span><span class="gbtn-sb" id="ac-v-banco-sub">0 exercícios</span></button>
-          <button class="gbtn" onclick="acPanel('v','aval')"><span class="gbtn-ic">📏</span><span class="gbtn-lb">Avaliação</span><span class="gbtn-sb">Em breve</span></button>
-          <button class="gbtn" onclick="acPanel('v','treino')"><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb">Em breve</span></button>
-          <button class="gbtn" onclick="acPanel('v','hist')"><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico</span><span class="gbtn-sb">Em breve</span></button>
-        </div>
-        <div class="panel" id="ac-v-panel-banco">
-          <div class="ph"><span class="ph-title">📚 Banco de Exercícios</span><button class="pcls" onclick="acClosePanel('v','banco')">×</button></div>
-          <div class="pbody">
-            <div style="display:flex;gap:8px;margin-bottom:10px">
-              <input class="inp" id="ac-v-banco-inp" placeholder="Nome do exercício..." style="margin:0;flex:1">
-              <button class="btn-s" onclick="acBancoAdd('vanessa')">+ Add</button>
-            </div>
-            <div id="ac-v-banco-list"></div>
-          </div>
-        </div>
-        <div class="panel" id="ac-v-panel-aval">
-          <div class="ph"><span class="ph-title">📏 Avaliação</span><button class="pcls" onclick="acClosePanel('v','aval')">×</button></div>
-          <div class="pbody"><div class="empty"><span class="empty-ic">📏</span>Em breve — aguardo suas instruções!</div></div>
-        </div>
-        <div class="panel" id="ac-v-panel-treino">
-          <div class="ph"><span class="ph-title">💪 Treinos</span><button class="pcls" onclick="acClosePanel('v','treino')">×</button></div>
-          <div class="pbody"><div class="empty"><span class="empty-ic">💪</span>Em breve — aguardo suas instruções!</div></div>
-        </div>
-        <div class="panel" id="ac-v-panel-hist">
-          <div class="ph"><span class="ph-title">📈 Histórico de Treinos</span><button class="pcls" onclick="acClosePanel('v','hist')">×</button></div>
-          <div class="pbody"><div class="empty"><span class="empty-ic">📈</span>Em breve — aguardo suas instruções!</div></div>
-        </div>
-      </div>
-
-      <!-- Perfil Rodrigo -->
-      <div id="ac-rodrigo" style="display:none">
-        <div class="grid">
-          <button class="gbtn hi" onclick="acPanel('r','banco')"><span class="gbtn-ic">📚</span><span class="gbtn-lb">Banco de Dados</span><span class="gbtn-sb" id="ac-r-banco-sub">0 exercícios</span></button>
-          <button class="gbtn" onclick="acPanel('r','aval')"><span class="gbtn-ic">📏</span><span class="gbtn-lb">Avaliação</span><span class="gbtn-sb">Em breve</span></button>
-          <button class="gbtn" onclick="acPanel('r','treino')"><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb">Em breve</span></button>
-          <button class="gbtn" onclick="acPanel('r','hist')"><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico</span><span class="gbtn-sb">Em breve</span></button>
-        </div>
-        <div class="panel" id="ac-r-panel-banco">
-          <div class="ph"><span class="ph-title">📚 Banco de Exercícios</span><button class="pcls" onclick="acClosePanel('r','banco')">×</button></div>
-          <div class="pbody">
-            <div style="display:flex;gap:8px;margin-bottom:10px">
-              <input class="inp" id="ac-r-banco-inp" placeholder="Nome do exercício..." style="margin:0;flex:1">
-              <button class="btn-s" onclick="acBancoAdd('rodrigo')">+ Add</button>
-            </div>
-            <div id="ac-r-banco-list"></div>
-          </div>
-        </div>
-        <div class="panel" id="ac-r-panel-aval">
-          <div class="ph"><span class="ph-title">📏 Avaliação</span><button class="pcls" onclick="acClosePanel('r','aval')">×</button></div>
-          <div class="pbody"><div class="empty"><span class="empty-ic">📏</span>Em breve — aguardo suas instruções!</div></div>
-        </div>
-        <div class="panel" id="ac-r-panel-treino">
-          <div class="ph"><span class="ph-title">💪 Treinos</span><button class="pcls" onclick="acClosePanel('r','treino')">×</button></div>
-          <div class="pbody"><div class="empty"><span class="empty-ic">💪</span>Em breve — aguardo suas instruções!</div></div>
-        </div>
-        <div class="panel" id="ac-r-panel-hist">
-          <div class="ph"><span class="ph-title">📈 Histórico de Treinos</span><button class="pcls" onclick="acClosePanel('r','hist')">×</button></div>
-          <div class="pbody"><div class="empty"><span class="empty-ic">📈</span>Em breve — aguardo suas instruções!</div></div>
-        </div>
-      </div>
+      <!-- Perfil Ativo -->
+      <div id="ac-perfil-area"></div>
     </div>
 
     <!-- ══ SALÃO DO REINO ══ -->
@@ -678,6 +659,24 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
     </div>
   </div>
 
+  <!-- Academia Avaliação Overlay -->
+  <div class="aval-ov" id="aval-ov">
+    <div class="aval-ov-hdr">
+      <span style="flex:1;font-size:14px;font-weight:600;color:var(--tx)" id="aval-ov-title">Nova Avaliação</span>
+      <button style="background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer" onclick="fecharAvalForm()">×</button>
+    </div>
+    <div class="aval-ov-body" id="aval-ov-body"></div>
+  </div>
+
+  <!-- Academia Performance Overlay -->
+  <div class="aval-ov" id="perf-ov">
+    <div class="aval-ov-hdr">
+      <span style="flex:1;font-size:14px;font-weight:600;color:var(--tx)" id="perf-ov-title">Performance</span>
+      <button style="background:none;border:none;color:var(--tx3);font-size:20px;cursor:pointer" onclick="document.getElementById('perf-ov').classList.remove('open')">×</button>
+    </div>
+    <div class="aval-ov-body" id="perf-ov-body"></div>
+  </div>
+
   <canvas id="main-canvas" style="display:none"></canvas>
 
   <!-- Pauta Preview Full Page -->
@@ -749,7 +748,12 @@ function ensureState() {
   if (!state.trabalho.pauta) state.trabalho.pauta = [];
   if (!state.trabalho.ativHist) state.trabalho.ativHist = [];
   if (!state.trabalho.pautaHist) state.trabalho.pautaHist = [];
-  if (!state.academia) state.academia = { vanessa:{ banco:[] }, rodrigo:{ banco:[] } };
+  if (!state.academia) state.academia = {};
+  if (!state.academia.banco) state.academia.banco = [];
+  if (!state.academia.vanessa) state.academia.vanessa = { aval:[] };
+  if (!state.academia.rodrigo) state.academia.rodrigo = { aval:[] };
+  if (!state.academia.vanessa.aval) state.academia.vanessa.aval = [];
+  if (!state.academia.rodrigo.aval) state.academia.rodrigo.aval = [];
   if (!state.academia.vanessa) state.academia.vanessa = { banco:[] };
   if (!state.academia.rodrigo) state.academia.rodrigo = { banco:[] };
   if (!state.familia) state.familia = {};
@@ -2727,56 +2731,528 @@ function acClosePanel(pfx, name) {
   if (el) el.classList.remove('open');
 }
 
-function acBancoAdd(pessoa) {
-  const pfx = pessoa==='vanessa' ? 'v' : 'r';
-  const el = document.getElementById('ac-'+pfx+'-banco-inp'); if(!el) return;
+
+/* ═══════════════════════════════
+   ACADEMIA — BANCO COMPARTILHADO
+═══════════════════════════════ */
+let acPerfilAtivo = 'vanessa';
+
+function acPerfil(p) {
+  acPerfilAtivo = p;
+  const isV = p === 'vanessa';
+  document.getElementById('ac-tab-v').style.borderColor = isV ? 'var(--acc)' : 'var(--bord)';
+  document.getElementById('ac-tab-v').style.background  = isV ? 'var(--acbg)' : 'var(--surf2)';
+  document.getElementById('ac-tab-v').style.color       = isV ? 'var(--acc)' : 'var(--tx3)';
+  document.getElementById('ac-tab-r').style.borderColor = !isV ? 'var(--acc)' : 'var(--bord)';
+  document.getElementById('ac-tab-r').style.background  = !isV ? 'var(--acbg)' : 'var(--surf2)';
+  document.getElementById('ac-tab-r').style.color       = !isV ? 'var(--acc)' : 'var(--tx3)';
+  acRenderPerfil();
+}
+
+function acRenderPerfil() {
+  const area = document.getElementById('ac-perfil-area'); if (!area) return;
+  const p = acPerfilAtivo;
+  const nome = p === 'vanessa' ? 'Vanessa' : 'Rodrigo';
+  const avals = (state.academia[p] && state.academia[p].aval) || [];
+  const nAval = avals.length;
+  area.innerHTML = `
+    <div class="grid">
+      <button class="gbtn hi" onclick="acAvalPanel()"><span class="gbtn-ic">📏</span><span class="gbtn-lb">Avaliação</span><span class="gbtn-sb">${nAval} avaliação${nAval!==1?'ões':''}</span></button>
+      <button class="gbtn" onclick=""><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb">Em breve</span></button>
+      <button class="gbtn" onclick=""><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico Treinos</span><span class="gbtn-sb">Em breve</span></button>
+    </div>
+    <div class="panel" id="ac-aval-panel">
+      <div class="ph"><span class="ph-title">📏 Avaliações — ${nome}</span><button class="pcls" onclick="document.getElementById('ac-aval-panel').classList.remove('on')">×</button></div>
+      <div class="pbody">
+        <button class="addbtn" onclick="acAbrirAvalForm(null)">+ Incluir Avaliação</button>
+        <div id="ac-aval-list" style="margin-top:10px"></div>
+        <button class="addbtn" style="margin-top:10px;background:var(--surf2);color:var(--acc);border-color:rgba(124,110,250,.3)" onclick="acPerformance()">📊 Performance</button>
+      </div>
+    </div>`;
+  acAvalRender();
+}
+
+/* ─── BANCO COMPARTILHADO ─── */
+function acBancoAdd() {
+  const el = document.getElementById('ac-banco-inp'); if(!el) return;
   const nome = el.value.trim(); if(!nome) return;
-  if (!state.academia) state.academia = { vanessa: { banco:[] }, rodrigo: { banco:[] } };
-  if (!state.academia[pessoa]) state.academia[pessoa] = { banco:[] };
-  if (state.academia[pessoa].banco.includes(nome)) { alert('Já cadastrado.'); return; }
-  state.academia[pessoa].banco.push(nome);
-  state.academia[pessoa].banco.sort((a,b)=>a.localeCompare(b,'pt-BR'));
-  el.value = '';
-  save(); acBancoRender(pessoa); acUpdateSub(pessoa);
+  if (!state.academia.banco) state.academia.banco = [];
+  if (state.academia.banco.includes(nome)) { alert('Já cadastrado.'); return; }
+  state.academia.banco.push(nome);
+  state.academia.banco.sort((a,b) => a.localeCompare(b,'pt-BR'));
+  el.value = ''; save(); acBancoRender();
 }
-
-function acBancoDel(pessoa, i) {
+function acBancoDel(i) {
   if (!confirm('Excluir?')) return;
-  state.academia[pessoa].banco.splice(i, 1);
-  save(); acBancoRender(pessoa); acUpdateSub(pessoa);
+  state.academia.banco.splice(i,1); save(); acBancoRender();
+}
+function acBancoRender() {
+  const el = document.getElementById('ac-banco-list'); if(!el) return;
+  const l = state.academia.banco || [];
+  if (!l.length) { el.innerHTML='<div class="empty"><span class="empty-ic">📚</span>Nenhum exercício ainda</div>'; return; }
+  el.innerHTML = l.map((n,i)=>`<div class="li"><span class="ln" style="flex:1">${esc(n)}</span><button class="act dl" onclick="acBancoDel(${i})">🗑</button></div>`).join('');
 }
 
-function acBancoRender(pessoa) {
-  const pfx = pessoa==='vanessa' ? 'v' : 'r';
-  const el = document.getElementById('ac-'+pfx+'-banco-list'); if(!el) return;
-  if (!state.academia || !state.academia[pessoa]) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhum exercício</div>'; return; }
-  const lista = state.academia[pessoa].banco || [];
-  if (!lista.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhum exercício cadastrado</div>'; return; }
-  el.innerHTML = lista.map((n,i) => `<div class="g1-item">
-    <span style="flex:1;font-size:14px;color:var(--tx)">${esc(n)}</span>
-    <button class="act dl" onclick="acBancoDel('${pessoa}',${i})">🗑</button>
-  </div>`).join('');
+/* ─── PAINEL AVALIAÇÃO ─── */
+function acAvalPanel() {
+  const panel = document.getElementById('ac-aval-panel'); if(!panel) return;
+  panel.classList.toggle('on');
+  if (panel.classList.contains('on')) acAvalRender();
 }
 
-function acUpdateSub(pessoa) {
-  const pfx = pessoa==='vanessa' ? 'v' : 'r';
-  const el = document.getElementById('ac-'+pfx+'-banco-sub'); if(!el) return;
-  const n = (state.academia&&state.academia[pessoa]&&state.academia[pessoa].banco||[]).length;
-  el.textContent = n+' '+(n===1?'exercício':'exercícios');
+function acAvalRender() {
+  const el = document.getElementById('ac-aval-list'); if(!el) return;
+  const p = acPerfilAtivo;
+  if (!state.academia[p]) state.academia[p] = { aval:[] };
+  const avals = state.academia[p].aval || [];
+  if (!avals.length) {
+    el.innerHTML = '<div class="empty" style="padding:10px 0">Nenhuma avaliação ainda</div>'; return;
+  }
+  const ordinals = ['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª','9ª','10ª'];
+  el.innerHTML = avals.map((a,i)=>`
+    <div class="aval-list-item">
+      <span class="aval-list-num">${ordinals[i]||i+1+'ª'}</span>
+      <div class="aval-list-info">
+        <div class="aval-list-date">${a.gerais_data ? fmtDt(a.gerais_data) : 'Sem data'}</div>
+        <div class="aval-list-sub">${a.gerais_peso?a.gerais_peso+' kg':''} ${a.gerais_altura?'· '+a.gerais_altura+' cm':''}</div>
+      </div>
+      <button class="act ed" onclick="acAbrirAvalForm(${i})">✏️</button>
+      <button class="act dl" onclick="acAvalDel(${i})">🗑</button>
+    </div>`).join('');
 }
+
+function acAvalDel(i) {
+  if (!confirm('Excluir esta avaliação?')) return;
+  state.academia[acPerfilAtivo].aval.splice(i,1);
+  save(); acRenderPerfil();
+}
+
+/* ─── FORMULÁRIO DE AVALIAÇÃO ─── */
+let _acAvalIdx = null;
+
+function acAbrirAvalForm(idx) {
+  _acAvalIdx = idx;
+  const p = acPerfilAtivo;
+  if (!state.academia[p]) state.academia[p] = { aval:[] };
+  const a = idx !== null ? (state.academia[p].aval[idx] || {}) : {};
+  document.getElementById('aval-ov-title').textContent = idx !== null ? 'Editar Avaliação' : 'Nova Avaliação';
+  document.getElementById('aval-ov-body').innerHTML = acAvalFormHTML(a);
+  document.getElementById('aval-ov').classList.add('open');
+  // Calcular IMC/IAC/RQC inicialmente
+  setTimeout(() => { acCalcAuto(); }, 100);
+}
+
+function fecharAvalForm() {
+  document.getElementById('aval-ov').classList.remove('open');
+}
+
+function acSec(titulo, content) {
+  return `<div class="ac-section">
+    <div class="ac-sec-hdr" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      <span class="ac-sec-title">${titulo}</span><span style="font-size:12px;color:var(--tx3)">▼</span>
+    </div>
+    <div class="ac-sec-body">${content}</div>
+  </div>`;
+}
+function acF(id, label, type, value, placeholder, extra) {
+  return `<div class="ac-field">
+    <span class="ac-label">${label}</span>
+    <input class="ac-inp" id="${id}" type="${type||'text'}" value="${value||''}" placeholder="${placeholder||''}" ${extra||''}>
+  </div>`;
+}
+function acTA(id, label, value) {
+  return `<div class="ac-field">
+    <span class="ac-label">${label}</span>
+    <textarea class="ac-inp" id="${id}" rows="2" style="resize:vertical">${value||''}</textarea>
+  </div>`;
+}
+
+function acParQ(a) {
+  const pergs = [
+    'Algum médico já disse que você possui algum problema de coração e que só deveria realizar atividade física supervisionado por profissionais?',
+    'Você sente dores no peito quando pratica atividade física?',
+    'No último mês, você sentiu dores no peito quando pratica atividade física?',
+    'Você apresenta desequilíbrio devido a tontura e/ou perda de consciência?',
+    'Você possui algum problema ósseo ou articular que poderia ser piorado pela atividade física?',
+    'Você toma atualmente algum medicamento para pressão arterial e/ou problema de coração?',
+    'Sabe de alguma outra razão pela qual você não deve praticar atividade física?',
+  ];
+  const rows = pergs.map((q,i) => {
+    const val = (a['parq_'+i] || '');
+    return `<div class="parq-row">
+      <span class="parq-txt">${q}</span>
+      <div class="parq-btns">
+        <button class="parq-btn ${val==='sim'?'sim':''}" onclick="acParQSet(${i},'sim',this)">Sim</button>
+        <button class="parq-btn ${val==='nao'?'nao':''}" onclick="acParQSet(${i},'nao',this)">Não</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `${rows}<div style="font-size:11px;color:var(--am);padding:10px 0;line-height:1.5">⚠️ Caso o aluno responda "sim" a uma ou mais perguntas, o encaminhe ao médico ANTES de aumentar seu nível atual de atividade física.</div>`;
+}
+window._parqVals = {};
+function acParQSet(i, val, btn) {
+  window._parqVals['parq_'+i] = val;
+  const btns = btn.parentElement.querySelectorAll('.parq-btn');
+  btns.forEach(b => { b.className = 'parq-btn'; });
+  btn.classList.add(val);
+}
+
+function acMedRow(id, label, val) {
+  return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+    <span class="ac-label" style="flex:1;margin:0">${label}</span>
+    <input class="ac-inp" id="${id}" type="number" step="0.1" value="${val||''}" style="width:90px;text-align:right">
+    <span style="font-size:11px;color:var(--tx3);width:20px">cm</span>
+  </div>`;
+}
+
+function acCalcAuto() {
+  const peso = parseFloat(document.getElementById('gerais_peso')?.value) || 0;
+  const alt  = parseFloat(document.getElementById('gerais_altura')?.value) || 0;
+  const quad = parseFloat(document.getElementById('per_quadril')?.value) || 0;
+  const cin  = parseFloat(document.getElementById('per_cintura')?.value) || 0;
+
+  if (peso && alt) {
+    const altM = alt / 100;
+    const imc = peso / (altM * altM);
+    const el = document.getElementById('calc_imc');
+    if (el) el.textContent = imc.toFixed(2);
+  }
+  if (quad && alt) {
+    const altM = alt / 100;
+    const iac = (quad / 100) / Math.sqrt(altM) - 18;
+    const el = document.getElementById('calc_iac');
+    if (el) el.textContent = iac.toFixed(2);
+  }
+  if (cin && quad) {
+    const el = document.getElementById('calc_rcq');
+    if (el) el.textContent = (cin / quad).toFixed(2);
+  }
+}
+
+function acAvalFormHTML(a) {
+  window._parqVals = {};
+  for (let i = 0; i < 7; i++) window._parqVals['parq_'+i] = a['parq_'+i] || '';
+
+  const gerais = acSec('Gerais', `
+    ${acF('gerais_data','Data avaliação','date',a.gerais_data)}
+    ${acF('gerais_idade','Idade','number',a.gerais_idade,'ex: 30')}
+    ${acF('gerais_peso','Peso (kg)','number',a.gerais_peso,'ex: 70,5','step="0.1" oninput="acCalcAuto()"')}
+    ${acF('gerais_altura','Altura (cm)','number',a.gerais_altura,'ex: 175','step="0.1" oninput="acCalcAuto()"')}
+    ${acF('gerais_professor','Professor','text',a.gerais_professor,'Nome do professor')}`);
+
+  const anamnese = acSec('Anamnese', [
+    acTA('anam_obj','Objetivos com a atividade física?',a.anam_obj),
+    acTA('anam_prat','Pratica atividade física atualmente? Quais e há quanto tempo?',a.anam_prat),
+    acTA('anam_nutri','Realiza acompanhamento com Nutricionista?',a.anam_nutri),
+    acTA('anam_sono','Média de horas de sono diário?',a.anam_sono),
+    acTA('anam_med','Utiliza algum medicamento de uso contínuo? Qual?',a.anam_med),
+    acTA('anam_cir','Passou por cirurgia nos últimos 6 meses? Qual?',a.anam_cir),
+    acTA('anam_restr','Possui recomendação ou restrição médica para exercícios?',a.anam_restr),
+    acTA('anam_diab','Possui Diabetes ou outra doença?',a.anam_diab),
+    acTA('anam_card','Possui alguma alteração cardíaca? Qual?',a.anam_card),
+    acTA('anam_fam','Existem problemas cardíacos na família? Quem?',a.anam_fam),
+    acTA('anam_press','Pressão arterial: alta, baixa ou normal (12x8)?',a.anam_press),
+    acTA('anam_dor_peito','Já sentiu ou sente dores no peito?',a.anam_dor_peito),
+    acTA('anam_dor_ativ','Sente dores no peito ao realizar atividade física?',a.anam_dor_ativ),
+    acTA('anam_col','Sente dores na coluna constantes? Em qual região?',a.anam_col),
+    acTA('anam_desm','Já desmaiou alguma vez?',a.anam_desm),
+    acTA('anam_fum','É fumante? Há quantos anos?',a.anam_fum),
+    acTA('anam_ester','Toma algum tipo de esteroide anabólico?',a.anam_ester),
+    acTA('anam_lesao','Possui algum trauma ou lesão?',a.anam_lesao),
+    acTA('anam_obs','Observações:',a.anam_obs),
+  ].join(''));
+
+  const parq = acSec('PAR-Q', acParQ(a));
+
+  const perim = acSec('Medidas — Perímetro (cm)', [
+    ['per_pescoco','Pescoço'],['per_ombro','Ombro'],
+    ['per_braco_rel_d','Braço Relaxado Direito'],['per_braco_rel_e','Braço Relaxado Esquerdo'],
+    ['per_braco_con_d','Braço Contraído Direito'],['per_braco_con_e','Braço Contraído Esquerdo'],
+    ['per_antebraco_d','Antebraço Direito'],['per_antebraco_e','Antebraço Esquerdo'],
+    ['per_torax_rel','Tórax Relaxado'],['per_torax_ins','Tórax Inspirado'],
+    ['per_cintura','Cintura'],['per_abdome','Abdome'],
+    ['per_quadril','Quadril'],['per_coxa_d','Coxa Direita'],['per_coxa_e','Coxa Esquerda'],
+    ['per_pant_d','Panturrilha Direita'],['per_pant_e','Panturrilha Esquerda'],
+  ].map(([id,lb])=>acMedRow(id,lb,a[id])).join(''));
+
+  const dobras = acSec('Medidas — Dobras Cutâneas (cm)', [
+    ['dc_subesc','Subescapular'],['dc_triceps','Tríceps'],['dc_biceps','Bíceps'],
+    ['dc_torax','Tórax'],['dc_axil','Axilar Média'],['dc_suprailiac','Suprailíaca'],
+    ['dc_abdom','Abdominal'],['dc_coxa','Coxa Medial'],['dc_pant','Panturrilha Media'],
+  ].map(([id,lb])=>acMedRow(id,lb,a[id])).join(''));
+
+  const diam = acSec('Medidas — Diâmetros (cm)', [
+    ['di_punho','Biestilóide do Punho'],['di_femur','Biepicôndilo do Fêmur'],
+  ].map(([id,lb])=>acMedRow(id,lb,a[id])).join(''));
+
+  const comp = acSec('Composição', '<div class="empty" style="padding:6px 0">Campos serão criados no futuro</div>');
+  const bio  = acSec('Bioimpedância', '<div class="empty" style="padding:6px 0">Campos serão criados no futuro</div>');
+  const imgs = acSec('Imagens', '<div class="empty" style="padding:6px 0">Campos serão criados no futuro</div>');
+
+  const calcs = acSec('Cálculos', `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="ac-field"><span class="ac-label">IMC</span><div class="ac-calc" id="calc_imc">—</div></div>
+      <div class="ac-field"><span class="ac-label">IAC</span><div class="ac-calc" id="calc_iac">—</div></div>
+      <div class="ac-field"><span class="ac-label">RCQ</span><div class="ac-calc" id="calc_rcq">—</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:6px;line-height:1.5">IMC = Peso/Altura². IAC = Quadril/√Altura - 18. RCQ = Cintura/Quadril</div>`);
+
+  return `${gerais}${anamnese}${parq}${perim}${dobras}${diam}${comp}${bio}${calcs}${imgs}
+    <div style="display:flex;gap:8px;margin-top:16px;padding-bottom:24px">
+      <button class="btn-c" onclick="fecharAvalForm()">Cancelar</button>
+      <button class="btn-s" style="flex:1" onclick="acAvalSalvar()">💾 Salvar</button>
+    </div>`;
+}
+
+function acAvalSalvar() {
+  function gV(id) { const el=document.getElementById(id); return el ? (el.tagName==='TEXTAREA'?el.value.trim():el.value.trim()) : ''; }
+  const campos = [
+    'gerais_data','gerais_idade','gerais_peso','gerais_altura','gerais_professor',
+    'anam_obj','anam_prat','anam_nutri','anam_sono','anam_med','anam_cir','anam_restr',
+    'anam_diab','anam_card','anam_fam','anam_press','anam_dor_peito','anam_dor_ativ',
+    'anam_col','anam_desm','anam_fum','anam_ester','anam_lesao','anam_obs',
+    'per_pescoco','per_ombro','per_braco_rel_d','per_braco_rel_e','per_braco_con_d','per_braco_con_e',
+    'per_antebraco_d','per_antebraco_e','per_torax_rel','per_torax_ins','per_cintura','per_abdome',
+    'per_quadril','per_coxa_d','per_coxa_e','per_pant_d','per_pant_e',
+    'dc_subesc','dc_triceps','dc_biceps','dc_torax','dc_axil','dc_suprailiac','dc_abdom','dc_coxa','dc_pant',
+    'di_punho','di_femur',
+  ];
+  const item = {};
+  campos.forEach(c => { item[c] = gV(c); });
+  // PAR-Q
+  for (let i=0;i<7;i++) item['parq_'+i] = window._parqVals['parq_'+i]||'';
+  item.id = _acAvalIdx !== null ? (state.academia[acPerfilAtivo].aval[_acAvalIdx]?.id || Date.now()) : Date.now();
+  const p = acPerfilAtivo;
+  if (!state.academia[p]) state.academia[p] = { aval: [] };
+  if (!state.academia[p].aval) state.academia[p].aval = [];
+  if (_acAvalIdx !== null) { state.academia[p].aval[_acAvalIdx] = item; }
+  else { state.academia[p].aval.push(item); }
+  save(); fecharAvalForm(); acRenderPerfil();
+}
+
+/* ─── PERFORMANCE ─── */
+function acPerformance() {
+  const p = acPerfilAtivo;
+  const avals = (state.academia[p] && state.academia[p].aval) || [];
+  if (avals.length < 1) { alert('Adicione pelo menos 1 avaliação.'); return; }
+
+  const nome = p === 'vanessa' ? 'Vanessa' : 'Rodrigo';
+  const ordinals = ['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª','9ª','10ª'];
+
+  // Tópicos numéricos para comparação
+  const topicos = [
+    { key:'gerais_peso', label:'Peso (kg)' },
+    { key:'gerais_altura', label:'Altura (cm)' },
+    { key:'per_pescoco', label:'Pescoço' },
+    { key:'per_ombro', label:'Ombro' },
+    { key:'per_braco_rel_d', label:'Braço Relax. Dir.' },
+    { key:'per_braco_rel_e', label:'Braço Relax. Esq.' },
+    { key:'per_braco_con_d', label:'Braço Cont. Dir.' },
+    { key:'per_braco_con_e', label:'Braço Cont. Esq.' },
+    { key:'per_torax_rel', label:'Tórax Relax.' },
+    { key:'per_cintura', label:'Cintura' },
+    { key:'per_abdome', label:'Abdome' },
+    { key:'per_quadril', label:'Quadril' },
+    { key:'per_coxa_d', label:'Coxa Dir.' },
+    { key:'per_coxa_e', label:'Coxa Esq.' },
+    { key:'per_pant_d', label:'Panturrilha Dir.' },
+    { key:'per_pant_e', label:'Panturrilha Esq.' },
+    { key:'dc_subesc', label:'DC Subescap.' },
+    { key:'dc_triceps', label:'DC Tríceps' },
+    { key:'dc_abdom', label:'DC Abdominal' },
+  ];
+
+  // Tabela de dados
+  const headers = ordinals.slice(0, avals.length).map((o,i)=>{
+    const dt = avals[i].gerais_data ? fmtDt(avals[i].gerais_data) : '—';
+    return `<th style="padding:6px 10px;font-size:11px;color:var(--acc);white-space:nowrap">${o}<br><span style="color:var(--tx3);font-weight:400">${dt}</span></th>`;
+  }).join('');
+
+  const rows = topicos.map(t => {
+    const vals = avals.map(a => parseFloat(a[t.key]) || null);
+    const first = vals.find(v=>v!==null);
+    const last  = vals.filter(v=>v!==null).pop();
+    let diffCell = '<td style="padding:6px 10px;text-align:center;color:var(--tx3)">—</td>';
+    if (first !== undefined && last !== undefined && first !== last) {
+      const pct = ((last - first) / first * 100).toFixed(1);
+      const cor = pct == 0 ? 'var(--blu)' : pct > 0 ? 'var(--grn)' : 'var(--red)';
+      const sinal = pct > 0 ? '+' : '';
+      diffCell = `<td style="padding:6px 10px;text-align:center;font-weight:700;color:${cor}">${sinal}${pct}%</td>`;
+    }
+    const cells = vals.map(v=>
+      `<td style="padding:6px 10px;text-align:center;font-size:13px;color:var(--tx)">${v!==null?v:'—'}</td>`
+    ).join('');
+    return `<tr>
+      <td style="padding:6px 10px;font-size:12px;color:var(--tx2);white-space:nowrap">${t.label}</td>
+      ${cells}${diffCell}
+    </tr>`;
+  }).join('');
+
+  const tabela = `<div style="overflow-x:auto;margin-bottom:20px">
+    <table style="width:100%;border-collapse:collapse;font-family:'Inter',sans-serif">
+      <thead>
+        <tr style="border-bottom:1px solid var(--bord)">
+          <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--tx3)">Tópico</th>
+          ${headers}
+          <th style="padding:6px 10px;font-size:11px;color:var(--tx3)">Δ%</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+
+  // Gráfico com canvas
+  const chartId = 'perf-chart-'+Date.now();
+  document.getElementById('perf-ov-title').textContent = 'Performance — '+nome;
+  document.getElementById('perf-ov-body').innerHTML = `
+    ${tabela}
+    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">
+      🔵 Manteve &nbsp; 🟢 Melhorou &nbsp; 🔴 Piorou
+    </div>
+    <div style="background:var(--surf2);border-radius:var(--rs);padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">Gráfico de Evolução</div>
+      <canvas id="${chartId}" width="600" height="300" style="width:100%;height:auto"></canvas>
+    </div>
+    <button class="btn-s" style="width:100%;margin-bottom:24px" onclick="acGerarImagemPerf()">🖼️ Baixar Imagem</button>`;
+
+  document.getElementById('perf-ov').classList.add('open');
+
+  // Desenhar gráfico
+  setTimeout(() => {
+    const canvas = document.getElementById(chartId); if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    ctx.fillStyle = '#1C1C20'; ctx.fillRect(0,0,W,H);
+    const nAvals = avals.length;
+    if (nAvals < 2) {
+      ctx.font='14px Inter,Arial'; ctx.fillStyle='#5A5966'; ctx.textAlign='center';
+      ctx.fillText('Adicione pelo menos 2 avaliações para ver o gráfico', W/2, H/2);
+      return;
+    }
+    const PAD_L=120, PAD_R=30, PAD_T=20, PAD_B=40;
+    const gW=W-PAD_L-PAD_R, gH=H-PAD_T-PAD_B;
+    const topNums = topicos.slice(0,8); // Primeiros 8 para não sobrecarregar
+
+    // Linhas de grid
+    ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){
+      const y=PAD_T+gH/4*i;
+      ctx.beginPath();ctx.moveTo(PAD_L,y);ctx.lineTo(PAD_L+gW,y);ctx.stroke();
+    }
+    // Eixo X (avaliações)
+    ctx.fillStyle='#5A5966'; ctx.font='11px Inter,Arial'; ctx.textAlign='center';
+    for(let i=0;i<nAvals;i++){
+      const x=PAD_L+gW/(nAvals-1||1)*i;
+      ctx.fillText(ordinals[i], x, H-10);
+    }
+    // Linhas por tópico
+    const colors=['#7C6EFA','#34D399','#FBBF24','#F87171','#60A5FA','#F472B6','#A78BFA','#34D399'];
+    topNums.forEach((t,ti) => {
+      const vals = avals.map(a=>parseFloat(a[t.key])||null);
+      const defined = vals.filter(v=>v!==null);
+      if (defined.length < 2) return;
+      const mn=Math.min(...defined), mx=Math.max(...defined);
+      const range=mx-mn||1;
+      ctx.strokeStyle=colors[ti%colors.length]; ctx.lineWidth=2;
+      ctx.beginPath();
+      let started=false;
+      vals.forEach((v,i)=>{
+        if(v===null) return;
+        const x=PAD_L+gW/(nAvals-1||1)*i;
+        const y=PAD_T+gH-(v-mn)/range*gH;
+        if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+      // Label à esquerda
+      const firstV = vals.find(v=>v!==null);
+      if(firstV!==null){
+        const y=PAD_T+gH-(firstV-mn)/range*gH;
+        ctx.fillStyle=colors[ti%colors.length]; ctx.font='10px Inter,Arial'; ctx.textAlign='right';
+        ctx.fillText(t.label, PAD_L-4, Math.min(PAD_T+gH, Math.max(PAD_T+10, y+4)));
+      }
+    });
+  }, 200);
+}
+
+window._acPerfCanvas = null;
+function acGerarImagemPerf() {
+  const p = acPerfilAtivo;
+  const avals = (state.academia[p] && state.academia[p].aval) || [];
+  const nome = p === 'vanessa' ? 'Vanessa' : 'Rodrigo';
+  const W = 1200, H = 900;
+  const canvas = document.getElementById('main-canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#F5F5F5'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#7C6EFA'; ctx.fillRect(0,0,W,6);
+
+  const F = 'Inter,Arial,sans-serif';
+  ctx.font = `700 24px ${F}`; ctx.fillStyle = '#1A1A1A'; ctx.textAlign='left';
+  ctx.fillText('PERFORMANCE — '+nome.toUpperCase(), 40, 50);
+  ctx.font = `400 13px ${F}`; ctx.fillStyle = '#666';
+  ctx.fillText('Gerado em '+new Date().toLocaleDateString('pt-BR'), 40, 70);
+
+  const topicos2 = [
+    {key:'gerais_peso',label:'Peso (kg)'},{key:'gerais_altura',label:'Altura (cm)'},
+    {key:'per_cintura',label:'Cintura'},{key:'per_abdome',label:'Abdome'},
+    {key:'per_quadril',label:'Quadril'},{key:'per_coxa_d',label:'Coxa Dir.'},
+    {key:'dc_subesc',label:'DC Subescap.'},{key:'dc_abdom',label:'DC Abdom.'},
+  ];
+  const ordinals2 = ['1ª','2ª','3ª','4ª','5ª'];
+  const nA = Math.min(avals.length, 5);
+
+  // Tabela
+  let yy = 100;
+  const colW = (W - 80 - 200 - 80) / (nA + 1);
+  ctx.fillStyle = '#7C6EFA'; ctx.fillRect(40, yy, W-80, 28);
+  ctx.fillStyle = '#fff'; ctx.font = `600 12px ${F}`; ctx.textAlign='left';
+  ctx.fillText('Tópico', 50, yy+19);
+  for(let i=0;i<nA;i++){
+    const x=240+i*(colW+10);
+    ctx.textAlign='center'; ctx.fillText(ordinals2[i], x+colW/2, yy+19);
+  }
+  ctx.textAlign='center'; ctx.fillText('Δ%', 240+nA*(colW+10)+colW/2, yy+19);
+  yy+=30;
+
+  topicos2.forEach((t,ti) => {
+    const bg = ti%2===0?'#F0F0F0':'#FFFFFF';
+    ctx.fillStyle=bg; ctx.fillRect(40,yy,W-80,26);
+    ctx.fillStyle='#333'; ctx.font=`400 12px ${F}`; ctx.textAlign='left';
+    ctx.fillText(t.label, 50, yy+18);
+    const vals=avals.slice(0,5).map(a=>parseFloat(a[t.key])||null);
+    const first=vals.find(v=>v!==null), last=vals.filter(v=>v!==null).pop();
+    for(let i=0;i<nA;i++){
+      const x=240+i*(colW+10)+colW/2;
+      ctx.textAlign='center'; ctx.fillStyle='#333';
+      ctx.fillText(vals[i]!==null?String(vals[i]):'—', x, yy+18);
+    }
+    if(first!==undefined&&last!==undefined&&first!==last){
+      const pct=((last-first)/first*100).toFixed(1);
+      ctx.fillStyle=pct>0?'#16a34a':pct<0?'#dc2626':'#2563eb';
+      ctx.textAlign='center'; ctx.font=`700 12px ${F}`;
+      ctx.fillText((pct>0?'+':'')+pct+'%', 240+nA*(colW+10)+colW/2, yy+18);
+    }
+    yy+=26;
+  });
+
+  ctx.fillStyle='#7C6EFA'; ctx.fillRect(0,H-4,W,4);
+  canvas.toBlob(blob=>{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=`performance_${nome.toLowerCase()}.png`; a.click();
+    URL.revokeObjectURL(url);
+  },'image/png');
+}
+
 
 function renderAcademia() {
-  // Atualiza badges da academia
   const ac = state.academia;
   if (!ac) return;
-  ['vanessa','rodrigo'].forEach(p => {
-    const prefix = p === 'vanessa' ? 'v' : 'r';
-    const el = document.getElementById(`ac-${prefix}-banco-sub`);
-    if (el && ac[p]) {
-      const n = ac[p].banco.length;
-      el.textContent = n + ' ' + (n === 1 ? 'exercício' : 'exercícios');
-    }
-  });
+  // Banco compartilhado
+  if (!ac.banco) ac.banco = [];
+  acBancoRender();
+  // Perfil ativo
+  acRenderPerfil();
 }
 
 // ═══════════════════════════════════════
