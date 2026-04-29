@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 39</title>
+<title>Organizador - 40</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">39</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">40</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -883,6 +883,7 @@ function switchTab(env) {
   document.getElementById(env).classList.add('active');
   if (env === 'trabalho') renderTrab();
   if (env === 'familia')  renderFam();
+  if (env === 'academia') renderAcademia();
 }
 
 function pedirSenha() {
@@ -2796,6 +2797,8 @@ function acBancoRender() {
 /* ─── PAINEL AVALIAÇÃO ─── */
 function acAvalPanel() {
   const panel = document.getElementById('ac-aval-panel'); if(!panel) return;
+  // Force reflow so CSS transition works on dynamically created elements
+  panel.getBoundingClientRect();
   panel.classList.toggle('on');
   if (panel.classList.contains('on')) acAvalRender();
 }
