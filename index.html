@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 40</title>
+<title>Organizador - 41</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">40</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">41</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -410,7 +410,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
     <!-- ══ ACADEMIA ══ -->
     <div id="academia" class="env">
       <!-- Banco compartilhado -->
-      <div class="panel on" id="ac-panel-banco" style="margin-top:0;margin-bottom:12px">
+      <div class="panel on" id="ac-panel-banco" style="margin-top:0;margin-bottom:12px;max-height:none;overflow:visible">
         <div class="ph"><span class="ph-title">📚 Banco de Exercícios (compartilhado)</span><button class="pcls" onclick="document.getElementById('ac-panel-banco').classList.toggle('on')">−</button></div>
         <div class="pbody">
           <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -2762,8 +2762,8 @@ function acRenderPerfil() {
       <button class="gbtn" onclick=""><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb">Em breve</span></button>
       <button class="gbtn" onclick=""><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico Treinos</span><span class="gbtn-sb">Em breve</span></button>
     </div>
-    <div class="panel" id="ac-aval-panel">
-      <div class="ph"><span class="ph-title">📏 Avaliações — ${nome}</span><button class="pcls" onclick="document.getElementById('ac-aval-panel').classList.remove('on')">×</button></div>
+    <div id="ac-aval-panel" style="display:none;background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);margin-top:10px">
+      <div class="ph"><span class="ph-title">📏 Avaliações — ${nome}</span><button class="pcls" onclick="document.getElementById('ac-aval-panel').style.display='none'">×</button></div>
       <div class="pbody">
         <button class="addbtn" onclick="acAbrirAvalForm(null)">+ Incluir Avaliação</button>
         <div id="ac-aval-list" style="margin-top:10px"></div>
@@ -2797,10 +2797,9 @@ function acBancoRender() {
 /* ─── PAINEL AVALIAÇÃO ─── */
 function acAvalPanel() {
   const panel = document.getElementById('ac-aval-panel'); if(!panel) return;
-  // Force reflow so CSS transition works on dynamically created elements
-  panel.getBoundingClientRect();
-  panel.classList.toggle('on');
-  if (panel.classList.contains('on')) acAvalRender();
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) acAvalRender();
 }
 
 function acAvalRender() {
