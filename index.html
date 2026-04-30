@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 41</title>
+<title>Organizador - 42</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">41</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">42</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -3041,207 +3041,286 @@ function acPerformance() {
   const nome = p === 'vanessa' ? 'Vanessa' : 'Rodrigo';
   const ordinals = ['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª','9ª','10ª'];
 
-  // Tópicos numéricos para comparação
-  const topicos = [
-    { key:'gerais_peso', label:'Peso (kg)' },
-    { key:'gerais_altura', label:'Altura (cm)' },
-    { key:'per_pescoco', label:'Pescoço' },
-    { key:'per_ombro', label:'Ombro' },
-    { key:'per_braco_rel_d', label:'Braço Relax. Dir.' },
-    { key:'per_braco_rel_e', label:'Braço Relax. Esq.' },
-    { key:'per_braco_con_d', label:'Braço Cont. Dir.' },
-    { key:'per_braco_con_e', label:'Braço Cont. Esq.' },
-    { key:'per_torax_rel', label:'Tórax Relax.' },
-    { key:'per_cintura', label:'Cintura' },
-    { key:'per_abdome', label:'Abdome' },
-    { key:'per_quadril', label:'Quadril' },
-    { key:'per_coxa_d', label:'Coxa Dir.' },
-    { key:'per_coxa_e', label:'Coxa Esq.' },
-    { key:'per_pant_d', label:'Panturrilha Dir.' },
-    { key:'per_pant_e', label:'Panturrilha Esq.' },
-    { key:'dc_subesc', label:'DC Subescap.' },
-    { key:'dc_triceps', label:'DC Tríceps' },
-    { key:'dc_abdom', label:'DC Abdominal' },
+  const GRUPOS = [
+    { grupo: 'GERAIS', items: [
+      { key:'gerais_data',label:'Data Avaliação',tipo:'data' },
+      { key:'gerais_idade',label:'Idade',tipo:'num' },
+      { key:'gerais_peso',label:'Peso (kg)',tipo:'num' },
+      { key:'gerais_altura',label:'Altura (cm)',tipo:'num' },
+      { key:'gerais_professor',label:'Professor',tipo:'txt' },
+    ]},
+    { grupo: 'CÁLCULOS', items: [
+      { key:'_imc',label:'IMC',tipo:'calc' },
+      { key:'_iac',label:'IAC',tipo:'calc' },
+      { key:'_rcq',label:'RCQ',tipo:'calc' },
+    ]},
+    { grupo: 'PERÍMETROS (cm)', items: [
+      { key:'per_pescoco',label:'Pescoço',tipo:'num' },
+      { key:'per_ombro',label:'Ombro',tipo:'num' },
+      { key:'per_braco_rel_d',label:'Braço Relax. Dir.',tipo:'num' },
+      { key:'per_braco_rel_e',label:'Braço Relax. Esq.',tipo:'num' },
+      { key:'per_braco_con_d',label:'Braço Cont. Dir.',tipo:'num' },
+      { key:'per_braco_con_e',label:'Braço Cont. Esq.',tipo:'num' },
+      { key:'per_antebraco_d',label:'Antebraço Dir.',tipo:'num' },
+      { key:'per_antebraco_e',label:'Antebraço Esq.',tipo:'num' },
+      { key:'per_torax_rel',label:'Tórax Relaxado',tipo:'num' },
+      { key:'per_torax_ins',label:'Tórax Inspirado',tipo:'num' },
+      { key:'per_cintura',label:'Cintura',tipo:'num' },
+      { key:'per_abdome',label:'Abdome',tipo:'num' },
+      { key:'per_quadril',label:'Quadril',tipo:'num' },
+      { key:'per_coxa_d',label:'Coxa Dir.',tipo:'num' },
+      { key:'per_coxa_e',label:'Coxa Esq.',tipo:'num' },
+      { key:'per_pant_d',label:'Panturrilha Dir.',tipo:'num' },
+      { key:'per_pant_e',label:'Panturrilha Esq.',tipo:'num' },
+    ]},
+    { grupo: 'DOBRAS CUTÂNEAS (cm)', items: [
+      { key:'dc_subesc',label:'Subescapular',tipo:'num' },
+      { key:'dc_triceps',label:'Tríceps',tipo:'num' },
+      { key:'dc_biceps',label:'Bíceps',tipo:'num' },
+      { key:'dc_torax',label:'Tórax',tipo:'num' },
+      { key:'dc_axil',label:'Axilar Média',tipo:'num' },
+      { key:'dc_suprailiac',label:'Suprailíaca',tipo:'num' },
+      { key:'dc_abdom',label:'Abdominal',tipo:'num' },
+      { key:'dc_coxa',label:'Coxa Medial',tipo:'num' },
+      { key:'dc_pant',label:'Panturrilha Media',tipo:'num' },
+    ]},
+    { grupo: 'DIÂMETROS (cm)', items: [
+      { key:'di_punho',label:'Biest. Punho',tipo:'num' },
+      { key:'di_femur',label:'Biepic. Fêmur',tipo:'num' },
+    ]},
+    { grupo: 'ANAMNESE', items: [
+      { key:'anam_obj',label:'Objetivos',tipo:'txt' },
+      { key:'anam_prat',label:'Ativ. Física Atual',tipo:'txt' },
+      { key:'anam_nutri',label:'Nutricionista',tipo:'txt' },
+      { key:'anam_sono',label:'Horas de Sono',tipo:'txt' },
+      { key:'anam_med',label:'Medicamentos',tipo:'txt' },
+      { key:'anam_cir',label:'Cirurgia Recente',tipo:'txt' },
+      { key:'anam_restr',label:'Restrição Médica',tipo:'txt' },
+      { key:'anam_diab',label:'Diabetes/Doenças',tipo:'txt' },
+      { key:'anam_card',label:'Alteração Cardíaca',tipo:'txt' },
+      { key:'anam_fam',label:'Prob. Cardíacos Família',tipo:'txt' },
+      { key:'anam_press',label:'Pressão Arterial',tipo:'txt' },
+      { key:'anam_dor_peito',label:'Dores no Peito',tipo:'txt' },
+      { key:'anam_col',label:'Dores na Coluna',tipo:'txt' },
+      { key:'anam_desm',label:'Desmaiou',tipo:'txt' },
+      { key:'anam_fum',label:'Fumante',tipo:'txt' },
+      { key:'anam_ester',label:'Esteroide',tipo:'txt' },
+      { key:'anam_lesao',label:'Trauma/Lesão',tipo:'txt' },
+      { key:'anam_obs',label:'Observações',tipo:'txt' },
+    ]},
+    { grupo: 'PAR-Q', items: [
+      { key:'parq_0',label:'Prob. coração c/ supervisão?',tipo:'parq' },
+      { key:'parq_1',label:'Dor no peito na atividade?',tipo:'parq' },
+      { key:'parq_2',label:'Dor no peito último mês?',tipo:'parq' },
+      { key:'parq_3',label:'Desequilíbrio/tontura?',tipo:'parq' },
+      { key:'parq_4',label:'Prob. ósseo/articular?',tipo:'parq' },
+      { key:'parq_5',label:'Med. pressão/coração?',tipo:'parq' },
+      { key:'parq_6',label:'Outra razão contra exercício?',tipo:'parq' },
+    ]},
   ];
 
-  // Tabela de dados
-  const headers = ordinals.slice(0, avals.length).map((o,i)=>{
+  function acCalcVals2(a) {
+    const peso = parseFloat(a.gerais_peso)||0, alt = parseFloat(a.gerais_altura)||0;
+    const quad = parseFloat(a.per_quadril)||0, cin = parseFloat(a.per_cintura)||0;
+    return {
+      _imc: peso && alt ? (peso/((alt/100)**2)).toFixed(2) : '',
+      _iac: quad && alt ? ((quad/100)/Math.sqrt(alt/100)-18).toFixed(2) : '',
+      _rcq: cin && quad ? (cin/quad).toFixed(2) : '',
+    };
+  }
+
+  function getV(a, key, tipo) {
+    const c = acCalcVals2(a);
+    if (c[key] !== undefined) return c[key] || '—';
+    const v = a[key]; if (!v) return '—';
+    if (tipo === 'parq') return v === 'sim' ? 'Sim' : v === 'nao' ? 'Não' : '—';
+    return String(v);
+  }
+
+  // Build headers
+  const headers = ordinals.slice(0, avals.length).map((o,i) => {
     const dt = avals[i].gerais_data ? fmtDt(avals[i].gerais_data) : '—';
-    return `<th style="padding:6px 10px;font-size:11px;color:var(--acc);white-space:nowrap">${o}<br><span style="color:var(--tx3);font-weight:400">${dt}</span></th>`;
+    return `<th style="padding:5px 8px;font-size:11px;color:var(--acc);white-space:nowrap;min-width:80px;text-align:center">${o}<br><span style="color:var(--tx3);font-weight:400;font-size:10px">${dt}</span></th>`;
   }).join('');
 
-  const rows = topicos.map(t => {
-    const vals = avals.map(a => parseFloat(a[t.key]) || null);
-    const first = vals.find(v=>v!==null);
-    const last  = vals.filter(v=>v!==null).pop();
-    let diffCell = '<td style="padding:6px 10px;text-align:center;color:var(--tx3)">—</td>';
-    if (first !== undefined && last !== undefined && first !== last) {
-      const pct = ((last - first) / first * 100).toFixed(1);
-      const cor = pct == 0 ? 'var(--blu)' : pct > 0 ? 'var(--grn)' : 'var(--red)';
-      const sinal = pct > 0 ? '+' : '';
-      diffCell = `<td style="padding:6px 10px;text-align:center;font-weight:700;color:${cor}">${sinal}${pct}%</td>`;
-    }
-    const cells = vals.map(v=>
-      `<td style="padding:6px 10px;text-align:center;font-size:13px;color:var(--tx)">${v!==null?v:'—'}</td>`
-    ).join('');
-    return `<tr>
-      <td style="padding:6px 10px;font-size:12px;color:var(--tx2);white-space:nowrap">${t.label}</td>
-      ${cells}${diffCell}
-    </tr>`;
-  }).join('');
+  // Build rows
+  let tabelaHTML = `<div style="overflow-x:auto;margin-bottom:16px">
+    <table style="width:100%;border-collapse:collapse;font-family:'Inter',sans-serif;font-size:12px">
+      <thead><tr style="border-bottom:2px solid var(--bord)">
+        <th style="padding:5px 8px;text-align:left;color:var(--tx3);min-width:160px">Tópico</th>
+        ${headers}
+        <th style="padding:5px 8px;color:var(--tx3);min-width:50px;text-align:center">Δ%</th>
+      </tr></thead><tbody>`;
 
-  const tabela = `<div style="overflow-x:auto;margin-bottom:20px">
-    <table style="width:100%;border-collapse:collapse;font-family:'Inter',sans-serif">
-      <thead>
-        <tr style="border-bottom:1px solid var(--bord)">
-          <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--tx3)">Tópico</th>
-          ${headers}
-          <th style="padding:6px 10px;font-size:11px;color:var(--tx3)">Δ%</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </div>`;
-
-  // Gráfico com canvas
-  const chartId = 'perf-chart-'+Date.now();
-  document.getElementById('perf-ov-title').textContent = 'Performance — '+nome;
-  document.getElementById('perf-ov-body').innerHTML = `
-    ${tabela}
-    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px">
-      🔵 Manteve &nbsp; 🟢 Melhorou &nbsp; 🔴 Piorou
-    </div>
-    <div style="background:var(--surf2);border-radius:var(--rs);padding:14px;margin-bottom:16px">
-      <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">Gráfico de Evolução</div>
-      <canvas id="${chartId}" width="600" height="300" style="width:100%;height:auto"></canvas>
-    </div>
-    <button class="btn-s" style="width:100%;margin-bottom:24px" onclick="acGerarImagemPerf()">🖼️ Baixar Imagem</button>`;
-
-  document.getElementById('perf-ov').classList.add('open');
-
-  // Desenhar gráfico
-  setTimeout(() => {
-    const canvas = document.getElementById(chartId); if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    ctx.fillStyle = '#1C1C20'; ctx.fillRect(0,0,W,H);
-    const nAvals = avals.length;
-    if (nAvals < 2) {
-      ctx.font='14px Inter,Arial'; ctx.fillStyle='#5A5966'; ctx.textAlign='center';
-      ctx.fillText('Adicione pelo menos 2 avaliações para ver o gráfico', W/2, H/2);
-      return;
-    }
-    const PAD_L=120, PAD_R=30, PAD_T=20, PAD_B=40;
-    const gW=W-PAD_L-PAD_R, gH=H-PAD_T-PAD_B;
-    const topNums = topicos.slice(0,8); // Primeiros 8 para não sobrecarregar
-
-    // Linhas de grid
-    ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1;
-    for(let i=0;i<=4;i++){
-      const y=PAD_T+gH/4*i;
-      ctx.beginPath();ctx.moveTo(PAD_L,y);ctx.lineTo(PAD_L+gW,y);ctx.stroke();
-    }
-    // Eixo X (avaliações)
-    ctx.fillStyle='#5A5966'; ctx.font='11px Inter,Arial'; ctx.textAlign='center';
-    for(let i=0;i<nAvals;i++){
-      const x=PAD_L+gW/(nAvals-1||1)*i;
-      ctx.fillText(ordinals[i], x, H-10);
-    }
-    // Linhas por tópico
-    const colors=['#7C6EFA','#34D399','#FBBF24','#F87171','#60A5FA','#F472B6','#A78BFA','#34D399'];
-    topNums.forEach((t,ti) => {
-      const vals = avals.map(a=>parseFloat(a[t.key])||null);
-      const defined = vals.filter(v=>v!==null);
-      if (defined.length < 2) return;
-      const mn=Math.min(...defined), mx=Math.max(...defined);
-      const range=mx-mn||1;
-      ctx.strokeStyle=colors[ti%colors.length]; ctx.lineWidth=2;
-      ctx.beginPath();
-      let started=false;
-      vals.forEach((v,i)=>{
-        if(v===null) return;
-        const x=PAD_L+gW/(nAvals-1||1)*i;
-        const y=PAD_T+gH-(v-mn)/range*gH;
-        if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);
-      });
-      ctx.stroke();
-      // Label à esquerda
-      const firstV = vals.find(v=>v!==null);
-      if(firstV!==null){
-        const y=PAD_T+gH-(firstV-mn)/range*gH;
-        ctx.fillStyle=colors[ti%colors.length]; ctx.font='10px Inter,Arial'; ctx.textAlign='right';
-        ctx.fillText(t.label, PAD_L-4, Math.min(PAD_T+gH, Math.max(PAD_T+10, y+4)));
+  GRUPOS.forEach(g => {
+    tabelaHTML += `<tr style="background:rgba(124,110,250,.15)"><td colspan="${avals.length+2}" style="padding:5px 8px;font-size:10px;font-weight:700;color:var(--acc);letter-spacing:.8px;text-transform:uppercase">${g.grupo}</td></tr>`;
+    g.items.forEach((t,idx) => {
+      const vals = avals.map(a => getV(a, t.key, t.tipo));
+      const numVals = vals.map(v => parseFloat(v)||null);
+      const first = numVals.find(v=>v!==null);
+      const last  = numVals.filter(v=>v!==null).pop();
+      const bg = idx%2===0 ? 'var(--surf)' : 'var(--surf2)';
+      let diffCell = `<td style="padding:5px 8px;text-align:center;color:var(--tx3)">—</td>`;
+      if ((t.tipo==='num'||t.tipo==='calc') && first!=null && last!=null && first!==last) {
+        const pct = ((last-first)/first*100).toFixed(1);
+        const cor = parseFloat(pct)>0?'var(--grn)':parseFloat(pct)<0?'var(--red)':'var(--blu)';
+        diffCell = `<td style="padding:5px 8px;text-align:center;font-weight:700;color:${cor}">${parseFloat(pct)>0?'+':''}${pct}%</td>`;
       }
+      const cells = vals.map(v=>`<td style="padding:5px 8px;text-align:center;color:var(--tx)">${esc(v)}</td>`).join('');
+      tabelaHTML += `<tr style="background:${bg};border-bottom:1px solid var(--bord)">
+        <td style="padding:5px 8px;color:var(--tx2)">${t.label}</td>${cells}${diffCell}</tr>`;
     });
-  }, 200);
+  });
+  tabelaHTML += '</tbody></table></div>';
+
+  document.getElementById('perf-ov-title').textContent = 'Performance — '+nome;
+  document.getElementById('perf-ov-body').innerHTML = tabelaHTML +
+    `<div style="font-size:11px;color:var(--tx3);margin-bottom:12px">🟢 Melhorou &nbsp; 🔴 Piorou &nbsp; 🔵 Manteve</div>
+     <button class="btn-s" style="width:100%;margin-bottom:24px" onclick="acGerarImagemPerf()">🖼️ Baixar Imagem (PNG)</button>`;
+  document.getElementById('perf-ov').classList.add('open');
 }
 
-window._acPerfCanvas = null;
 function acGerarImagemPerf() {
   const p = acPerfilAtivo;
   const avals = (state.academia[p] && state.academia[p].aval) || [];
   const nome = p === 'vanessa' ? 'Vanessa' : 'Rodrigo';
-  const W = 1200, H = 900;
-  const canvas = document.getElementById('main-canvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#F5F5F5'; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle = '#7C6EFA'; ctx.fillRect(0,0,W,6);
+  const nA = Math.min(avals.length, 8);
+  const ordinals3 = ['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª'];
+
+  const GRUPOS_IMG = [
+    { grupo:'GERAIS', items:[{key:'gerais_data',label:'Data',tipo:'data'},{key:'gerais_idade',label:'Idade',tipo:'num'},{key:'gerais_peso',label:'Peso (kg)',tipo:'num'},{key:'gerais_altura',label:'Altura (cm)',tipo:'num'},{key:'gerais_professor',label:'Professor',tipo:'txt'}]},
+    { grupo:'CÁLCULOS', items:[{key:'_imc',label:'IMC',tipo:'calc'},{key:'_iac',label:'IAC',tipo:'calc'},{key:'_rcq',label:'RCQ',tipo:'calc'}]},
+    { grupo:'PERÍMETROS (cm)', items:[
+      {key:'per_pescoco',label:'Pescoço',tipo:'num'},{key:'per_ombro',label:'Ombro',tipo:'num'},
+      {key:'per_braco_rel_d',label:'Braço Rel.Dir.',tipo:'num'},{key:'per_braco_rel_e',label:'Braço Rel.Esq.',tipo:'num'},
+      {key:'per_braco_con_d',label:'Braço Con.Dir.',tipo:'num'},{key:'per_braco_con_e',label:'Braço Con.Esq.',tipo:'num'},
+      {key:'per_antebraco_d',label:'Antebraço Dir.',tipo:'num'},{key:'per_antebraco_e',label:'Antebraço Esq.',tipo:'num'},
+      {key:'per_torax_rel',label:'Tórax Relax.',tipo:'num'},{key:'per_torax_ins',label:'Tórax Insp.',tipo:'num'},
+      {key:'per_cintura',label:'Cintura',tipo:'num'},{key:'per_abdome',label:'Abdome',tipo:'num'},
+      {key:'per_quadril',label:'Quadril',tipo:'num'},{key:'per_coxa_d',label:'Coxa Dir.',tipo:'num'},
+      {key:'per_coxa_e',label:'Coxa Esq.',tipo:'num'},{key:'per_pant_d',label:'Pant.Dir.',tipo:'num'},
+      {key:'per_pant_e',label:'Pant.Esq.',tipo:'num'},
+    ]},
+    { grupo:'DOBRAS CUTÂNEAS', items:[
+      {key:'dc_subesc',label:'Subescapular',tipo:'num'},{key:'dc_triceps',label:'Tríceps',tipo:'num'},
+      {key:'dc_biceps',label:'Bíceps',tipo:'num'},{key:'dc_torax',label:'Tórax',tipo:'num'},
+      {key:'dc_axil',label:'Axilar Média',tipo:'num'},{key:'dc_suprailiac',label:'Suprailíaca',tipo:'num'},
+      {key:'dc_abdom',label:'Abdominal',tipo:'num'},{key:'dc_coxa',label:'Coxa Medial',tipo:'num'},
+      {key:'dc_pant',label:'Panturrilha',tipo:'num'},
+    ]},
+    { grupo:'DIÂMETROS', items:[
+      {key:'di_punho',label:'Biest.Punho',tipo:'num'},{key:'di_femur',label:'Biepic.Fêmur',tipo:'num'},
+    ]},
+    { grupo:'ANAMNESE', items:[
+      {key:'anam_obj',label:'Objetivos',tipo:'txt'},{key:'anam_prat',label:'Ativ.Atual',tipo:'txt'},
+      {key:'anam_nutri',label:'Nutricionista',tipo:'txt'},{key:'anam_sono',label:'Horas Sono',tipo:'txt'},
+      {key:'anam_med',label:'Medicamentos',tipo:'txt'},{key:'anam_cir',label:'Cirurgia',tipo:'txt'},
+      {key:'anam_restr',label:'Restrição Médica',tipo:'txt'},{key:'anam_diab',label:'Diabetes',tipo:'txt'},
+      {key:'anam_card',label:'Alt.Cardíaca',tipo:'txt'},{key:'anam_fam',label:'Coração Família',tipo:'txt'},
+      {key:'anam_press',label:'Pressão',tipo:'txt'},{key:'anam_dor_peito',label:'Dor Peito',tipo:'txt'},
+      {key:'anam_col',label:'Dor Coluna',tipo:'txt'},{key:'anam_desm',label:'Desmaiou',tipo:'txt'},
+      {key:'anam_fum',label:'Fumante',tipo:'txt'},{key:'anam_ester',label:'Esteroide',tipo:'txt'},
+      {key:'anam_lesao',label:'Lesão',tipo:'txt'},{key:'anam_obs',label:'Observações',tipo:'txt'},
+    ]},
+    { grupo:'PAR-Q', items:[
+      {key:'parq_0',label:'Coração supervisionado',tipo:'parq'},{key:'parq_1',label:'Dor peito atividade',tipo:'parq'},
+      {key:'parq_2',label:'Dor peito último mês',tipo:'parq'},{key:'parq_3',label:'Tontura',tipo:'parq'},
+      {key:'parq_4',label:'Prob.ósseo',tipo:'parq'},{key:'parq_5',label:'Med.pressão',tipo:'parq'},
+      {key:'parq_6',label:'Outra razão',tipo:'parq'},
+    ]},
+  ];
+
+  function acCalcV(a) {
+    const peso=parseFloat(a.gerais_peso)||0, alt=parseFloat(a.gerais_altura)||0;
+    const quad=parseFloat(a.per_quadril)||0, cin=parseFloat(a.per_cintura)||0;
+    return { _imc:peso&&alt?(peso/((alt/100)**2)).toFixed(2):'', _iac:quad&&alt?((quad/100)/Math.sqrt(alt/100)-18).toFixed(2):'', _rcq:cin&&quad?(cin/quad).toFixed(2):'' };
+  }
+  function getVI(a, key, tipo) {
+    const c=acCalcV(a); if(c[key]!==undefined) return c[key]||'—';
+    const v=a[key]; if(!v) return '—';
+    if(tipo==='parq') return v==='sim'?'S':v==='nao'?'N':'—';
+    if(String(v).length>18) return String(v).substring(0,16)+'..';
+    return String(v);
+  }
+
+  // Build rows
+  const allRows = [];
+  GRUPOS_IMG.forEach(g => {
+    allRows.push({ isHeader:true, label:g.grupo });
+    g.items.forEach(t => {
+      const vals = avals.slice(0,nA).map(a=>getVI(a,t.key,t.tipo));
+      const numVals = vals.map(v=>parseFloat(v)||null);
+      const first = numVals.find(v=>v!==null), last = numVals.filter(v=>v!==null).pop();
+      let diff='', diffPos=false, diffNeg=false;
+      if((t.tipo==='num'||t.tipo==='calc')&&first!=null&&last!=null&&first!==last){
+        const pct=((last-first)/first*100); diff=(pct>0?'+':'')+pct.toFixed(1)+'%';
+        diffPos=pct>0; diffNeg=pct<0;
+      }
+      allRows.push({ label:t.label, vals, diff, diffPos, diffNeg, tipo:t.tipo });
+    });
+  });
 
   const F = 'Inter,Arial,sans-serif';
-  ctx.font = `700 24px ${F}`; ctx.fillStyle = '#1A1A1A'; ctx.textAlign='left';
-  ctx.fillText('PERFORMANCE — '+nome.toUpperCase(), 40, 50);
-  ctx.font = `400 13px ${F}`; ctx.fillStyle = '#666';
-  ctx.fillText('Gerado em '+new Date().toLocaleDateString('pt-BR'), 40, 70);
+  const PAD=20, COL_LABEL=145, ROW_H=19, HDR_H=24;
+  const COL_VAL = Math.min(75, Math.floor((1100-COL_LABEL-50)/Math.max(nA,1)));
+  const W = PAD + COL_LABEL + COL_VAL*nA + 55 + PAD;
+  let H = 75;
+  allRows.forEach(r => H += r.isHeader ? HDR_H : ROW_H);
+  H += PAD;
 
-  const topicos2 = [
-    {key:'gerais_peso',label:'Peso (kg)'},{key:'gerais_altura',label:'Altura (cm)'},
-    {key:'per_cintura',label:'Cintura'},{key:'per_abdome',label:'Abdome'},
-    {key:'per_quadril',label:'Quadril'},{key:'per_coxa_d',label:'Coxa Dir.'},
-    {key:'dc_subesc',label:'DC Subescap.'},{key:'dc_abdom',label:'DC Abdom.'},
-  ];
-  const ordinals2 = ['1ª','2ª','3ª','4ª','5ª'];
-  const nA = Math.min(avals.length, 5);
+  const canvas = document.getElementById('main-canvas');
+  canvas.width=W; canvas.height=H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#7C6EFA'; ctx.fillRect(0,0,W,5);
 
-  // Tabela
-  let yy = 100;
-  const colW = (W - 80 - 200 - 80) / (nA + 1);
-  ctx.fillStyle = '#7C6EFA'; ctx.fillRect(40, yy, W-80, 28);
-  ctx.fillStyle = '#fff'; ctx.font = `600 12px ${F}`; ctx.textAlign='left';
-  ctx.fillText('Tópico', 50, yy+19);
+  ctx.font=`700 16px ${F}`; ctx.fillStyle='#1A1A1A'; ctx.textAlign='left';
+  ctx.fillText('PERFORMANCE — '+nome.toUpperCase(), PAD, 30);
+  ctx.font=`400 10px ${F}`; ctx.fillStyle='#888';
+  ctx.fillText('Gerado em '+new Date().toLocaleDateString('pt-BR'), PAD, 48);
+
+  // Column headers
+  let yy=58;
+  ctx.fillStyle='#4C3FC0'; ctx.fillRect(PAD,yy,W-PAD*2,HDR_H);
+  ctx.fillStyle='#fff'; ctx.font=`600 10px ${F}`; ctx.textAlign='left';
+  ctx.fillText('Tópico', PAD+6, yy+16);
   for(let i=0;i<nA;i++){
-    const x=240+i*(colW+10);
-    ctx.textAlign='center'; ctx.fillText(ordinals2[i], x+colW/2, yy+19);
+    const dt=avals[i].gerais_data?fmtDt(avals[i].gerais_data):'—';
+    ctx.textAlign='center'; ctx.font=`600 9px ${F}`;
+    ctx.fillText(ordinals3[i]+' '+dt, PAD+COL_LABEL+COL_VAL*i+COL_VAL/2, yy+16);
   }
-  ctx.textAlign='center'; ctx.fillText('Δ%', 240+nA*(colW+10)+colW/2, yy+19);
-  yy+=30;
+  ctx.textAlign='center'; ctx.fillText('Δ%', PAD+COL_LABEL+COL_VAL*nA+27, yy+16);
+  yy+=HDR_H;
 
-  topicos2.forEach((t,ti) => {
-    const bg = ti%2===0?'#F0F0F0':'#FFFFFF';
-    ctx.fillStyle=bg; ctx.fillRect(40,yy,W-80,26);
-    ctx.fillStyle='#333'; ctx.font=`400 12px ${F}`; ctx.textAlign='left';
-    ctx.fillText(t.label, 50, yy+18);
-    const vals=avals.slice(0,5).map(a=>parseFloat(a[t.key])||null);
-    const first=vals.find(v=>v!==null), last=vals.filter(v=>v!==null).pop();
-    for(let i=0;i<nA;i++){
-      const x=240+i*(colW+10)+colW/2;
-      ctx.textAlign='center'; ctx.fillStyle='#333';
-      ctx.fillText(vals[i]!==null?String(vals[i]):'—', x, yy+18);
+  allRows.forEach((r,ri) => {
+    if(r.isHeader){
+      ctx.fillStyle='rgba(124,110,250,0.1)'; ctx.fillRect(PAD,yy,W-PAD*2,HDR_H);
+      ctx.fillStyle='#5B4FD4'; ctx.font=`700 9px ${F}`; ctx.textAlign='left';
+      ctx.fillText(r.label, PAD+6, yy+16); yy+=HDR_H;
+    } else {
+      ctx.fillStyle=ri%2===0?'#F9F9F9':'#FFFFFF'; ctx.fillRect(PAD,yy,W-PAD*2,ROW_H);
+      ctx.strokeStyle='#EEEEEE'; ctx.lineWidth=0.5;
+      ctx.beginPath(); ctx.moveTo(PAD,yy+ROW_H); ctx.lineTo(W-PAD,yy+ROW_H); ctx.stroke();
+      ctx.fillStyle='#555'; ctx.font=`400 10px ${F}`; ctx.textAlign='left';
+      ctx.fillText(r.label, PAD+6, yy+13);
+      r.vals.forEach((v,i)=>{
+        ctx.fillStyle='#222'; ctx.font=`500 10px ${F}`; ctx.textAlign='center';
+        ctx.fillText(v, PAD+COL_LABEL+COL_VAL*i+COL_VAL/2, yy+13);
+      });
+      if(r.diff){
+        ctx.fillStyle=r.diffPos?'#16a34a':r.diffNeg?'#dc2626':'#2563eb';
+        ctx.font=`700 9px ${F}`; ctx.textAlign='center';
+        ctx.fillText(r.diff, PAD+COL_LABEL+COL_VAL*nA+27, yy+13);
+      }
+      yy+=ROW_H;
     }
-    if(first!==undefined&&last!==undefined&&first!==last){
-      const pct=((last-first)/first*100).toFixed(1);
-      ctx.fillStyle=pct>0?'#16a34a':pct<0?'#dc2626':'#2563eb';
-      ctx.textAlign='center'; ctx.font=`700 12px ${F}`;
-      ctx.fillText((pct>0?'+':'')+pct+'%', 240+nA*(colW+10)+colW/2, yy+18);
-    }
-    yy+=26;
   });
 
   ctx.fillStyle='#7C6EFA'; ctx.fillRect(0,H-4,W,4);
   canvas.toBlob(blob=>{
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download=`performance_${nome.toLowerCase()}.png`; a.click();
+    const a2=document.createElement('a'); a2.href=url;
+    a2.download=`performance_${nome.toLowerCase()}.png`; a2.click();
     URL.revokeObjectURL(url);
   },'image/png');
 }
