@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 43</title>
+<title>Organizador - 44</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">43</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">44</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -2864,74 +2864,111 @@ function acTreinoEditar(id) {
   const treino = (state.academia[p]?.treinos||[]).find(t=>t.id===id) || {};
   acAbrirTreinoForm(treino);
 }
+
 function acAbrirTreinoForm(treino) {
   const banco = state.academia.banco || [];
   if (!banco.length) { alert('Adicione exercícios no Banco de Dados primeiro.'); return; }
-  const exercList = (treino.exercicios||[]);
-  const renderExerc = () => {
-    const container = document.getElementById('_ac_exerc_list'); if(!container) return;
-    if (!exercList.length) {
-      container.innerHTML = '<div style="font-size:12px;color:var(--tx3);padding:8px 0">Nenhum exercício adicionado ainda.</div>';
-      return;
-    }
-    container.innerHTML = exercList.map((e,i)=>`
-      <div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:8px">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:500;color:var(--tx)">${esc(e.nome)}</div>
-          <div style="font-size:11px;color:var(--tx3);margin-top:2px">📅 ${e.data?fmtDt(e.data):'—'} · 📊 ${esc(e.valor||'—')}</div>
+
+  // Monta lista de exercícios: um item por exercício do banco
+  // Cada item tem nome, data e 4 séries [{reps, peso}]
+  // Se editando, preenche com valores já salvos
+  const savedMap = {};
+  (treino.exercicios||[]).forEach(e => { savedMap[e.nome] = e; });
+
+  // _acExercData: { nome: { ativo, data, series:[{reps,peso}x4] } }
+  window._acExercData = {};
+  banco.forEach(nome => {
+    const saved = savedMap[nome];
+    window._acExercData[nome] = {
+      ativo: !!saved,
+      data: saved?.data || treino.data || new Date().toISOString().split('T')[0],
+      series: saved?.series || [
+        {reps:'', peso:''},
+        {reps:'', peso:''},
+        {reps:'', peso:''},
+        {reps:'', peso:''},
+      ]
+    };
+  });
+
+  const hoje = treino.data || new Date().toISOString().split('T')[0];
+
+  // Render da lista de exercícios
+  const renderExercList = () => {
+    const container = document.getElementById('_ac_exerc_container'); if(!container) return;
+    container.innerHTML = banco.map(nome => {
+      const d = window._acExercData[nome];
+      const isAtivo = d.ativo;
+      const seriesHTML = d.series.map((s,si)=>`
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
+          <span style="font-size:10px;color:var(--tx3);width:20px;text-align:center">${si+1}</span>
+          <input class="ac-inp" type="number" min="0" placeholder="Reps"
+            id="_s_${nome.replace(/\s/g,'_')}_r${si}"
+            value="${s.reps}"
+            style="flex:1;padding:6px 8px;font-size:12px"
+            oninput="window._acExercData['${nome}'].series[${si}].reps=this.value">
+          <span style="font-size:11px;color:var(--tx3)">×</span>
+          <input class="ac-inp" type="number" min="0" step="0.5" placeholder="Kg"
+            id="_s_${nome.replace(/\s/g,'_')}_p${si}"
+            value="${s.peso}"
+            style="flex:1;padding:6px 8px;font-size:12px"
+            oninput="window._acExercData['${nome}'].series[${si}].peso=this.value">
+          <span style="font-size:10px;color:var(--tx3)">kg</span>
+        </div>`).join('');
+      return `<div style="background:${isAtivo?'var(--surf)':'var(--surf2)'};border:1px solid ${isAtivo?'var(--acc)':'var(--bord)'};border-radius:var(--rs);margin-bottom:8px;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer" onclick="acExercToggle('${nome}')">
+          <div style="width:18px;height:18px;border-radius:4px;border:2px solid ${isAtivo?'var(--acc)':'var(--bord2)'};background:${isAtivo?'var(--acc)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            ${isAtivo?'<span style="color:#fff;font-size:11px;font-weight:700">✓</span>':''}
+          </div>
+          <span style="flex:1;font-size:13px;font-weight:500;color:${isAtivo?'var(--tx)':'var(--tx3)'}">${esc(nome)}</span>
         </div>
-        <button class="act dl" onclick="acExercRemover(${i})">🗑</button>
-      </div>`).join('');
+        ${isAtivo ? `<div style="padding:8px 12px;border-top:1px solid var(--bord)">
+          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+            <span style="font-size:11px;color:var(--tx3)">📅 Data:</span>
+            <input class="ac-inp" type="date" value="${d.data}"
+              style="flex:1;padding:5px 8px;font-size:12px"
+              oninput="window._acExercData['${nome}'].data=this.value">
+          </div>
+          <div style="display:grid;grid-template-columns:20px 1fr 10px 1fr 25px;gap:4px;margin-bottom:4px">
+            <span></span>
+            <span style="font-size:10px;color:var(--tx3);text-align:center">REPS</span>
+            <span></span>
+            <span style="font-size:10px;color:var(--tx3);text-align:center">PESO</span>
+            <span></span>
+          </div>
+          ${seriesHTML}
+        </div>` : ''}
+      </div>`;
+    }).join('');
   };
-  window._acExercList = exercList;
-  window._acExercRender = renderExerc;
-  const optsExerc = banco.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+
+  window._acExercRender = renderExercList;
+
   openOverlay(`
-    <div class="otitle">💪 ${_acTreinoEditId ? 'Editar' : 'Novo'} Treino</div>
+    <div class="otitle">💪 ${_acTreinoEditId?'Editar':'Novo'} Treino</div>
     <span class="lbl">Nome do treino</span>
-    <input class="inp" id="_ac_treino_nome" value="${esc(treino.nome||'')}" placeholder="Ex: Treino A - Peito e Tríceps">
-    <span class="lbl">Data</span>
-    <input class="inp" id="_ac_treino_data" type="date" value="${treino.data||new Date().toISOString().split('T')[0]}">
+    <input class="inp" id="_ac_treino_nome" value="${esc(treino.nome||'')}" placeholder="Ex: Treino A — Peito e Tríceps">
+    <span class="lbl">Data do treino</span>
+    <input class="inp" id="_ac_treino_data" type="date" value="${hoje}">
     <span class="lbl">Observação</span>
-    <textarea class="ta" id="_ac_treino_obs" placeholder="Observações do treino...">${esc(treino.obs||'')}</textarea>
+    <textarea class="ta" id="_ac_treino_obs" placeholder="Observações...">${esc(treino.obs||'')}</textarea>
     <div style="border-top:1px solid var(--bord);margin:12px 0;padding-top:12px">
-      <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Exercícios</div>
-      <div id="_ac_exerc_list"></div>
-      <div style="display:flex;gap:8px;margin-top:10px;align-items:flex-end">
-        <div style="flex:2">
-          <span class="lbl" style="margin-top:0">Exercício</span>
-          <select class="sel" id="_ac_exerc_sel">${optsExerc}</select>
-        </div>
-        <div style="flex:1">
-          <span class="lbl" style="margin-top:0">Data</span>
-          <input class="inp" id="_ac_exerc_data" type="date" value="${new Date().toISOString().split('T')[0]}" style="margin:0">
-        </div>
+      <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">
+        Exercícios — selecione e preencha séries
       </div>
-      <div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end">
-        <div style="flex:1">
-          <span class="lbl" style="margin-top:0">Valor (carga/reps/tempo)</span>
-          <input class="inp" id="_ac_exerc_val" placeholder="Ex: 3x12 / 60kg / 30min" style="margin:0">
-        </div>
-        <button class="btn-s" style="flex-shrink:0;height:38px" onclick="acExercAdicionar()">+ Add</button>
-      </div>
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:10px">Clique no exercício para marcar/desmarcar. Cada exercício tem 4 séries (repetições × peso).</div>
+      <div id="_ac_exerc_container"></div>
     </div>
-    <div class="row-btns" style="margin-top:12px">
+    <div class="row-btns" style="margin-top:4px">
       <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
       <button class="btn-s" onclick="acTreinoSalvar()">💾 Salvar Treino</button>
     </div>`);
-  setTimeout(renderExerc, 50);
+  setTimeout(renderExercList, 50);
 }
 
-function acExercAdicionar() {
-  const nome  = document.getElementById('_ac_exerc_sel')?.value; if(!nome) return;
-  const data  = document.getElementById('_ac_exerc_data')?.value || '';
-  const valor = document.getElementById('_ac_exerc_val')?.value.trim() || '';
-  window._acExercList.push({ nome, data, valor });
-  if (document.getElementById('_ac_exerc_val')) document.getElementById('_ac_exerc_val').value = '';
-  if (window._acExercRender) window._acExercRender();
-}
-function acExercRemover(i) {
-  window._acExercList.splice(i,1);
+function acExercToggle(nome) {
+  if (!window._acExercData[nome]) return;
+  window._acExercData[nome].ativo = !window._acExercData[nome].ativo;
   if (window._acExercRender) window._acExercRender();
 }
 
@@ -2943,10 +2980,18 @@ function acTreinoSalvar() {
   const p = acPerfilAtivo;
   if (!state.academia[p]) state.academia[p] = { aval:[], treinos:[], histTreinos:[] };
   if (!state.academia[p].treinos) state.academia[p].treinos = [];
+  // Coleta exercícios ativos do _acExercData
+  const exercicios = Object.entries(window._acExercData||{})
+    .filter(([n,d]) => d.ativo)
+    .map(([nome, d]) => ({
+      nome,
+      data: d.data,
+      series: d.series.filter(s => s.reps || s.peso)
+    }));
   const item = {
     id: _acTreinoEditId || Date.now(),
     nome, data, obs,
-    exercicios: [...(window._acExercList||[])]
+    exercicios
   };
   if (_acTreinoEditId) {
     const i = state.academia[p].treinos.findIndex(t=>t.id===_acTreinoEditId);
@@ -2969,13 +3014,16 @@ function acTreinoVer(id) {
   const p = acPerfilAtivo;
   const t = (state.academia[p]?.treinos||[]).find(x=>x.id===id); if(!t) return;
   const exercHTML = (t.exercicios||[]).length
-    ? t.exercicios.map(e=>`
-        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bord)">
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:500;color:var(--tx)">${esc(e.nome)}</div>
-            <div style="font-size:11px;color:var(--tx3)">📅 ${e.data?fmtDt(e.data):'—'} · 📊 ${esc(e.valor||'—')}</div>
-          </div>
-        </div>`).join('')
+    ? t.exercicios.map(e=>{
+        const seriesStr = (e.series||[]).filter(s=>s.reps||s.peso)
+          .map((s,i)=>`Série ${i+1}: ${s.reps||'—'} reps × ${s.peso||'—'} kg`)
+          .join(' | ');
+        return `<div style="padding:10px 0;border-bottom:1px solid var(--bord)">
+          <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:4px">${esc(e.nome)}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">📅 ${e.data?fmtDt(e.data):'—'}</div>
+          ${seriesStr ? `<div style="font-size:11px;color:var(--acc)">${esc(seriesStr)}</div>` : ''}
+        </div>`;
+      }).join('')
     : '<div style="font-size:12px;color:var(--tx3);padding:8px 0">Nenhum exercício registrado.</div>';
   openOverlay(`
     <div class="otitle">💪 ${esc(t.nome)}</div>
@@ -3001,7 +3049,7 @@ function acTreinoRender() {
       <div style="display:flex;align-items:flex-start;gap:8px">
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:500;color:var(--tx)">${esc(t.nome)}</div>
-          <div style="font-size:11px;color:var(--tx3);margin-top:3px">📅 ${t.data?fmtDt(t.data):'—'} · 💪 ${(t.exercicios||[]).length} exercício${(t.exercicios||[]).length!==1?'s':''}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:3px">📅 ${t.data?fmtDt(t.data):'—'} · 💪 ${(t.exercicios||[]).length} exercício${(t.exercicios||[]).length!==1?'s':''} · ${(t.exercicios||[]).reduce((s,e)=>s+(e.series||[]).filter(x=>x.reps||x.peso).length,0)} séries</div>
         </div>
         <div style="display:flex;gap:4px;flex-shrink:0">
           <button class="act" onclick="acTreinoVer(${t.id})" title="Ver">👁</button>
