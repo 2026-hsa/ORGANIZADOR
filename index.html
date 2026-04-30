@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 42</title>
+<title>Organizador - 43</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">42</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">43</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -750,10 +750,12 @@ function ensureState() {
   if (!state.trabalho.pautaHist) state.trabalho.pautaHist = [];
   if (!state.academia) state.academia = {};
   if (!state.academia.banco) state.academia.banco = [];
-  if (!state.academia.vanessa) state.academia.vanessa = { aval:[] };
-  if (!state.academia.rodrigo) state.academia.rodrigo = { aval:[] };
+  if (!state.academia.vanessa) state.academia.vanessa = { aval:[], treinos:[], histTreinos:[] };
+  if (!state.academia.rodrigo) state.academia.rodrigo = { aval:[], treinos:[], histTreinos:[] };
   if (!state.academia.vanessa.aval) state.academia.vanessa.aval = [];
   if (!state.academia.rodrigo.aval) state.academia.rodrigo.aval = [];
+  if (!state.academia.vanessa.treinos) state.academia.vanessa.treinos = [];
+  if (!state.academia.rodrigo.treinos) state.academia.rodrigo.treinos = [];
   if (!state.academia.vanessa) state.academia.vanessa = { banco:[] };
   if (!state.academia.rodrigo) state.academia.rodrigo = { banco:[] };
   if (!state.familia) state.familia = {};
@@ -2759,8 +2761,8 @@ function acRenderPerfil() {
   area.innerHTML = `
     <div class="grid">
       <button class="gbtn hi" onclick="acAvalPanel()"><span class="gbtn-ic">📏</span><span class="gbtn-lb">Avaliação</span><span class="gbtn-sb">${nAval} avaliação${nAval!==1?'ões':''}</span></button>
-      <button class="gbtn" onclick=""><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb">Em breve</span></button>
-      <button class="gbtn" onclick=""><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico Treinos</span><span class="gbtn-sb">Em breve</span></button>
+      <button class="gbtn" onclick="acTreinoPanel()"><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb" id="ac-treino-sub">${(state.academia[p]?.treinos?.length||0)} treinos</span></button>
+      <button class="gbtn" onclick="acHistPanel()"><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico Treinos</span><span class="gbtn-sb" id="ac-hist-sub">${(state.academia[p]?.histTreinos?.length||0)} registros</span></button>
     </div>
     <div id="ac-aval-panel" style="display:none;background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);margin-top:10px">
       <div class="ph"><span class="ph-title">📏 Avaliações — ${nome}</span><button class="pcls" onclick="document.getElementById('ac-aval-panel').style.display='none'">×</button></div>
@@ -2769,6 +2771,17 @@ function acRenderPerfil() {
         <div id="ac-aval-list" style="margin-top:10px"></div>
         <button class="addbtn" style="margin-top:10px;background:var(--surf2);color:var(--acc);border-color:rgba(124,110,250,.3)" onclick="acPerformance()">📊 Performance</button>
       </div>
+    </div>
+    <div id="ac-treino-panel" style="display:none;background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);margin-top:10px">
+      <div class="ph"><span class="ph-title">💪 Treinos — ${nome}</span><button class="pcls" onclick="document.getElementById('ac-treino-panel').style.display='none'">×</button></div>
+      <div class="pbody">
+        <button class="addbtn" onclick="acTreinoNovo()">+ Incluir Treino</button>
+        <div id="ac-treino-list" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div id="ac-hist-panel" style="display:none;background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);margin-top:10px">
+      <div class="ph"><span class="ph-title">📈 Histórico de Treinos — ${nome}</span><button class="pcls" onclick="document.getElementById('ac-hist-panel').style.display='none'">×</button></div>
+      <div class="pbody" id="ac-hist-list"></div>
     </div>`;
   acAvalRender();
 }
@@ -2791,8 +2804,249 @@ function acBancoRender() {
   const el = document.getElementById('ac-banco-list'); if(!el) return;
   const l = state.academia.banco || [];
   if (!l.length) { el.innerHTML='<div class="empty"><span class="empty-ic">📚</span>Nenhum exercício ainda</div>'; return; }
-  el.innerHTML = l.map((n,i)=>`<div class="li"><span class="ln" style="flex:1">${esc(n)}</span><button class="act dl" onclick="acBancoDel(${i})">🗑</button></div>`).join('');
+  el.innerHTML = l.map((n,i)=>`<div class="li">
+    <span class="ln" style="flex:1">${esc(n)}</span>
+    <button class="act ed" onclick="acBancoEditar(${i})" title="Editar">✏️</button>
+    <button class="act dl" onclick="acBancoDel(${i})" title="Excluir">🗑</button>
+  </div>`).join('');
 }
+
+function acBancoEditar(i) {
+  const nome = state.academia.banco[i];
+  openOverlay(`
+    <div class="otitle">✏️ Editar Exercício</div>
+    <span class="lbl">Nome do exercício</span>
+    <input class="inp" id="_ac_banco_edit" value="${esc(nome)}">
+    <div class="row-btns">
+      <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
+      <button class="btn-s" onclick="acBancoSalvarEdit(${i})">Salvar</button>
+    </div>`);
+}
+function acBancoSalvarEdit(i) {
+  const novo = document.getElementById('_ac_banco_edit').value.trim();
+  if (!novo) { alert('Informe o nome.'); return; }
+  state.academia.banco[i] = novo;
+  state.academia.banco.sort((a,b) => a.localeCompare(b,'pt-BR'));
+  save(); closeOverlay(); acBancoRender();
+}
+
+/* ─── PAINÉIS TREINO / HISTÓRICO ─── */
+function acTreinoPanel() {
+  const panel = document.getElementById('ac-treino-panel'); if(!panel) return;
+  // fechar outros
+  ['ac-aval-panel','ac-hist-panel'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) acTreinoRender();
+}
+function acHistPanel() {
+  const panel = document.getElementById('ac-hist-panel'); if(!panel) return;
+  ['ac-aval-panel','ac-treino-panel'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) acHistRender();
+}
+
+/* ─── TREINOS ─── */
+let _acTreinoEditId = null;
+
+function acTreinoNovo() {
+  _acTreinoEditId = null;
+  acAbrirTreinoForm({});
+}
+function acTreinoEditar(id) {
+  _acTreinoEditId = id;
+  const p = acPerfilAtivo;
+  const treino = (state.academia[p]?.treinos||[]).find(t=>t.id===id) || {};
+  acAbrirTreinoForm(treino);
+}
+function acAbrirTreinoForm(treino) {
+  const banco = state.academia.banco || [];
+  if (!banco.length) { alert('Adicione exercícios no Banco de Dados primeiro.'); return; }
+  const exercList = (treino.exercicios||[]);
+  const renderExerc = () => {
+    const container = document.getElementById('_ac_exerc_list'); if(!container) return;
+    if (!exercList.length) {
+      container.innerHTML = '<div style="font-size:12px;color:var(--tx3);padding:8px 0">Nenhum exercício adicionado ainda.</div>';
+      return;
+    }
+    container.innerHTML = exercList.map((e,i)=>`
+      <div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;color:var(--tx)">${esc(e.nome)}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:2px">📅 ${e.data?fmtDt(e.data):'—'} · 📊 ${esc(e.valor||'—')}</div>
+        </div>
+        <button class="act dl" onclick="acExercRemover(${i})">🗑</button>
+      </div>`).join('');
+  };
+  window._acExercList = exercList;
+  window._acExercRender = renderExerc;
+  const optsExerc = banco.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  openOverlay(`
+    <div class="otitle">💪 ${_acTreinoEditId ? 'Editar' : 'Novo'} Treino</div>
+    <span class="lbl">Nome do treino</span>
+    <input class="inp" id="_ac_treino_nome" value="${esc(treino.nome||'')}" placeholder="Ex: Treino A - Peito e Tríceps">
+    <span class="lbl">Data</span>
+    <input class="inp" id="_ac_treino_data" type="date" value="${treino.data||new Date().toISOString().split('T')[0]}">
+    <span class="lbl">Observação</span>
+    <textarea class="ta" id="_ac_treino_obs" placeholder="Observações do treino...">${esc(treino.obs||'')}</textarea>
+    <div style="border-top:1px solid var(--bord);margin:12px 0;padding-top:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Exercícios</div>
+      <div id="_ac_exerc_list"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:flex-end">
+        <div style="flex:2">
+          <span class="lbl" style="margin-top:0">Exercício</span>
+          <select class="sel" id="_ac_exerc_sel">${optsExerc}</select>
+        </div>
+        <div style="flex:1">
+          <span class="lbl" style="margin-top:0">Data</span>
+          <input class="inp" id="_ac_exerc_data" type="date" value="${new Date().toISOString().split('T')[0]}" style="margin:0">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end">
+        <div style="flex:1">
+          <span class="lbl" style="margin-top:0">Valor (carga/reps/tempo)</span>
+          <input class="inp" id="_ac_exerc_val" placeholder="Ex: 3x12 / 60kg / 30min" style="margin:0">
+        </div>
+        <button class="btn-s" style="flex-shrink:0;height:38px" onclick="acExercAdicionar()">+ Add</button>
+      </div>
+    </div>
+    <div class="row-btns" style="margin-top:12px">
+      <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
+      <button class="btn-s" onclick="acTreinoSalvar()">💾 Salvar Treino</button>
+    </div>`);
+  setTimeout(renderExerc, 50);
+}
+
+function acExercAdicionar() {
+  const nome  = document.getElementById('_ac_exerc_sel')?.value; if(!nome) return;
+  const data  = document.getElementById('_ac_exerc_data')?.value || '';
+  const valor = document.getElementById('_ac_exerc_val')?.value.trim() || '';
+  window._acExercList.push({ nome, data, valor });
+  if (document.getElementById('_ac_exerc_val')) document.getElementById('_ac_exerc_val').value = '';
+  if (window._acExercRender) window._acExercRender();
+}
+function acExercRemover(i) {
+  window._acExercList.splice(i,1);
+  if (window._acExercRender) window._acExercRender();
+}
+
+function acTreinoSalvar() {
+  const nome = document.getElementById('_ac_treino_nome')?.value.trim();
+  if (!nome) { alert('Informe o nome do treino.'); return; }
+  const data = document.getElementById('_ac_treino_data')?.value || '';
+  const obs  = document.getElementById('_ac_treino_obs')?.value.trim() || '';
+  const p = acPerfilAtivo;
+  if (!state.academia[p]) state.academia[p] = { aval:[], treinos:[], histTreinos:[] };
+  if (!state.academia[p].treinos) state.academia[p].treinos = [];
+  const item = {
+    id: _acTreinoEditId || Date.now(),
+    nome, data, obs,
+    exercicios: [...(window._acExercList||[])]
+  };
+  if (_acTreinoEditId) {
+    const i = state.academia[p].treinos.findIndex(t=>t.id===_acTreinoEditId);
+    if (i!==-1) state.academia[p].treinos[i] = item;
+  } else {
+    state.academia[p].treinos.push(item);
+  }
+  state.academia[p].treinos.sort((a,b)=>b.data.localeCompare(a.data));
+  save(); closeOverlay(); acTreinoRender(); acRenderPerfil();
+}
+
+function acTreinoDel(id) {
+  if (!confirm('Excluir este treino?')) return;
+  const p = acPerfilAtivo;
+  state.academia[p].treinos = state.academia[p].treinos.filter(t=>t.id!==id);
+  save(); acTreinoRender(); acRenderPerfil();
+}
+
+function acTreinoVer(id) {
+  const p = acPerfilAtivo;
+  const t = (state.academia[p]?.treinos||[]).find(x=>x.id===id); if(!t) return;
+  const exercHTML = (t.exercicios||[]).length
+    ? t.exercicios.map(e=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bord)">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500;color:var(--tx)">${esc(e.nome)}</div>
+            <div style="font-size:11px;color:var(--tx3)">📅 ${e.data?fmtDt(e.data):'—'} · 📊 ${esc(e.valor||'—')}</div>
+          </div>
+        </div>`).join('')
+    : '<div style="font-size:12px;color:var(--tx3);padding:8px 0">Nenhum exercício registrado.</div>';
+  openOverlay(`
+    <div class="otitle">💪 ${esc(t.nome)}</div>
+    <div style="font-size:12px;color:var(--tx3);margin-bottom:12px">📅 ${t.data?fmtDt(t.data):'—'}</div>
+    ${t.obs?`<div style="font-size:13px;color:var(--tx2);margin-bottom:12px;padding:10px;background:var(--surf2);border-radius:var(--rs)">${esc(t.obs)}</div>`:''}
+    <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Exercícios (${(t.exercicios||[]).length})</div>
+    <div>${exercHTML}</div>
+    <div class="row-btns" style="margin-top:14px">
+      <button class="btn-c" onclick="closeOverlay()">Fechar</button>
+      <button class="btn-s" onclick="closeOverlay();acTreinoEditar(${id})">✏️ Editar</button>
+    </div>`);
+}
+
+function acTreinoRender() {
+  const el = document.getElementById('ac-treino-list'); if(!el) return;
+  const p = acPerfilAtivo;
+  const lista = state.academia[p]?.treinos || [];
+  if (!lista.length) {
+    el.innerHTML = '<div class="empty" style="padding:10px 0">Nenhum treino ainda</div>'; return;
+  }
+  el.innerHTML = lista.map(t=>`
+    <div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);padding:11px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;color:var(--tx)">${esc(t.nome)}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:3px">📅 ${t.data?fmtDt(t.data):'—'} · 💪 ${(t.exercicios||[]).length} exercício${(t.exercicios||[]).length!==1?'s':''}</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="act" onclick="acTreinoVer(${t.id})" title="Ver">👁</button>
+          <button class="act ed" onclick="acTreinoEditar(${t.id})" title="Editar">✏️</button>
+          <button class="act dl" onclick="acTreinoDel(${t.id})" title="Excluir">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ─── HISTÓRICO DE TREINOS ─── */
+function acHistRender() {
+  const el = document.getElementById('ac-hist-list'); if(!el) return;
+  const p = acPerfilAtivo;
+  // Histórico = todos os treinos agrupados por data
+  const treinos = state.academia[p]?.treinos || [];
+  if (!treinos.length) {
+    el.innerHTML = '<div class="empty" style="padding:10px 0">Nenhum treino registrado ainda</div>'; return;
+  }
+  // Group by month
+  const byMonth = {};
+  treinos.forEach(t => {
+    const key = t.data ? t.data.substring(0,7) : 'sem-data';
+    if (!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(t);
+  });
+  const months = Object.keys(byMonth).sort().reverse();
+  el.innerHTML = months.map(mk => {
+    const [y,m] = mk.split('-');
+    const label = mk === 'sem-data' ? 'Sem data' : (MES_NOMES[parseInt(m)-1]||m) + ' ' + y;
+    const items = byMonth[mk].map(t=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--bord)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;color:var(--tx)">${esc(t.nome)}</div>
+          <div style="font-size:11px;color:var(--tx3)">📅 ${t.data?fmtDt(t.data):'—'} · ${(t.exercicios||[]).length} exercícios</div>
+        </div>
+        <button class="act" onclick="acTreinoVer(${t.id})">👁</button>
+      </div>`).join('');
+    return `<div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;padding:8px 0 6px">${label} (${byMonth[mk].length})</div>
+      <div style="background:var(--surf);border:1px solid var(--bord);border-radius:var(--rs);overflow:hidden">${items}</div>
+    </div>`;
+  }).join('');
+}
+const MES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 /* ─── PAINEL AVALIAÇÃO ─── */
 function acAvalPanel() {
