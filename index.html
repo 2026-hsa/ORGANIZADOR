@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 44</title>
+<title>Organizador - 45</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">44</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">45</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -2761,7 +2761,7 @@ function acRenderPerfil() {
   area.innerHTML = `
     <div class="grid">
       <button class="gbtn hi" onclick="acAvalPanel()"><span class="gbtn-ic">📏</span><span class="gbtn-lb">Avaliação</span><span class="gbtn-sb">${nAval} avaliação${nAval!==1?'ões':''}</span></button>
-      <button class="gbtn" onclick="acTreinoPanel()"><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb" id="ac-treino-sub">${(state.academia[p]?.treinos?.length||0)} treinos</span></button>
+      <button class="gbtn" onclick="acTreinoPanel()"><span class="gbtn-ic">💪</span><span class="gbtn-lb">Treinos</span><span class="gbtn-sb" id="ac-treino-sub">${(state.academia[p]?.treinos?.reduce((s,t)=>s+(t.registros?.length||0),0)||0)} registros</span></button>
       <button class="gbtn" onclick="acHistPanel()"><span class="gbtn-ic">📈</span><span class="gbtn-lb">Histórico Treinos</span><span class="gbtn-sb" id="ac-hist-sub">${(state.academia[p]?.histTreinos?.length||0)} registros</span></button>
     </div>
     <div id="ac-aval-panel" style="display:none;background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);margin-top:10px">
@@ -2852,215 +2852,215 @@ function acHistPanel() {
 }
 
 /* ─── TREINOS ─── */
-let _acTreinoEditId = null;
+/*
+  Nova estrutura:
+  state.academia[p].treinos = [
+    {
+      nome: 'Supino Reto',        // nome do exercício (= chave)
+      registros: [
+        { id, data, series:[{reps,peso}x4], obs }
+      ]
+    }
+  ]
+  Cada exercício tem um histórico de registros por data.
+*/
 
-function acTreinoNovo() {
-  _acTreinoEditId = null;
-  acAbrirTreinoForm({});
+function acTreinoPanel() {
+  const panel = document.getElementById('ac-treino-panel'); if(!panel) return;
+  ['ac-aval-panel','ac-hist-panel'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) acTreinoRender();
 }
-function acTreinoEditar(id) {
-  _acTreinoEditId = id;
-  const p = acPerfilAtivo;
-  const treino = (state.academia[p]?.treinos||[]).find(t=>t.id===id) || {};
-  acAbrirTreinoForm(treino);
+function acHistPanel() {
+  const panel = document.getElementById('ac-hist-panel'); if(!panel) return;
+  ['ac-aval-panel','ac-treino-panel'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) acHistRender();
 }
 
-function acAbrirTreinoForm(treino) {
+/* ── Abrir form: seleciona exercício do banco, preenche séries ── */
+function acTreinoNovoRegistro(nomeExerc) {
   const banco = state.academia.banco || [];
   if (!banco.length) { alert('Adicione exercícios no Banco de Dados primeiro.'); return; }
 
-  // Monta lista de exercícios: um item por exercício do banco
-  // Cada item tem nome, data e 4 séries [{reps, peso}]
-  // Se editando, preenche com valores já salvos
-  const savedMap = {};
-  (treino.exercicios||[]).forEach(e => { savedMap[e.nome] = e; });
+  const p = acPerfilAtivo;
+  if (!state.academia[p].treinos) state.academia[p].treinos = [];
 
-  // _acExercData: { nome: { ativo, data, series:[{reps,peso}x4] } }
-  window._acExercData = {};
-  banco.forEach(nome => {
-    const saved = savedMap[nome];
-    window._acExercData[nome] = {
-      ativo: !!saved,
-      data: saved?.data || treino.data || new Date().toISOString().split('T')[0],
-      series: saved?.series || [
-        {reps:'', peso:''},
-        {reps:'', peso:''},
-        {reps:'', peso:''},
-        {reps:'', peso:''},
-      ]
-    };
-  });
+  // Referência: último registro desse exercício
+  const exercEntry = state.academia[p].treinos.find(t => t.nome === nomeExerc);
+  const ultReg = exercEntry?.registros?.slice().sort((a,b)=>b.data.localeCompare(a.data))[0];
+  const refSeries = ultReg?.series || [{reps:'',peso:''},{reps:'',peso:''},{reps:'',peso:''},{reps:'',peso:''}];
 
-  const hoje = treino.data || new Date().toISOString().split('T')[0];
+  const optsExerc = banco.map(n =>
+    `<option value="${esc(n)}" ${n===nomeExerc?'selected':''}>${esc(n)}</option>`
+  ).join('');
 
-  // Render da lista de exercícios
-  const renderExercList = () => {
-    const container = document.getElementById('_ac_exerc_container'); if(!container) return;
-    container.innerHTML = banco.map(nome => {
-      const d = window._acExercData[nome];
-      const isAtivo = d.ativo;
-      const seriesHTML = d.series.map((s,si)=>`
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">
-          <span style="font-size:10px;color:var(--tx3);width:20px;text-align:center">${si+1}</span>
-          <input class="ac-inp" type="number" min="0" placeholder="Reps"
-            id="_s_${nome.replace(/\s/g,'_')}_r${si}"
-            value="${s.reps}"
-            style="flex:1;padding:6px 8px;font-size:12px"
-            oninput="window._acExercData['${nome}'].series[${si}].reps=this.value">
-          <span style="font-size:11px;color:var(--tx3)">×</span>
-          <input class="ac-inp" type="number" min="0" step="0.5" placeholder="Kg"
-            id="_s_${nome.replace(/\s/g,'_')}_p${si}"
-            value="${s.peso}"
-            style="flex:1;padding:6px 8px;font-size:12px"
-            oninput="window._acExercData['${nome}'].series[${si}].peso=this.value">
-          <span style="font-size:10px;color:var(--tx3)">kg</span>
-        </div>`).join('');
-      return `<div style="background:${isAtivo?'var(--surf)':'var(--surf2)'};border:1px solid ${isAtivo?'var(--acc)':'var(--bord)'};border-radius:var(--rs);margin-bottom:8px;overflow:hidden">
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer" onclick="acExercToggle('${nome}')">
-          <div style="width:18px;height:18px;border-radius:4px;border:2px solid ${isAtivo?'var(--acc)':'var(--bord2)'};background:${isAtivo?'var(--acc)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            ${isAtivo?'<span style="color:#fff;font-size:11px;font-weight:700">✓</span>':''}
-          </div>
-          <span style="flex:1;font-size:13px;font-weight:500;color:${isAtivo?'var(--tx)':'var(--tx3)'}">${esc(nome)}</span>
-        </div>
-        ${isAtivo ? `<div style="padding:8px 12px;border-top:1px solid var(--bord)">
-          <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
-            <span style="font-size:11px;color:var(--tx3)">📅 Data:</span>
-            <input class="ac-inp" type="date" value="${d.data}"
-              style="flex:1;padding:5px 8px;font-size:12px"
-              oninput="window._acExercData['${nome}'].data=this.value">
-          </div>
-          <div style="display:grid;grid-template-columns:20px 1fr 10px 1fr 25px;gap:4px;margin-bottom:4px">
-            <span></span>
-            <span style="font-size:10px;color:var(--tx3);text-align:center">REPS</span>
-            <span></span>
-            <span style="font-size:10px;color:var(--tx3);text-align:center">PESO</span>
-            <span></span>
-          </div>
-          ${seriesHTML}
-        </div>` : ''}
-      </div>`;
-    }).join('');
-  };
+  const seriesHTML = [0,1,2,3].map(i => `
+    <div style="display:grid;grid-template-columns:30px 1fr auto 1fr auto;gap:6px;align-items:center;margin-bottom:6px">
+      <span style="font-size:11px;color:var(--tx3);text-align:center;font-weight:600">${i+1}</span>
+      <input class="ac-inp" type="number" min="0" id="_sr${i}" placeholder="Reps"
+        value="${refSeries[i]?.reps||''}" style="padding:7px 8px;font-size:13px">
+      <span style="font-size:12px;color:var(--tx3)">×</span>
+      <input class="ac-inp" type="number" min="0" step="0.5" id="_sp${i}" placeholder="Kg"
+        value="${refSeries[i]?.peso||''}" style="padding:7px 8px;font-size:13px">
+      <span style="font-size:11px;color:var(--tx3)">kg</span>
+    </div>`).join('');
 
-  window._acExercRender = renderExercList;
+  const refHTML = ultReg ? `
+    <div style="background:var(--acbg);border:1px solid rgba(124,110,250,.2);border-radius:var(--rs);padding:8px 12px;margin-bottom:12px;font-size:12px">
+      <div style="color:var(--acc);font-weight:600;margin-bottom:4px">📎 Último registro — ${fmtDt(ultReg.data)}</div>
+      ${(ultReg.series||[]).filter(s=>s.reps||s.peso).map((s,i)=>
+        `<div style="color:var(--tx2)">Série ${i+1}: ${s.reps||'—'} reps × ${s.peso||'—'} kg</div>`
+      ).join('')}
+    </div>` : '';
 
   openOverlay(`
-    <div class="otitle">💪 ${_acTreinoEditId?'Editar':'Novo'} Treino</div>
-    <span class="lbl">Nome do treino</span>
-    <input class="inp" id="_ac_treino_nome" value="${esc(treino.nome||'')}" placeholder="Ex: Treino A — Peito e Tríceps">
-    <span class="lbl">Data do treino</span>
-    <input class="inp" id="_ac_treino_data" type="date" value="${hoje}">
+    <div class="otitle">💪 Registrar Exercício</div>
+    <span class="lbl">Exercício</span>
+    <select class="sel" id="_ac_exnome" onchange="acTreinoAtualizaRef(this.value)">${optsExerc}</select>
+    <span class="lbl">Data</span>
+    <input class="inp" id="_ac_exdata" type="date" value="${new Date().toISOString().split('T')[0]}">
     <span class="lbl">Observação</span>
-    <textarea class="ta" id="_ac_treino_obs" placeholder="Observações...">${esc(treino.obs||'')}</textarea>
-    <div style="border-top:1px solid var(--bord);margin:12px 0;padding-top:12px">
-      <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">
-        Exercícios — selecione e preencha séries
+    <input class="inp" id="_ac_exobs" placeholder="Opcional...">
+    ${refHTML}
+    <div style="margin-top:4px">
+      <div style="display:grid;grid-template-columns:30px 1fr auto 1fr auto;gap:6px;margin-bottom:6px">
+        <span></span>
+        <span style="font-size:10px;color:var(--tx3);text-align:center;text-transform:uppercase">Reps</span>
+        <span></span>
+        <span style="font-size:10px;color:var(--tx3);text-align:center;text-transform:uppercase">Peso</span>
+        <span></span>
       </div>
-      <div style="font-size:11px;color:var(--tx3);margin-bottom:10px">Clique no exercício para marcar/desmarcar. Cada exercício tem 4 séries (repetições × peso).</div>
-      <div id="_ac_exerc_container"></div>
+      ${seriesHTML}
     </div>
-    <div class="row-btns" style="margin-top:4px">
+    <div class="row-btns" style="margin-top:12px">
       <button class="btn-c" onclick="closeOverlay()">Cancelar</button>
-      <button class="btn-s" onclick="acTreinoSalvar()">💾 Salvar Treino</button>
+      <button class="btn-s" onclick="acTreinoSalvarRegistro()">💾 Salvar</button>
     </div>`);
-  setTimeout(renderExercList, 50);
 }
 
-function acExercToggle(nome) {
-  if (!window._acExercData[nome]) return;
-  window._acExercData[nome].ativo = !window._acExercData[nome].ativo;
-  if (window._acExercRender) window._acExercRender();
-}
-
-function acTreinoSalvar() {
-  const nome = document.getElementById('_ac_treino_nome')?.value.trim();
-  if (!nome) { alert('Informe o nome do treino.'); return; }
-  const data = document.getElementById('_ac_treino_data')?.value || '';
-  const obs  = document.getElementById('_ac_treino_obs')?.value.trim() || '';
+function acTreinoAtualizaRef(nomeExerc) {
+  // Atualiza o bloco de referência ao trocar exercício
   const p = acPerfilAtivo;
-  if (!state.academia[p]) state.academia[p] = { aval:[], treinos:[], histTreinos:[] };
+  const exercEntry = state.academia[p].treinos?.find(t => t.nome === nomeExerc);
+  const ultReg = exercEntry?.registros?.slice().sort((a,b)=>b.data.localeCompare(a.data))[0];
+  if (!ultReg) return;
+  // Preenche séries com referência
+  [0,1,2,3].forEach(i => {
+    const rEl = document.getElementById('_sr'+i);
+    const pEl = document.getElementById('_sp'+i);
+    if (rEl) rEl.value = ultReg.series?.[i]?.reps || '';
+    if (pEl) pEl.value = ultReg.series?.[i]?.peso || '';
+  });
+}
+
+function acTreinoSalvarRegistro() {
+  const nome = document.getElementById('_ac_exnome')?.value;
+  const data = document.getElementById('_ac_exdata')?.value;
+  const obs  = document.getElementById('_ac_exobs')?.value.trim() || '';
+  if (!nome) { alert('Selecione o exercício.'); return; }
+  if (!data) { alert('Informe a data.'); return; }
+
+  const series = [0,1,2,3].map(i => ({
+    reps: document.getElementById('_sr'+i)?.value.trim() || '',
+    peso: document.getElementById('_sp'+i)?.value.trim() || '',
+  }));
+
+  const p = acPerfilAtivo;
   if (!state.academia[p].treinos) state.academia[p].treinos = [];
-  // Coleta exercícios ativos do _acExercData
-  const exercicios = Object.entries(window._acExercData||{})
-    .filter(([n,d]) => d.ativo)
-    .map(([nome, d]) => ({
-      nome,
-      data: d.data,
-      series: d.series.filter(s => s.reps || s.peso)
-    }));
-  const item = {
-    id: _acTreinoEditId || Date.now(),
-    nome, data, obs,
-    exercicios
-  };
-  if (_acTreinoEditId) {
-    const i = state.academia[p].treinos.findIndex(t=>t.id===_acTreinoEditId);
-    if (i!==-1) state.academia[p].treinos[i] = item;
-  } else {
-    state.academia[p].treinos.push(item);
+
+  // Encontra ou cria entry do exercício
+  let exercEntry = state.academia[p].treinos.find(t => t.nome === nome);
+  if (!exercEntry) {
+    exercEntry = { nome, registros: [] };
+    state.academia[p].treinos.push(exercEntry);
   }
-  state.academia[p].treinos.sort((a,b)=>b.data.localeCompare(a.data));
+  exercEntry.registros.push({ id: Date.now(), data, series, obs });
+  // Ordena registros por data desc
+  exercEntry.registros.sort((a,b) => b.data.localeCompare(a.data));
+
   save(); closeOverlay(); acTreinoRender(); acRenderPerfil();
 }
 
-function acTreinoDel(id) {
-  if (!confirm('Excluir este treino?')) return;
+function acTreinoDel(nome) {
+  if (!confirm(`Excluir todos os registros de "${nome}"?`)) return;
   const p = acPerfilAtivo;
-  state.academia[p].treinos = state.academia[p].treinos.filter(t=>t.id!==id);
+  state.academia[p].treinos = state.academia[p].treinos.filter(t => t.nome !== nome);
   save(); acTreinoRender(); acRenderPerfil();
 }
 
-function acTreinoVer(id) {
+function acTreinoDelReg(nome, id) {
+  if (!confirm('Excluir este registro?')) return;
   const p = acPerfilAtivo;
-  const t = (state.academia[p]?.treinos||[]).find(x=>x.id===id); if(!t) return;
-  const exercHTML = (t.exercicios||[]).length
-    ? t.exercicios.map(e=>{
-        const seriesStr = (e.series||[]).filter(s=>s.reps||s.peso)
-          .map((s,i)=>`Série ${i+1}: ${s.reps||'—'} reps × ${s.peso||'—'} kg`)
-          .join(' | ');
-        return `<div style="padding:10px 0;border-bottom:1px solid var(--bord)">
-          <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:4px">${esc(e.nome)}</div>
-          <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">📅 ${e.data?fmtDt(e.data):'—'}</div>
-          ${seriesStr ? `<div style="font-size:11px;color:var(--acc)">${esc(seriesStr)}</div>` : ''}
-        </div>`;
-      }).join('')
-    : '<div style="font-size:12px;color:var(--tx3);padding:8px 0">Nenhum exercício registrado.</div>';
-  openOverlay(`
-    <div class="otitle">💪 ${esc(t.nome)}</div>
-    <div style="font-size:12px;color:var(--tx3);margin-bottom:12px">📅 ${t.data?fmtDt(t.data):'—'}</div>
-    ${t.obs?`<div style="font-size:13px;color:var(--tx2);margin-bottom:12px;padding:10px;background:var(--surf2);border-radius:var(--rs)">${esc(t.obs)}</div>`:''}
-    <div style="font-size:11px;font-weight:600;color:var(--acc);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Exercícios (${(t.exercicios||[]).length})</div>
-    <div>${exercHTML}</div>
-    <div class="row-btns" style="margin-top:14px">
-      <button class="btn-c" onclick="closeOverlay()">Fechar</button>
-      <button class="btn-s" onclick="closeOverlay();acTreinoEditar(${id})">✏️ Editar</button>
-    </div>`);
+  const entry = state.academia[p].treinos?.find(t => t.nome === nome);
+  if (!entry) return;
+  entry.registros = entry.registros.filter(r => r.id !== id);
+  if (!entry.registros.length) {
+    state.academia[p].treinos = state.academia[p].treinos.filter(t => t.nome !== nome);
+  }
+  save(); acTreinoRender();
 }
 
 function acTreinoRender() {
   const el = document.getElementById('ac-treino-list'); if(!el) return;
   const p = acPerfilAtivo;
-  const lista = state.academia[p]?.treinos || [];
-  if (!lista.length) {
-    el.innerHTML = '<div class="empty" style="padding:10px 0">Nenhum treino ainda</div>'; return;
+  const banco = state.academia.banco || [];
+  const treinos = state.academia[p]?.treinos || [];
+
+  if (!banco.length) {
+    el.innerHTML = '<div class="empty" style="padding:10px 0">Adicione exercícios no Banco de Dados primeiro</div>';
+    return;
   }
-  el.innerHTML = lista.map(t=>`
-    <div style="background:var(--surf2);border:1px solid var(--bord);border-radius:var(--rs);padding:11px 14px;margin-bottom:8px">
-      <div style="display:flex;align-items:flex-start;gap:8px">
+
+  // Mostrar todos do banco com botão para registrar
+  // E abaixo de cada um mostrar histórico colapsável
+  el.innerHTML = banco.map(nome => {
+    const entry = treinos.find(t => t.nome === nome);
+    const regs  = entry?.registros || [];
+    const ult   = regs[0]; // já ordenado desc
+
+    const histHTML = regs.map(r => {
+      const serStr = (r.series||[]).filter(s=>s.reps||s.peso)
+        .map((s,i)=>`<span style="background:var(--surf3);border-radius:4px;padding:2px 6px;font-size:11px;color:var(--tx2)">S${i+1}: ${s.reps||'—'}×${s.peso||'—'}kg</span>`)
+        .join(' ');
+      return `<div style="padding:7px 12px;border-bottom:1px solid var(--bord);display:flex;align-items:flex-start;gap:8px">
         <div style="flex:1;min-width:0">
-          <div style="font-size:14px;font-weight:500;color:var(--tx)">${esc(t.nome)}</div>
-          <div style="font-size:11px;color:var(--tx3);margin-top:3px">📅 ${t.data?fmtDt(t.data):'—'} · 💪 ${(t.exercicios||[]).length} exercício${(t.exercicios||[]).length!==1?'s':''} · ${(t.exercicios||[]).reduce((s,e)=>s+(e.series||[]).filter(x=>x.reps||x.peso).length,0)} séries</div>
+          <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">📅 ${fmtDt(r.data)}${r.obs?' · '+esc(r.obs):''}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">${serStr||'<span style="font-size:11px;color:var(--tx3)">Sem dados de séries</span>'}</div>
         </div>
-        <div style="display:flex;gap:4px;flex-shrink:0">
-          <button class="act" onclick="acTreinoVer(${t.id})" title="Ver">👁</button>
-          <button class="act ed" onclick="acTreinoEditar(${t.id})" title="Editar">✏️</button>
-          <button class="act dl" onclick="acTreinoDel(${t.id})" title="Excluir">🗑</button>
+        <button class="act dl" onclick="acTreinoDelReg('${esc(nome)}',${r.id})" style="flex-shrink:0">🗑</button>
+      </div>`;
+    }).join('');
+
+    return `<div style="background:var(--surf);border:1px solid var(--bord);border-radius:var(--rs);margin-bottom:10px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 14px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;color:var(--tx)">${esc(nome)}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:2px">
+            ${regs.length ? `${regs.length} registro${regs.length!==1?'s':''} · Último: ${fmtDt(ult.data)}` : 'Sem registros'}
+          </div>
         </div>
+        <button class="act ed" onclick="acTreinoNovoRegistro('${esc(nome)}')" title="Novo registro" style="background:var(--acbg);color:var(--acc);border-color:rgba(124,110,250,.3)">+ Série</button>
       </div>
-    </div>`).join('');
+      ${regs.length ? `
+        <div style="border-top:1px solid var(--bord)">
+          <div style="padding:6px 12px;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;cursor:pointer;background:var(--surf2)"
+            onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+            📋 Ver histórico (${regs.length})
+          </div>
+          <div style="display:none">${histHTML}</div>
+        </div>` : ''}
+    </div>`;
+  }).join('');
 }
 
-/* ─── HISTÓRICO DE TREINOS ─── */
+
 function acHistRender() {
   const el = document.getElementById('ac-hist-list'); if(!el) return;
   const p = acPerfilAtivo;
