@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 46</title>
+<title>Organizador - 47</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">46</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">47</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -391,17 +391,20 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
       <div class="panel" id="fp-res">
         <div class="ph"><span class="ph-title">📊 Resumo Financeiro</span><button class="pcls" onclick="fClose('res')">×</button></div>
         <div class="pbody">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-            <div>
-              <span class="lbl">De</span>
-              <input class="inp" id="f-res-de" type="date" style="margin:0">
-            </div>
-            <div>
-              <span class="lbl">Até</span>
-              <input class="inp" id="f-res-ate" type="date" style="margin:0">
-            </div>
+
+          <!-- Período -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div><span class="lbl">De</span><input class="inp" id="f-res-de" type="date" style="margin:0"></div>
+            <div><span class="lbl">Até</span><input class="inp" id="f-res-ate" type="date" style="margin:0"></div>
           </div>
-          <button class="btn-s" style="width:100%;margin-bottom:14px" onclick="fResCalc()">🔍 Calcular período</button>
+
+          <!-- Filtro por itens do banco (até 5 + todos) -->
+          <span class="lbl">Filtrar por nome (opcional)</span>
+          <div id="f-res-filtros" style="margin-bottom:10px">
+            <!-- gerado por fResRenderFiltros() -->
+          </div>
+
+          <button class="btn-s" style="width:100%;margin-bottom:14px" onclick="fResCalc()">🔍 Calcular</button>
           <div id="f-res-result"></div>
         </div>
       </div>
@@ -1733,40 +1736,166 @@ function fDespRender() {
 function fResInit() {
   const hoje = new Date().toISOString().split('T')[0];
   const prim  = hoje.substring(0,8)+'01';
-  document.getElementById('f-res-de').value  = prim;
-  document.getElementById('f-res-ate').value = hoje;
-  document.getElementById('f-res-result').innerHTML = '';
+  const deEl = document.getElementById('f-res-de');
+  const ateEl = document.getElementById('f-res-ate');
+  const resEl = document.getElementById('f-res-result');
+  if (deEl && !deEl.value)  deEl.value  = prim;
+  if (ateEl && !ateEl.value) ateEl.value = hoje;
+  if (resEl) resEl.innerHTML = '';
+  // Sempre garantir array inicializado
+  if (!window._fResFiltros) window._fResFiltros = [];
+  fResRenderFiltros();
+}
+
+function fResRenderFiltros() {
+  const el = document.getElementById('f-res-filtros'); if(!el) return;
+  if (!window._fResFiltros) window._fResFiltros = [];
+  const selected = window._fResFiltros;
+
+  // Combina banco + nomes únicos de receitas e despesas
+  const bancoBruto = state.familia.banco || [];
+  const nomesRec  = (state.familia.receitas||[]).map(r=>r.nome).filter(Boolean);
+  const nomesDesp = (state.familia.despesas||[]).map(d=>d.nome).filter(Boolean);
+  const todosNomes = [...new Set([...bancoBruto, ...nomesRec, ...nomesDesp])].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+
+  if (!todosNomes.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--tx3);padding:4px 0">Nenhum dado ainda — mostrará tudo.</div>';
+    return;
+  }
+
+  const maxSel = 5;
+  const hasAll = selected.length === 0;
+
+  const tags = todosNomes.map(n => {
+    const on  = selected.includes(n);
+    const dis = !on && selected.length >= maxSel;
+    const cor    = on ? 'var(--acc)' : dis ? 'var(--tx3)' : 'var(--tx2)';
+    const bg     = on ? 'var(--acbg)' : dis ? 'var(--bg)' : 'var(--surf2)';
+    const border = on ? 'var(--acc)' : 'var(--bord2)';
+    const cursor = dis ? 'not-allowed' : 'pointer';
+    const op     = dis ? '.45' : '1';
+    const fn     = dis ? 'return false' : `fResToggleFiltro('${n.replace(/'/g,"%27")}')`;
+    return `<span onclick="${fn}"
+      style="display:inline-block;margin:3px;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:500;cursor:${cursor};border:1px solid ${border};background:${bg};color:${cor};opacity:${op};user-select:none;transition:all .15s">
+      ${esc(n)}</span>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="margin-bottom:8px">
+      <span onclick="fResLimparFiltros()"
+        style="display:inline-block;margin:3px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid ${hasAll?'var(--acc)':'var(--bord2)'};background:${hasAll?'var(--acbg)':'var(--surf2)'};color:${hasAll?'var(--acc)':'var(--tx3)'};user-select:none">
+        ✓ Todos
+      </span>
+      ${tags}
+    </div>
+    <div style="font-size:11px;color:var(--tx3)">
+      ${selected.length
+        ? `<span style="color:var(--acc);font-weight:600">${selected.length}/${maxSel}</span> selecionado${selected.length>1?'s':''}: ${selected.map(s=>esc(s)).join(', ')}`
+        : 'Sem filtro — mostra tudo. Clique nos nomes para filtrar (máx. 5).'}
+    </div>`;
+}
+
+function fResToggleFiltro(nome) {
+  if (!window._fResFiltros) window._fResFiltros = [];
+  nome = (nome||'').replace(/%27/g,"'");
+  var i = window._fResFiltros.indexOf(nome);
+  if (i === -1) {
+    if (window._fResFiltros.length >= 5) {
+      alert('Máximo de 5 filtros. Desmarque um antes de selecionar outro.'); return;
+    }
+    window._fResFiltros.push(nome);
+  } else {
+    window._fResFiltros.splice(i, 1);
+  }
+  fResRenderFiltros();
+}
+
+function fResLimparFiltros() {
+  window._fResFiltros = [];
+  fResRenderFiltros();
 }
 
 function fResCalc() {
   const de  = (document.getElementById('f-res-de')||{}).value||'';
   const ate = (document.getElementById('f-res-ate')||{}).value||'';
   const el  = document.getElementById('f-res-result'); if(!el) return;
-  if(!de||!ate){alert('Informe as duas datas.');return;}
+  if(!de||!ate){ alert('Informe as duas datas.'); return; }
+
   const f = state.familia;
-  const recs  = (f.receitas||[]).filter(r=>r.data>=de&&r.data<=ate);
-  const desps = (f.despesas||[]).filter(d=>d.data>=de&&d.data<=ate);
+  const filtros = window._fResFiltros || []; // [] = todos
+  const temFiltro = filtros.length > 0;
+
+  // Filtrar por período e por nome (se selecionado)
+  const recs  = (f.receitas||[]).filter(r => {
+    if (r.data < de || r.data > ate) return false;
+    if (temFiltro && !filtros.includes(r.nome)) return false;
+    return true;
+  });
+  const desps = (f.despesas||[]).filter(d => {
+    if (d.data < de || d.data > ate) return false;
+    if (temFiltro && !filtros.includes(d.nome)) return false;
+    return true;
+  });
+
   const totR  = recs.reduce((s,r)=>s+Number(r.valor),0);
   const totD  = desps.reduce((s,d)=>s+Number(d.valor),0);
   const saldo = totR-totD;
   const corS  = saldo>=0?'var(--grn)':'var(--red)';
+
+  const filtroLabel = temFiltro
+    ? `Filtro: ${filtros.map(f=>esc(f)).join(', ')}`
+    : 'Todos os itens';
+
+  // Por nome (detalhado): quanto cada nome aparece e quanto somou
+  const porNomeR = {}, porNomeD = {};
+  recs.forEach(r  => { if (!porNomeR[r.nome]) porNomeR[r.nome]={count:0,total:0}; porNomeR[r.nome].count++; porNomeR[r.nome].total+=Number(r.valor); });
+  desps.forEach(d => { if (!porNomeD[d.nome]) porNomeD[d.nome]={count:0,total:0}; porNomeD[d.nome].count++; porNomeD[d.nome].total+=Number(d.valor); });
+
+  // Por quem gastou (despesas)
   const pp = {};
   desps.forEach(d=>{pp[d.quem]=(pp[d.quem]||0)+Number(d.valor);});
+
   const ppRows = Object.entries(pp).sort((a,b)=>b[1]-a[1]).map(([q,v])=>
-    `<div class="rline"><span class="rline-l">${esc(q)}</span><span class="rline-v" style="color:var(--red)">R$ ${v.toFixed(2).replace('.',',')}</span></div>`).join('');
-  const recRows = recs.map(r=>
-    `<div class="rline"><span class="rline-l">${fmtDt(r.data)} · ${esc(r.nome)}</span><span class="rline-v" style="color:var(--grn)">+ R$ ${Number(r.valor).toFixed(2).replace('.',',')}</span></div>`).join('');
+    `<div class="rline"><span class="rline-l">👤 ${esc(q)}</span><span class="rline-v" style="color:var(--red)">R$ ${v.toFixed(2).replace('.',',')}</span></div>`
+  ).join('');
+
+  const recDetalhe = Object.entries(porNomeR).sort((a,b)=>b[1].total-a[1].total).map(([n,d])=>
+    `<div class="rline">
+      <span class="rline-l">${esc(n)}</span>
+      <span style="font-size:11px;color:var(--tx3);margin:0 8px">${d.count}× vezes</span>
+      <span class="rline-v" style="color:var(--grn)">R$ ${d.total.toFixed(2).replace('.',',')}</span>
+    </div>`
+  ).join('');
+
+  const despDetalhe = Object.entries(porNomeD).sort((a,b)=>b[1].total-a[1].total).map(([n,d])=>
+    `<div class="rline">
+      <span class="rline-l">${esc(n)}</span>
+      <span style="font-size:11px;color:var(--tx3);margin:0 8px">${d.count}× vezes</span>
+      <span class="rline-v" style="color:var(--red)">R$ ${d.total.toFixed(2).replace('.',',')}</span>
+    </div>`
+  ).join('');
+
+  // Lista detalhada
+  const recRows  = recs.map(r=>
+    `<div class="rline"><span class="rline-l">${fmtDt(r.data)} · ${esc(r.nome)}</span><span class="rline-v" style="color:var(--grn)">+ R$ ${Number(r.valor).toFixed(2).replace('.',',')}</span></div>`
+  ).join('');
   const despRows = desps.map(d=>
-    `<div class="rline"><span class="rline-l">${fmtDt(d.data)} · ${esc(d.nome)}</span><span class="rline-v" style="color:var(--red)">- R$ ${Number(d.valor).toFixed(2).replace('.',',')}</span></div>`).join('');
-  el.innerHTML=`
-    <div class="rcard"><div class="rcard-t">Período: ${fmtDt(de)} a ${fmtDt(ate)}</div>
+    `<div class="rline"><span class="rline-l">${fmtDt(d.data)} · ${esc(d.nome)}</span><span class="rline-v" style="color:var(--red)">- R$ ${Number(d.valor).toFixed(2).replace('.',',')}</span></div>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="rcard">
+      <div class="rcard-t">📅 ${fmtDt(de)} a ${fmtDt(ate)}</div>
+      <div style="font-size:11px;color:var(--tx3);padding:4px 14px 8px">${filtroLabel}</div>
       <div class="rline"><span class="rline-l">Entradas</span><span class="rline-v" style="color:var(--grn)">R$ ${totR.toFixed(2).replace('.',',')}</span></div>
       <div class="rline"><span class="rline-l">Saídas</span><span class="rline-v" style="color:var(--red)">R$ ${totD.toFixed(2).replace('.',',')}</span></div>
       <div class="rline"><span class="rline-l" style="font-weight:700">Saldo</span><span class="rline-v" style="color:${corS};font-size:16px;font-weight:700">R$ ${saldo.toFixed(2).replace('.',',')}</span></div>
     </div>
-    ${recRows?`<div class="rcard"><div class="rcard-t">Entradas (${recs.length})</div>${recRows}</div>`:''}
-    ${despRows?`<div class="rcard"><div class="rcard-t">Saídas (${desps.length})</div>${despRows}</div>`:''}
-    ${ppRows?`<div class="rcard"><div class="rcard-t">Por pessoa</div>${ppRows}</div>`:''}`;
+    ${recDetalhe  ? `<div class="rcard"><div class="rcard-t">Entradas por item (${recs.length} lançamentos)</div>${recDetalhe}</div>`  : ''}
+    ${despDetalhe ? `<div class="rcard"><div class="rcard-t">Saídas por item (${desps.length} lançamentos)</div>${despDetalhe}</div>` : ''}
+    ${ppRows      ? `<div class="rcard"><div class="rcard-t">Saídas por pessoa</div>${ppRows}</div>`      : ''}
+    ${recRows     ? `<div class="rcard"><div class="rcard-t" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">📋 Todas as entradas ▼</div><div style="display:none">${recRows}</div></div>` : ''}
+    ${despRows    ? `<div class="rcard"><div class="rcard-t" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">📋 Todas as saídas ▼</div><div style="display:none">${despRows}</div></div>` : ''}`;
 }
 
 // ═══════════════════════════════════════
