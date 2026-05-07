@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Organizador">
 <meta name="theme-color" content="#0D0D0F">
 <link rel="manifest" href="manifest.json">
-<title>Organizador - 47</title>
+<title>Organizador - 48</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -306,7 +306,7 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
 
   <div class="hdr">
     <div class="hdr-top">
-      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">47</span></span>
+      <span class="hdr-title">Organizador <span style="font-size:14px;color:var(--tx3);font-weight:400">48</span></span>
       <span class="date-pill" id="date-pill"></span>
       <span id="sync-st"></span>
     </div>
@@ -338,7 +338,11 @@ input::placeholder,textarea::placeholder{color:var(--tx3)}
       <div class="panel" id="tp-ativ">
         <div class="ph"><span class="ph-title">✅ Atividades</span><button class="pcls" onclick="tClose('ativ')">×</button></div>
         <div class="pbody">
-          <button class="addbtn" style="margin-bottom:10px" onclick="tAtivAbrir()">+ Incluir Atividade</button>
+          <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+            <button class="addbtn" style="flex:1;margin:0" onclick="tAtivAbrir()">+ Incluir Atividade</button>
+          </div>
+          <!-- Filtro por colaborador -->
+          <div id="t-ativ-filtro-bar" style="margin-bottom:8px"></div>
           <div id="t-ativ-list"></div>
           <button class="addbtn" style="margin-top:4px;background:var(--surf2);color:var(--grn);border-color:rgba(52,211,153,.3)" onclick="tAtivConcluidos()">✅ Ver Concluídos</button>
           <div id="t-ativ-conc" style="display:none;margin-top:8px"></div>
@@ -1160,25 +1164,65 @@ function tAtivDel(id) {
   save(); tAtivRender(); renderTrab();
 }
 
+let _tAtivFiltroResp = 'todos';
+
+function tAtivFiltroBar() {
+  const bar = document.getElementById('t-ativ-filtro-bar'); if(!bar) return;
+  const banco = state.trabalho.banco || [];
+  // Coletar colaboradores únicos das atividades também
+  const ativos = (state.trabalho.ativ||[]).map(a=>a.resp).filter(Boolean);
+  const todos = [...new Set([...banco.map(b=>b.nome), ...ativos])].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  if (!todos.length) { bar.innerHTML=''; return; }
+  const sel = _tAtivFiltroResp;
+  const tags = todos.map(n => {
+    const on = sel === n;
+    return `<span onclick="tAtivSetFiltro('${n.replace(/'/g,'%27')}')"
+      style="display:inline-block;margin:2px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid ${on?'var(--acc)':'var(--bord2)'};background:${on?'var(--acbg)':'var(--surf2)'};color:${on?'var(--acc)':'var(--tx3)'};user-select:none">${esc(n)}</span>`;
+  }).join('');
+  const allOn = sel === 'todos';
+  bar.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:2px;margin-bottom:4px">
+    <span onclick="tAtivSetFiltro('todos')"
+      style="display:inline-block;margin:2px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${allOn?'var(--acc)':'var(--bord2)'};background:${allOn?'var(--acbg)':'var(--surf2)'};color:${allOn?'var(--acc)':'var(--tx3)'};user-select:none">
+      Todos
+    </span>${tags}
+  </div>`;
+}
+
+function tAtivSetFiltro(resp) {
+  _tAtivFiltroResp = resp.replace(/%27/g,"'");
+  tAtivFiltroBar();
+  tAtivRender();
+}
+
 function tAtivRender() {
   const el = document.getElementById('t-ativ-list'); if(!el) return;
+  tAtivFiltroBar();
   const lista = state.trabalho.ativ;
   if (!lista.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade ainda</div>'; return; }
   const corSt = {
-    pendente:    ['var(--amb)','var(--ambbg)'],
-    planejado:   ['var(--blu)','var(--blubg)'],
-    concluido:   ['var(--grn)','var(--grnbg)'],
-    atrasado:    ['var(--red)','var(--redbg)'],
-    incompleto:  ['var(--tx3)','var(--surf3)']
+    pendente:   ['var(--amb)','var(--ambbg)'],
+    planejado:  ['var(--blu)','var(--blubg)'],
+    concluido:  ['var(--grn)','var(--grnbg)'],
+    atrasado:   ['var(--red)','var(--redbg)'],
+    incompleto: ['var(--tx3)','var(--surf3)']
   };
-  // Ordenar: primeiro com data (mais próxima primeiro), depois sem data
-  const ativas = lista.filter(a => !a.feito).sort((a,b) => {
+  let ativas = lista.filter(a => !a.feito);
+  // Filtro por colaborador
+  if (_tAtivFiltroResp !== 'todos') {
+    ativas = ativas.filter(a => a.resp === _tAtivFiltroResp);
+  }
+  ativas.sort((a,b) => {
     if (a.dataCon && b.dataCon) return a.dataCon.localeCompare(b.dataCon);
     if (a.dataCon) return -1;
     if (b.dataCon) return 1;
     return 0;
   });
-  if (!ativas.length) { el.innerHTML='<div class="empty" style="padding:10px 0">Nenhuma atividade ativa</div>'; return; }
+  if (!ativas.length) {
+    el.innerHTML='<div class="empty" style="padding:10px 0">'+(
+      _tAtivFiltroResp==='todos'?'Nenhuma atividade ativa':'Nenhuma atividade para '+esc(_tAtivFiltroResp)
+    )+'</div>';
+    return;
+  }
   el.innerHTML = ativas.map(a => {
     const st = tAtivStatus(a);
     const [cor, bg] = corSt[st] || corSt.pendente;
@@ -1402,25 +1446,44 @@ function tAtivFiltrar() {
   const status = document.getElementById('rel-status').value;
   const de     = document.getElementById('rel-de').value;
   const ate    = document.getElementById('rel-ate').value;
-  // Ativas
+
+  // PENDÊNCIAS: mostra TODAS as ativas independente de período
+  if (status === 'pendente') {
+    return state.trabalho.ativ.filter(a => {
+      if (a.feito) return false;
+      if (resp !== 'todos' && a.resp !== resp) return false;
+      return true; // sem filtro de data para pendências
+    }).sort((a,b) => {
+      if (a.dataCon && b.dataCon) return a.dataCon.localeCompare(b.dataCon);
+      if (a.dataCon) return -1; if (b.dataCon) return 1; return 0;
+    });
+  }
+
+  // CONCLUÍDOS: filtra por período de conclusão
+  if (status === 'concluido') {
+    return (state.trabalho.ativHist||[]).filter(a => {
+      if (resp !== 'todos' && a.resp !== resp) return false;
+      if (de && a.dataCon && a.dataCon < de) return false;
+      if (ate && a.dataCon && a.dataCon > ate) return false;
+      return true;
+    });
+  }
+
+  // TUDO: ativas + concluídas no período
   const ativas = state.trabalho.ativ.filter(a => {
+    if (a.feito) return false;
     if (resp !== 'todos' && a.resp !== resp) return false;
     if (de && a.dataInc && a.dataInc < de) return false;
     if (ate && a.dataInc && a.dataInc > ate) return false;
-    if (status === 'concluido') return false; // concluídos estão no hist
     return true;
   });
-  // Histórico (concluídos)
   const hist = (state.trabalho.ativHist||[]).filter(a => {
     if (resp !== 'todos' && a.resp !== resp) return false;
-    if (de && a.dataInc && a.dataInc < de) return false;
-    if (ate && a.dataInc && a.dataInc > ate) return false;
-    if (status === 'pendente') return false;
+    if (de && a.dataCon && a.dataCon < de) return false;
+    if (ate && a.dataCon && a.dataCon > ate) return false;
     return true;
   });
-  if (status === 'concluido') return hist;
-  if (status === 'tudo') return [...ativas, ...hist];
-  return ativas;
+  return [...ativas, ...hist];
 }
 
 function tAtivGerarWpp() {
@@ -1707,30 +1770,58 @@ function fRecRender() {
   const el=document.getElementById('f-rec-list'); if(!el) return;
   const lista=state.familia.receitas||[];
   if(!lista.length){el.innerHTML='<div class="empty"><span class="empty-ic">💰</span>Nenhuma receita ainda</div>';return;}
-  const tot=lista.reduce((s,r)=>s+Number(r.valor),0);
-  el.innerHTML=`<div style="padding:8px 14px;font-size:12px;color:var(--grn);font-weight:600;border-bottom:1px solid var(--bord)">Total: R$ ${tot.toFixed(2).replace('.',',')}</div>`+
-  lista.map(r=>`<div class="fin">
+  const mesAtual = new Date().toISOString().substring(0,7);
+  const doMes  = lista.filter(r=>r.data&&r.data.startsWith(mesAtual));
+  const outros = lista.filter(r=>!r.data||!r.data.startsWith(mesAtual));
+  const totMes   = doMes.reduce((s,r)=>s+Number(r.valor),0);
+  const totTotal = lista.reduce((s,r)=>s+Number(r.valor),0);
+  const ri = r=>`<div class="fin">
     <div class="fin-info"><div class="fin-nm">${esc(r.nome)}</div><div class="fin-sb">${fmtDt(r.data)}</div></div>
     <span class="fin-val r">R$ ${Number(r.valor).toFixed(2).replace('.',',')}</span>
     <button class="act" onclick="fFinVer('rec',${r.id})">👁</button>
     <button class="act ed" onclick="fFinAbrir('rec',${r.id})">✏️</button>
     <button class="act dl" onclick="fRecDel(${r.id})">🗑</button>
-  </div>`).join('');
+  </div>`;
+  el.innerHTML =
+    `<div style="padding:8px 14px;font-size:12px;color:var(--grn);font-weight:600;border-bottom:1px solid var(--bord);display:flex;justify-content:space-between">
+      <span>Mês atual: R$ ${totMes.toFixed(2).replace('.',',')}</span>
+      <span style="color:var(--tx3);font-weight:400">Total: R$ ${totTotal.toFixed(2).replace('.',',')}</span>
+    </div>`+
+    (doMes.length?doMes.map(ri).join(''):'<div style="padding:10px 14px;font-size:12px;color:var(--tx3)">Nenhuma receita este mês</div>')+
+    (outros.length?`<div onclick="var x=document.getElementById('f-rec-out');x.style.display=x.style.display==='none'?'block':'none'"
+      style="padding:8px 14px;font-size:12px;font-weight:600;color:var(--acc);cursor:pointer;border-top:1px solid var(--bord);display:flex;justify-content:space-between">
+      <span>📅 Outros períodos (${outros.length})</span>
+      <span style="font-weight:400;color:var(--tx3)">R$ ${outros.reduce((s,r)=>s+Number(r.valor),0).toFixed(2).replace('.',',')}</span>
+    </div><div id="f-rec-out" style="display:none">${outros.map(ri).join('')}</div>`:'');
 }
 
 function fDespRender() {
   const el=document.getElementById('f-desp-list'); if(!el) return;
   const lista=state.familia.despesas||[];
   if(!lista.length){el.innerHTML='<div class="empty"><span class="empty-ic">💸</span>Nenhuma despesa ainda</div>';return;}
-  const tot=lista.reduce((s,d)=>s+Number(d.valor),0);
-  el.innerHTML=`<div style="padding:8px 14px;font-size:12px;color:var(--red);font-weight:600;border-bottom:1px solid var(--bord)">Total: R$ ${tot.toFixed(2).replace('.',',')}</div>`+
-  lista.map(d=>`<div class="fin">
+  const mesAtual = new Date().toISOString().substring(0,7);
+  const doMes  = lista.filter(d=>d.data&&d.data.startsWith(mesAtual));
+  const outros = lista.filter(d=>!d.data||!d.data.startsWith(mesAtual));
+  const totMes   = doMes.reduce((s,d)=>s+Number(d.valor),0);
+  const totTotal = lista.reduce((s,d)=>s+Number(d.valor),0);
+  const di = d=>`<div class="fin">
     <div class="fin-info"><div class="fin-nm">${esc(d.nome)}</div><div class="fin-sb">${fmtDt(d.data)} · ${esc(d.quem)}</div></div>
     <span class="fin-val d">R$ ${Number(d.valor).toFixed(2).replace('.',',')}</span>
     <button class="act" onclick="fFinVer('desp',${d.id})">👁</button>
     <button class="act ed" onclick="fFinAbrir('desp',${d.id})">✏️</button>
     <button class="act dl" onclick="fDespDel(${d.id})">🗑</button>
-  </div>`).join('');
+  </div>`;
+  el.innerHTML =
+    `<div style="padding:8px 14px;font-size:12px;color:var(--red);font-weight:600;border-bottom:1px solid var(--bord);display:flex;justify-content:space-between">
+      <span>Mês atual: R$ ${totMes.toFixed(2).replace('.',',')}</span>
+      <span style="color:var(--tx3);font-weight:400">Total: R$ ${totTotal.toFixed(2).replace('.',',')}</span>
+    </div>`+
+    (doMes.length?doMes.map(di).join(''):'<div style="padding:10px 14px;font-size:12px;color:var(--tx3)">Nenhuma despesa este mês</div>')+
+    (outros.length?`<div onclick="var x=document.getElementById('f-desp-out');x.style.display=x.style.display==='none'?'block':'none'"
+      style="padding:8px 14px;font-size:12px;font-weight:600;color:var(--acc);cursor:pointer;border-top:1px solid var(--bord);display:flex;justify-content:space-between">
+      <span>📅 Outros períodos (${outros.length})</span>
+      <span style="font-weight:400;color:var(--tx3)">R$ ${outros.reduce((s,d)=>s+Number(d.valor),0).toFixed(2).replace('.',',')}</span>
+    </div><div id="f-desp-out" style="display:none">${outros.map(di).join('')}</div>`:'');
 }
 
 function fResInit() {
